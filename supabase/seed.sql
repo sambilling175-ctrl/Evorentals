@@ -1,0 +1,3 @@
+-- Development-only seed. Never apply this file to production.
+-- The live project already contains representative customers, bikes, and an admin.
+-- Add deterministic local fixtures here once local Supabase development is enabled.
