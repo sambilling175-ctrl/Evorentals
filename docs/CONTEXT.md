@@ -10,7 +10,8 @@
 | Updated | 2026-07-29 |
 | Delivery position | End of Day 3; Day 4 is next |
 | Git branch | `main` |
-| Last verified commit | `1b4a655` - Keep password recovery PKCE in browser |
+| Last verified application commit | `1b4a655` - Keep password recovery PKCE in browser |
+| Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | Ready for commit `1b4a655` |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
