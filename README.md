@@ -57,3 +57,14 @@ use the `NEXT_PUBLIC_` prefix; privileged credentials remain server-only.
 A change is complete when TypeScript, ESLint, and the production build pass;
 responsive states are usable; loading, empty, error, and permission states are
 considered; and any database change includes an ordered migration.
+
+## Coding-agent continuity
+
+All coding agents must begin with [AGENTS.md](./AGENTS.md), then read:
+
+- [Current checkpoint](./docs/CONTEXT.md)
+- [Shared task queue](./docs/NEXT_STEPS.md)
+- [Architecture decisions](./docs/DECISIONS.md)
+
+Agents claim one task, preserve unrelated work, run `npm run validate`, and
+update the checkpoint and handoff documentation before completing a task.
