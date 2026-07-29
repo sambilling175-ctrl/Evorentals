@@ -21,15 +21,21 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isLogin = request.nextUrl.pathname.startsWith("/login");
+  const isPublicAuthRoute =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/forgot-password") ||
+    request.nextUrl.pathname.startsWith("/auth/callback");
+  const redirectsSignedInUsers =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/forgot-password");
 
-  if (!user && !isLogin) {
+  if (!user && !isPublicAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
-  if (user && isLogin) {
+  if (user && redirectsSignedInUsers) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     url.search = "";
