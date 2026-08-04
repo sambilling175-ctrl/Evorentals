@@ -1,21 +1,9 @@
-import { BadgeCheck, Building2, CalendarClock, FileBadge, ShieldCheck, UsersRound } from "lucide-react";
-import { ModuleFoundation } from "@/components/operations/module-foundation";
+import { EmployeeWorkspace } from "@/components/employees/employee-workspace";
+import { getEmployeeWorkspace } from "@/lib/services/employees";
 
-export default function EmployeesPage() {
+export default async function EmployeesPage() {
+  const data = await getEmployeeWorkspace();
   return (
-    <ModuleFoundation
-      title="Employees"
-      description="Staff profiles, organizational assignments and ERP access readiness."
-      eyebrow="Workforce foundation"
-      actionLabel="Add employee"
-      items={[
-        { title: "Employee directory", description: "Staff identity, contact details and employment status.", icon: UsersRound },
-        { title: "Branch assignment", description: "Primary branch, department, designation and reporting manager.", icon: Building2 },
-        { title: "Role assignment", description: "ERP roles and permissions aligned with job responsibilities.", icon: ShieldCheck },
-        { title: "Documents", description: "Identity, address, employment and compliance documents.", icon: FileBadge },
-        { title: "Joining & status", description: "Joining dates, probation, activation and separation history.", icon: CalendarClock },
-        { title: "Audit readiness", description: "Traceable changes to assignments and access privileges.", icon: BadgeCheck },
-      ]}
-    />
+    <div className="space-y-6"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Workforce access</p><h1 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Employees</h1><p className="mt-2 max-w-3xl text-sm text-muted-foreground">Company staff directory, operational assignments, role access, account status, and append-only change history.</p></div><EmployeeWorkspace data={data} /></div>
   );
 }
