@@ -107,3 +107,8 @@ Status: Complete and released
 - `npm.cmd run validate` passed after the final application changes. Production
   contains no rentals, so no persistent business record was fabricated for a
   destructive extension smoke test.
+- Release: PR #6 merged as `9549929`; Vercel production deployment
+  `evorentals-24vkie3qm-wephotons1.vercel.app` is Ready and aliased to
+  `https://evorentals.vercel.app`.
+- Post-release check: Vercel reported no `/rentals` runtime errors. The available
+  browser session was signed out, so authenticated UI smoke testing was not claimed.
