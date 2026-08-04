@@ -13,7 +13,7 @@
 | Last verified application commit | `bd0bbe6` - Complete accessible navigation controls |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-ihk1029xf-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-a9nqu4ucs-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804075659_customer_timeline_events.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |

@@ -39,6 +39,8 @@
   global search copy and keyboard shortcut display to reflect its actual scope.
 - Application commit: `bd0bbe6`.
 - `npm.cmd run validate` passed on 2026-08-04; no migration was required.
+- Production deployment `evorentals-a9nqu4ucs-wephotons1.vercel.app` is Ready
+  and aliased to `https://evorentals.vercel.app`.
 
 ## D5-02 - Live dashboard contracts
 
