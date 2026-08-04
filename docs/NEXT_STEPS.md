@@ -15,7 +15,7 @@
 
 | ID | Priority | Task | Status | Owner / branch | Dependencies | Primary area |
 | --- | --- | --- | --- | --- | --- | --- |
-| D4-01 | P0 | Connect logout and real authenticated profile identity | Ready | Unassigned | Day 3 auth | Navigation, auth |
+| D4-01 | P0 | Connect logout and real authenticated profile identity | Review | Codex / `agent/d4-01-auth-profile` | Day 3 auth | Navigation, auth |
 | D4-02 | P0 | Add customer editing with validation and timeline event | Ready | Unassigned | Customer service | Customers |
 | D4-03 | P0 | Add signed KYC document view/download | Ready | Unassigned | Private storage | Customers, storage |
 | D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Ready | Unassigned | Stable SMTP/test mailbox | Auth, tests |

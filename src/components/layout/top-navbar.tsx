@@ -15,8 +15,9 @@ import { ProfileDropdown } from "@/components/navigation/profile-dropdown";
 import { ThemeToggle } from "@/components/navigation/theme-toggle";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { BRANCHES } from "@/lib/constants";
+import type { CurrentUserProfile } from "@/lib/services/auth";
 
-export function TopNavbar() {
+export function TopNavbar({ currentUser }: { currentUser: CurrentUserProfile }) {
   const [notificationCount] = React.useState(5);
 
   return (
@@ -81,7 +82,7 @@ export function TopNavbar() {
         <ThemeToggle />
 
         {/* Profile */}
-        <ProfileDropdown />
+        <ProfileDropdown currentUser={currentUser} />
       </div>
     </header>
   );
