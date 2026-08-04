@@ -10,10 +10,10 @@
 | Updated | 2026-08-04 |
 | Delivery position | Day 5 in progress; D5-01 and D5-02 complete |
 | Git branch | `main` |
-| Last verified application commit | `109f3b0` - Complete Day 5 customer experience |
+| Last verified application commit | `4e3af21` - Connect dashboard to live operations data |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-1mblrcvky-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-ihk1029xf-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804075659_customer_timeline_events.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
