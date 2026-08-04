@@ -82,3 +82,28 @@ Status: Complete and released
 - Post-release check: Vercel reported no `/rentals` runtime errors in the first
   hour. The available browser session was signed out, so authenticated UI smoke
   testing was not claimed.
+
+## D9-03 rental extensions
+
+- Added an extension form to every eligible active or overdue contract, guarded
+  by Rentals `Edit`/`Manage` permissions.
+- Each extension is an immutable `rental_extensions` record containing the old
+  and new due dates, duration, billing units, reason, charge, and its own pricing
+  snapshot. Original contract pricing remains unchanged.
+- `extend_active_rental` runs as invoker, locks the rental and conflicting future
+  bookings, calculates extension charges from the confirmed contract snapshot,
+  and reconciles the contract, extension, and total amounts atomically.
+- Future booking overlap, backward dates, incomplete pricing, excessive duration,
+  cross-company access, invalid roles, and repeated concurrent edits are rejected
+  in the database rather than trusted to the browser.
+- The activation RPC was updated to initialize the new reconciled amount fields,
+  preserving D9-02 compatibility for future contracts.
+- Migrations `20260804131305_rental_extensions.sql`,
+  `20260804131358_rental_extensions_hardening.sql`, and
+  `20260804131557_rental_extension_activation_compatibility.sql` are applied and
+  verified. Anonymous table/RPC access is explicitly revoked; authenticated RLS,
+  invoker mode, fixed search paths, indexes, and zero reconciliation failures
+  were confirmed live.
+- `npm.cmd run validate` passed after the final application changes. Production
+  contains no rentals, so no persistent business record was fabricated for a
+  destructive extension smoke test.
