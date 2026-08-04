@@ -4,8 +4,7 @@ Date: 2026-08-04
 Task: D7-01 - Replace Fleet placeholder with live vehicle directory and
 availability state
 Owner: Kimi + Codex / branch `agent/d7-01-fleet-directory`
-Status: Complete (implementation and live migrations verified; deployment
-pending)
+Status: Complete and released
 
 ## Delivered
 
@@ -71,8 +70,18 @@ rentals. The migration reconciles that legacy `rented` row to `available`.
 
 ## Remaining
 
-- Commit `agent/d7-01-fleet-directory`, open the merge path to `main`, deploy,
-  and smoke-test `/fleet` with administrator and view-only roles in both themes.
+- Post-release role/theme interaction testing remains part of the broader
+  acceptance suite; the production protected-route smoke test passed.
+
+## Release
+
+- Application commit: `de4873f`
+- Merge commit: `f201cf5`
+- Pull request: `#1`
+- Production deployment: `evorentals-7ohtvsvh1-wephotons1.vercel.app` (Ready,
+  aliased to `https://evorentals.vercel.app`)
+- Production `/fleet` correctly redirects unauthenticated users to
+  `/login?next=%2Ffleet`.
 - Non-admin access uses the existing `Vehicles` role module. Employees are
   view-only; managers can edit because their existing role includes `Edit`.
 
