@@ -25,9 +25,20 @@
 - Authenticated visual acceptance remains dependent on a working administrator
   login or dedicated test identity.
 
-## Remaining Day 5 scope
+## D5-03 - Navigation, theme, and mobile behavior
 
-- `D5-03`: navigation actions, theme control, and mobile behavior.
+- Removed branch selectors and the obsolete branch list from the shell and
+  shared filters, matching the current single-branch operating model.
+- Replaced demonstration date and notification controls with a real
+  notifications route action.
+- Connected account-menu actions to Employees and Settings while preserving
+  authenticated logout.
+- Added reliable persisted sidebar collapse, active-page semantics, accessible
+  labels, a keyboard skip link, and improved mobile drawer behavior.
+- Improved theme selection with explicit current-state indicators and fixed the
+  global search copy and keyboard shortcut display to reflect its actual scope.
+- Application commit: `bd0bbe6`.
+- `npm.cmd run validate` passed on 2026-08-04; no migration was required.
 
 ## D5-02 - Live dashboard contracts
 
@@ -43,3 +54,7 @@
   KYC, 5 fleet vehicles, 3 available vehicles, 0 active rentals, and 0 timeline
   events.
 - No database migration was required.
+
+## Day 5 completion
+
+Day 5 is complete. The next queued task is `D6-01`, live Settings foundation.

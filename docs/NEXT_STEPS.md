@@ -23,7 +23,8 @@
 | D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Ready | Unassigned | SMTP provider decision | Supabase Auth |
 | D5-01 | P1 | Align customer page with supplied design references | Completed | Codex / `main`; app commit `109f3b0`; validate passed; production Ready; no migration | Day 4 customers | UI |
 | D5-02 | P1 | Rebuild dashboard sections using reusable live-data contracts | Completed | Codex / `main`; app commit `4e3af21`; validate/Supabase query passed; production Ready; no migration | Metrics services | Dashboard |
-| D5-03 | P2 | Complete navigation actions, theme control, and mobile behavior | Ready | Unassigned | D4-01 | Navigation |
+| D5-03 | P2 | Complete navigation actions, theme control, and mobile behavior | Completed | Codex / `main`; app commit `bd0bbe6`; validate passed; no migration | D4-01 | Navigation |
+| D6-01 | P1 | Replace settings foundation with live company and operational configuration | Ready | Unassigned | D5-03 | Settings |
 
 ## Planned module sequence
 

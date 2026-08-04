@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | Day 5 in progress; D5-01 and D5-02 complete |
+| Delivery position | Day 5 complete; D6-01 Settings is next |
 | Git branch | `main` |
-| Last verified application commit | `4e3af21` - Connect dashboard to live operations data |
+| Last verified application commit | `bd0bbe6` - Complete accessible navigation controls |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-ihk1029xf-wephotons1.vercel.app` - Ready; aliased to production |
@@ -75,12 +75,15 @@ before using framework APIs. This project uses `src/proxy.ts`.
 - Private KYC viewing through short-lived signed URLs
 - Migration `20260804075659_customer_timeline_events.sql`
 
-### Day 5 - experience alignment (in progress)
+### Day 5 - experience alignment
 
 - Reference-aligned live customer directory and customer detail workspace
 - Responsive KYC filters, operational status signals, mobile customer cards,
   signed-document access, review actions, and timeline retained
 - No migration for D5-01; validation recorded in `DAY_05_CUSTOMER_EXPERIENCE.md`
+- Live dashboard service contracts and operational KPI sections (D5-02)
+- Single-branch navigation, real route actions, persisted sidebar state,
+  accessible keyboard/mobile behavior, and reliable theme selection (D5-03)
 
 ## Live versus placeholder functionality
 
@@ -103,7 +106,8 @@ Do not describe placeholder screens as backend-complete.
 
 - Supabase built-in email provider permits only two project-wide Auth emails per
   hour. Configure custom SMTP before production onboarding.
-- Notification drawer and live counts are not wired.
+- Live notification counts are not wired; the shell links to the notifications
+  module without displaying a fabricated badge.
 - No automated tests currently cover auth, RLS isolation, or customer workflows.
 - The legacy base schema has no rebuildable `0001` baseline migration.
 - Audit events, full RBAC, and updated-at conventions remain incomplete.
@@ -132,8 +136,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim `D5-03` from `docs/NEXT_STEPS.md` and complete navigation actions, theme
-control, and mobile behavior.
+Claim `D6-01` from `docs/NEXT_STEPS.md` and replace the Settings placeholder with
+live company and operational configuration, after verifying the remote schema.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -160,7 +164,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 2 | 2026-07-28 | Company tenancy and RLS | `DAY_02_PLATFORM_FOUNDATION.md` |
 | 3 | 2026-07-28 to 2026-07-29 | Auth, customers/KYC, recovery fixes | `DAY_03_CUSTOMER_KYC.md` |
 | 4 | 2026-08-04 | Identity/logout, customer edit/timeline, signed KYC access | `DAY_04_OPERATIONAL_LOOSE_ENDS.md` |
-| 5 | 2026-08-04 | Customer experience alignment (D5-01) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
+| 5 | 2026-08-04 | Customer UX, live dashboard, navigation/theme/mobile (D5-01 to D5-03) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
 
 ## Handoff rule
 
