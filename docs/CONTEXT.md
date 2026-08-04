@@ -8,12 +8,12 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D8-01 released; D9-01 Booking foundation in review |
-| Git branch | `agent/d9-01-booking-foundation` |
-| Last verified application commit | `5e83ef0` - Merge D8-01 live pricing plans |
+| Delivery position | D9-01 Booking foundation released; rental activation is next |
+| Git branch | `main` |
+| Last verified application commit | `ccdcc72` - Merge D9-01 booking foundation |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-p9xf0ti42-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-3v1gyevew-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804122402_booking_foundation.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
@@ -118,8 +118,8 @@ commit `f201cf5`.
 Live: company-scoped pricing plans and server-calculated quote preview (D8-01,
 merge commit `5e83ef0`).
 
-In review: date-range availability search, conflict-safe booking creation, and
-immutable pricing snapshots (D9-01).
+Live: date-range availability search, conflict-safe booking creation, and
+immutable pricing snapshots (D9-01, merge `ccdcc72`).
 
 Do not describe placeholder screens as backend-complete.
 
@@ -159,8 +159,7 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Commit, deploy, and smoke-test D9-01, then implement booking conversion and
-rental activation.
+Implement booking conversion and rental activation (D9-02).
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -191,7 +190,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 6 | 2026-08-04 | Live Settings and company-scoped operational configuration (D6-01) | `DAY_06_PLATFORM_OPERATIONS.md` |
 | 7 | 2026-08-04 | Live fleet directory and derived availability (D7-01, released) | `DAY_07_FLEET_AVAILABILITY.md` |
 | 8 | 2026-08-04 | Company pricing plans and server quote preview (D8-01, released) | `DAY_08_PRICING.md` |
-| 9 | 2026-08-04 | Availability search and booking foundation (D9-01, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
+| 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
 
 ## Handoff rule
 

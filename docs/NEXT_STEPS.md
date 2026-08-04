@@ -29,7 +29,7 @@
 | D6-03 | P1 | Add secure employee invitation and Auth provisioning | Blocked | Unassigned; requires server secret and custom SMTP | D4-06, D6-02 | Employees, Auth |
 | D7-01 | P1 | Replace Fleet placeholder with live vehicle directory and availability state | Completed | Kimi + Codex; app `de4873f`, merge `f201cf5`; migrations `20260804112443` and `20260804112716`; production Ready | D6-02 | Fleet |
 | D8-01 | P1 | Add company-scoped pricing plans and server-calculated quote preview | Completed | Codex; app `8fe805d`, merge `5e83ef0`; migration `20260804120339`; production Ready | D7-01, D6-01 | Pricing, Rentals |
-| D9-01 | P0 | Add availability search, conflict-safe booking creation, and immutable pricing snapshots | Review | Codex / `agent/d9-01-booking-foundation`; validate passed; migration `20260804122402` applied and verified; deployment pending | D7-01, D8-01 | Bookings, Pricing |
+| D9-01 | P0 | Add availability search, conflict-safe booking creation, and immutable pricing snapshots | Completed | Codex; app `e59c882`, merge `ccdcc72`; migration `20260804122402`; production Ready | D7-01, D8-01 | Bookings, Pricing |
 
 ## Planned module sequence
 
