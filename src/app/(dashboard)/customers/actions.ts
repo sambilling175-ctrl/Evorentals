@@ -102,3 +102,62 @@ export async function reviewKyc(customerId: string, formData: FormData) {
   revalidatePath("/customers");
   revalidatePath(`/customers/${customerId}`);
 }
+
+export async function updateCustomer(customerId: string, primaryAddressId: string | null, formData: FormData) {
+  const values = customerSchema.parse(Object.fromEntries(formData));
+  const { supabase, user, profile } = await getActor();
+  const { data: customer, error: lookupError } = await supabase
+    .from("customers")
+    .select("id")
+    .eq("id", customerId)
+    .eq("company_id", profile.company_id)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (lookupError) throw new Error(lookupError.message);
+  if (!customer) throw new Error("Customer not found or access denied");
+
+  const { error: updateError } = await supabase.from("customers").update({
+    full_name: values.fullName,
+    phone: values.phone,
+    email: values.email || null,
+    license_number: values.licenseNumber || null,
+    date_of_birth: values.dateOfBirth || null,
+    emergency_contact: values.emergencyContact || null,
+    updated_by: user.id,
+    updated_at: new Date().toISOString(),
+  }).eq("id", customerId).eq("company_id", profile.company_id);
+  if (updateError) throw new Error(updateError.message);
+
+  const addressChanges = {
+    line_1: values.line1,
+    line_2: values.line2 || null,
+    city: values.city,
+    state: values.state,
+    pin_code: values.pinCode,
+    updated_at: new Date().toISOString(),
+  };
+  const addressResult = primaryAddressId
+    ? await supabase.from("customer_addresses").update(addressChanges)
+        .eq("id", primaryAddressId).eq("customer_id", customerId).eq("company_id", profile.company_id)
+    : await supabase.from("customer_addresses").insert({
+        ...addressChanges,
+        company_id: profile.company_id,
+        customer_id: customerId,
+        address_type: "home",
+        is_primary: true,
+      });
+  if (addressResult.error) throw new Error(addressResult.error.message);
+
+  const { error: timelineError } = await supabase.from("customer_timeline_events").insert({
+    company_id: profile.company_id,
+    customer_id: customerId,
+    event_type: "profile_updated",
+    summary: "Customer profile and primary address updated",
+    details: { fields: ["profile", "primary_address"] },
+    actor_id: user.id,
+  });
+  if (timelineError) throw new Error(timelineError.message);
+
+  revalidatePath("/customers");
+  revalidatePath(`/customers/${customerId}`);
+}

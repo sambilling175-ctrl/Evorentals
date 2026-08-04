@@ -42,6 +42,12 @@ export interface CustomerDetail extends CustomerSummary {
     notes: string | null;
     reviewedAt: string;
   }>;
+  timeline: Array<{
+    id: string;
+    eventType: string;
+    summary: string;
+    occurredAt: string;
+  }>;
 }
 
 function mapCustomer(row: Record<string, unknown>): CustomerSummary {
@@ -70,15 +76,16 @@ export async function listCustomers(): Promise<CustomerSummary[]> {
 
 export async function getCustomer(id: string): Promise<CustomerDetail | null> {
   const supabase = await createClient();
-  const [customerResult, addressesResult, documentsResult, reviewsResult] = await Promise.all([
+  const [customerResult, addressesResult, documentsResult, reviewsResult, timelineResult] = await Promise.all([
     supabase.from("customers").select("*").eq("id", id).is("deleted_at", null).maybeSingle(),
     supabase.from("customer_addresses").select("*").eq("customer_id", id).order("is_primary", { ascending: false }),
     supabase.from("customer_documents").select("*").eq("customer_id", id).order("created_at", { ascending: false }),
     supabase.from("kyc_reviews").select("*").eq("customer_id", id).order("reviewed_at", { ascending: false }),
+    supabase.from("customer_timeline_events").select("id,event_type,summary,occurred_at").eq("customer_id", id).order("occurred_at", { ascending: false }),
   ]);
   if (customerResult.error) throw new Error(customerResult.error.message);
   if (!customerResult.data) return null;
-  for (const result of [addressesResult, documentsResult, reviewsResult]) {
+  for (const result of [addressesResult, documentsResult, reviewsResult, timelineResult]) {
     if (result.error) throw new Error(result.error.message);
   }
   const base = mapCustomer(customerResult.data);
@@ -97,6 +104,9 @@ export async function getCustomer(id: string): Promise<CustomerDetail | null> {
     })),
     reviews: (reviewsResult.data ?? []).map((row) => ({
       id: row.id, status: row.status, notes: row.notes, reviewedAt: row.reviewed_at,
+    })),
+    timeline: (timelineResult.data ?? []).map((row) => ({
+      id: row.id, eventType: row.event_type, summary: row.summary, occurredAt: row.occurred_at,
     })),
   };
 }
