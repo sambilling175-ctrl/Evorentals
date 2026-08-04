@@ -51,4 +51,8 @@ Status: Complete and released
   Functions only.
 - Validation: `npm.cmd run validate` passed (typecheck, lint, production build).
 - Database: no migration or data change required.
-- Remaining: deploy and complete an authenticated `/bookings` browser smoke test.
+- Application commit: `8bc9681`; merge commit: `8e47251`; pull request: `#4`.
+- Production: `evorentals-brphxc4zy-wephotons1.vercel.app` is Ready and aliased
+  to `https://evorentals.vercel.app`.
+- Authenticated browser smoke test was not run because the available browser
+  session was signed out; re-open `/bookings` after the next authenticated login.

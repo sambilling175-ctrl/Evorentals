@@ -8,12 +8,12 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D9-01 booking render hotfix validated; production deployment pending |
+| Delivery position | D9-01 booking render hotfix released; rental activation is next |
 | Git branch | `main` |
-| Last verified application commit | `ccdcc72` - Merge D9-01 booking foundation |
+| Last verified application commit | `8e47251` - Merge D9-01-H1 bookings render hotfix |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-3v1gyevew-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-brphxc4zy-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804122402_booking_foundation.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
@@ -159,8 +159,9 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Deploy and smoke-test D9-01-H1, then implement booking conversion and rental
-activation (D9-02).
+Implement booking conversion and rental activation (D9-02). When an
+authenticated browser session is next available, re-open `/bookings` as a
+post-release smoke check for D9-01-H1.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
