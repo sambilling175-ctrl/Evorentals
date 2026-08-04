@@ -36,3 +36,19 @@ Status: Complete and released
 - Pull request: `#3`
 - Production: `evorentals-3v1gyevew-wephotons1.vercel.app` (Ready and aliased)
 - `/bookings` protected-route smoke test passed without console errors.
+
+## D9-01-H1 render hotfix
+
+- Production runtime evidence on 2026-08-04 showed three `/bookings` crashes:
+  `TypeError: Cannot read properties of undefined (reading 'length')`.
+- Supabase API logs showed the bookings, verified customers, and pricing-plan
+  requests all returned HTTP 200, ruling out RLS, grants, and schema-cache faults.
+- Root cause: the Client Component imported plain initial-state objects from a
+  file-level `"use server"` module. Next.js treats every export in that module as
+  a Server Function reference, so the initial state was unavailable at runtime.
+- Resolution: shared form-state types and constants now live in
+  `src/lib/bookings/action-state.ts`; the actions module exports async Server
+  Functions only.
+- Validation: `npm.cmd run validate` passed (typecheck, lint, production build).
+- Database: no migration or data change required.
+- Remaining: deploy and complete an authenticated `/bookings` browser smoke test.

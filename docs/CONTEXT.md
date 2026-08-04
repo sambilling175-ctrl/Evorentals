@@ -8,7 +8,7 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D9-01 Booking foundation released; rental activation is next |
+| Delivery position | D9-01 booking render hotfix validated; production deployment pending |
 | Git branch | `main` |
 | Last verified application commit | `ccdcc72` - Merge D9-01 booking foundation |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
@@ -159,7 +159,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement booking conversion and rental activation (D9-02).
+Deploy and smoke-test D9-01-H1, then implement booking conversion and rental
+activation (D9-02).
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
