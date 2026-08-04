@@ -151,3 +151,16 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: UI availability checks are advisory. Unique indexes prevent two
   open rentals for one vehicle and repeated conversion of one booking. Vehicle
   base status remains `available`; the active rental derives `rented` state.
+
+## ADR-015 - Additive immutable rental extensions
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Extensions never rewrite the original pricing snapshot or contract
+  amount. Each accepted extension stores a new immutable pricing snapshot and
+  charge, while the rental reconciles `total_amount = contract_amount +
+  extension_amount`. The invoker-mode database function locks the contract and
+  rejects conflicts with pending or confirmed future bookings.
+- Consequence: Settlement can allocate and report extension charges separately
+  without losing the agreed starting contract. All due-date changes must use the
+  extension RPC; direct client updates are not an authorized workflow.
