@@ -68,6 +68,8 @@ Database and validation:
 - Post-migration advisors found no security warnings on changed RBAC objects.
 - `npm.cmd run validate` passed on 2026-08-04.
 - Application commit: `a6645bf`.
+- Production deployment `evorentals-x0xd2tg64-wephotons1.vercel.app` is Ready
+  and aliased to `https://evorentals.vercel.app`.
 
 Deferred:
 
@@ -77,4 +79,4 @@ Deferred:
 
 Next:
 
-- Deploy D6-02, then claim `D7-01` for live Fleet and availability.
+- Claim `D7-01` for live Fleet and availability.

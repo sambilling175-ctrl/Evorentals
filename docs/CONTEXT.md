@@ -8,12 +8,12 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D6-02 Employees/RBAC implemented and awaiting production deployment |
-| Git branch | `agent/d6-02-employees-rbac` |
+| Delivery position | D6-02 Employees/RBAC complete; D7-01 Fleet is next |
+| Git branch | `main` |
 | Last verified application commit | `a6645bf` - Connect employees to enforceable RBAC |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-funxxbs36-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-x0xd2tg64-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804100044_employee_rbac_indexes.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
@@ -150,8 +150,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-After D6-02 production verification, claim `D7-01` and replace the Fleet
-placeholder with the live vehicle directory and derived availability state.
+Claim `D7-01` and replace the Fleet placeholder with the live vehicle directory
+and derived availability state.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
