@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D6-01 Settings complete; D6-02 Employees/RBAC is next |
-| Git branch | `main` |
-| Last verified application commit | `0565b5a` - Connect settings to company configuration |
+| Delivery position | D6-02 Employees/RBAC implemented and awaiting production deployment |
+| Git branch | `agent/d6-02-employees-rbac` |
+| Last verified application commit | `a6645bf` - Connect employees to enforceable RBAC |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-funxxbs36-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260804093615_normalize_india_preferences.sql` |
+| Latest migration | `20260804100044_employee_rbac_indexes.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
 
 ## Product
@@ -91,6 +91,11 @@ before using framework APIs. This project uses `src/proxy.ts`.
   preferences under typed Settings services and administrator-only actions
 - Company-scoped rental, payment, and preference rows with hardened RLS
 - Migrations `20260804093529` and `20260804093615`
+- Live employee directory, role summaries, administrator-managed employment and
+  access state, and append-only access history
+- Company-scoped role definitions, composite profile-role integrity, database
+  privilege-escalation guard, last-administrator protection, and atomic update RPC
+- Migrations `20260804095824` and `20260804100044`
 
 ## Live versus placeholder functionality
 
@@ -105,7 +110,7 @@ Live:
 Mock or placeholder:
 
 - Bookings, fleet, rentals, payments, and service operational data
-- Drivers, employees, reports, and notifications
+- Drivers, reports, and notifications
 
 Do not describe placeholder screens as backend-complete.
 
@@ -118,6 +123,8 @@ Do not describe placeholder screens as backend-complete.
 - No automated tests currently cover auth, RLS isolation, or customer workflows.
 - The legacy base schema has no rebuildable `0001` baseline migration.
 - Audit events, full RBAC, and updated-at conventions remain incomplete.
+- Employee invitations are blocked until a protected Supabase server secret and
+  custom SMTP are configured; no privileged Auth key is present in the app.
 
 ## Mandatory implementation patterns
 
@@ -143,8 +150,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim `D6-02` and replace the Employees placeholder with live employee and
-enforceable RBAC management.
+After D6-02 production verification, claim `D7-01` and replace the Fleet
+placeholder with the live vehicle directory and derived availability state.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;

@@ -85,3 +85,16 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   update policies. Branch configuration is excluded while branch tenancy is off.
 - Consequence: New operational settings tables must carry `company_id`; global
   singleton policies and deprecated `auth.role()` authorization are not allowed.
+
+## ADR-010 - Database-enforced employee role assignments
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Role definitions are company-scoped and profile assignments use a
+  composite company/role foreign key. A database trigger prevents non-admins
+  from changing protected access fields and preserves one active administrator.
+  Administrator changes run through an atomic, security-invoker RPC that appends
+  an immutable access event.
+- Consequence: UI visibility is not treated as authorization. Employee invites
+  require a protected server secret and custom SMTP and must not be simulated
+  with public keys or direct profile inserts.

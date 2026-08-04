@@ -38,3 +38,43 @@ Validation:
 Next:
 
 - Claim `D6-02` for live Employees and enforceable RBAC management.
+
+## D6-02 - Live Employees and RBAC
+
+Delivered:
+
+- Replaced the Employees placeholder with a live company directory, active and
+  disabled metrics, search/status filters, responsive records, role summaries,
+  and access-history views.
+- Added administrator-managed employee identity, assignment, role, and status
+  editing while keeping the Supabase Auth email read-only.
+- Added typed server-only services, permission checks, Zod-validated Server
+  Actions, loading/error/read-only states, and atomic database updates.
+- Company-scoped the legacy roles table and added a composite role assignment
+  foreign key so profiles cannot reference another company’s role.
+- Added a database trigger that blocks self-service privilege escalation,
+  company reassignment, and removal of the final active administrator.
+- Added append-only `employee_access_events` plus an administrator-only,
+  security-invoker update RPC that writes profile and audit changes atomically.
+
+Database and validation:
+
+- Migration `20260804095824_company_scoped_employee_rbac.sql`
+- Migration `20260804100044_employee_rbac_indexes.sql`
+- A rollback-only authenticated administrator update exercised RLS, the guard
+  trigger, RPC, and audit insert without changing production data.
+- Remote verification found three company-scoped roles, the composite foreign
+  key, guard trigger, RPC, expected RLS policies, and zero persisted test events.
+- Post-migration advisors found no security warnings on changed RBAC objects.
+- `npm.cmd run validate` passed on 2026-08-04.
+- Application commit: `a6645bf`.
+
+Deferred:
+
+- Employee invitation/Auth provisioning is blocked until a server-only Supabase
+  secret and custom SMTP are configured. Only public browser credentials exist,
+  so this release intentionally manages existing Auth-backed profiles only.
+
+Next:
+
+- Deploy D6-02, then claim `D7-01` for live Fleet and availability.
