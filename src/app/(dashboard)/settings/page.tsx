@@ -1,21 +1,16 @@
-import { Building2, GitBranch, KeyRound, ListTree, ReceiptText, ShieldCheck } from "lucide-react";
-import { ModuleFoundation } from "@/components/operations/module-foundation";
+import { SettingsWorkspace } from "@/components/settings/settings-workspace";
+import { getSettingsOverview } from "@/lib/services/settings";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const settings = await getSettingsOverview();
   return (
-    <ModuleFoundation
-      title="Settings"
-      description="Company structure, access control and operational master data."
-      eyebrow="Platform foundation"
-      actionLabel="Review configuration"
-      items={[
-        { title: "Company profile", description: "Legal identity, invoicing details, currency and business preferences.", icon: Building2 },
-        { title: "Branches", description: "Operating locations, branch managers and local assignment rules.", icon: GitBranch },
-        { title: "Roles & permissions", description: "Role-based access for administrators, managers and operations staff.", icon: ShieldCheck },
-        { title: "Lookup values", description: "Controlled statuses, document types, service categories and reference data.", icon: ListTree },
-        { title: "Number sequences", description: "Consistent customer, booking, rental, payment and invoice identifiers.", icon: ReceiptText },
-        { title: "Security", description: "Session policy, protected actions and company or branch isolation.", icon: KeyRound },
-      ]}
-    />
+    <div className="space-y-6">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Live configuration</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">Settings</h1>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Manage company identity and the operational defaults used by rentals, collections, invoices, and regional formatting.</p>
+      </div>
+      <SettingsWorkspace settings={settings} />
+    </div>
   );
 }
