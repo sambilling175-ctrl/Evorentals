@@ -11,6 +11,7 @@ import {
   BarChart3,
   Bell,
   Settings,
+  BadgeIndianRupee,
 } from "lucide-react";
 import type { NavItem } from "@/types";
 
@@ -23,6 +24,7 @@ export const sidebarNavItems: NavItem[] = [
   { title: "Bookings", href: "/bookings", icon: CalendarCheck },
   { title: "Customers", href: "/customers", icon: Users },
   { title: "Fleet Management", href: "/fleet", icon: Zap },
+  { title: "Pricing", href: "/pricing", icon: BadgeIndianRupee },
   { title: "Rentals", href: "/rentals", icon: KeyRound },
   { title: "Service & Maintenance", href: "/service", icon: Wrench },
   { title: "Drivers", href: "/drivers", icon: UserCheck },

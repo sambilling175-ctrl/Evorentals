@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D7-01 Fleet directory complete and released; Pricing is next |
-| Git branch | `main` |
+| Delivery position | D7-01 released; D8-01 Pricing in review |
+| Git branch | `agent/d8-01-pricing-plans` |
 | Last verified application commit | `f201cf5` - Merge D7-01 live fleet directory |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-7ohtvsvh1-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260804112716_fleet_directory_hardening.sql` (applied and verified) |
+| Latest migration | `20260804120339_company_pricing_plans.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
 
 ## Product
@@ -115,6 +115,9 @@ Mock or placeholder:
 Live: fleet directory and derived availability (D7-01), released from merge
 commit `f201cf5`.
 
+In review: company-scoped pricing plans and server-calculated quote preview
+(D8-01, branch `agent/d8-01-pricing-plans`).
+
 Do not describe placeholder screens as backend-complete.
 
 ## Known issues and debt
@@ -148,12 +151,13 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260804120000`.
+- Continue migration numbering after `20260804120339`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Claim the next module in the sequence: Pricing.
+Commit, deploy, and smoke-test D8-01 Pricing. Then begin Booking and rental
+lifecycle availability search.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -183,6 +187,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 5 | 2026-08-04 | Customer UX, live dashboard, navigation/theme/mobile (D5-01 to D5-03) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
 | 6 | 2026-08-04 | Live Settings and company-scoped operational configuration (D6-01) | `DAY_06_PLATFORM_OPERATIONS.md` |
 | 7 | 2026-08-04 | Live fleet directory and derived availability (D7-01, released) | `DAY_07_FLEET_AVAILABILITY.md` |
+| 8 | 2026-08-04 | Company pricing plans and server quote preview (D8-01, in review) | `DAY_08_PRICING.md` |
 
 ## Handoff rule
 

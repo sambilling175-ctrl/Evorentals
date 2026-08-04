@@ -115,3 +115,15 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   (`bikes.status = 'available'`) matches the fleet derivation only while rental
   and bike statuses stay consistent; reconcile both onto this rule when the
   rental lifecycle module lands.
+
+## ADR-012 - Server-authoritative pricing quotes
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Pricing plans are company-scoped rate-card definitions. Quote
+  inputs contain only a plan reference, duration, and estimated distance; the
+  server reloads the active plan and company tax settings and calculates every
+  amount. Billing units round up to whole day/week/30-day-month units.
+- Consequence: Browsers never submit trusted rates or totals. Booking
+  confirmation must copy the calculated values into an immutable pricing
+  snapshot instead of retaining a mutable plan reference as the financial fact.
