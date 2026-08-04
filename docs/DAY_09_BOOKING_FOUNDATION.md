@@ -75,4 +75,10 @@ Status: Complete and released
   invoker mode, fixed search path, and authenticated-only RPC execution verified.
 - Operational gap: production has four available vehicles but zero verified
   customers and zero active pricing plans, so no persistent end-to-end activation
-  was fabricated. Authenticated `/rentals` browser verification remains for release.
+  was fabricated. Authenticated `/rentals` browser verification remains pending.
+- Release: PR #5 merged as `68c8e26`; Vercel production deployment
+  `evorentals-af4ifawj3-wephotons1.vercel.app` is Ready and aliased to
+  `https://evorentals.vercel.app`.
+- Post-release check: Vercel reported no `/rentals` runtime errors in the first
+  hour. The available browser session was signed out, so authenticated UI smoke
+  testing was not claimed.

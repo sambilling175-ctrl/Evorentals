@@ -31,7 +31,7 @@
 | D8-01 | P1 | Add company-scoped pricing plans and server-calculated quote preview | Completed | Codex; app `8fe805d`, merge `5e83ef0`; migration `20260804120339`; production Ready | D7-01, D6-01 | Pricing, Rentals |
 | D9-01 | P0 | Add availability search, conflict-safe booking creation, and immutable pricing snapshots | Completed | Codex; app `e59c882`, merge `ccdcc72`; migration `20260804122402`; production Ready | D7-01, D8-01 | Bookings, Pricing |
 | D9-01-H1 | P0 | Fix bookings client crash caused by importing initial state from a server-actions module | Completed | Codex; app `8bc9681`, merge `8e47251`; validate passed; production Ready; no migration | D9-01 | Bookings |
-| D9-02 | P0 | Convert confirmed bookings into immutable active rental contracts | Review | Codex / `agent/d9-02-rental-activation`; validate and live schema verification passed; production deployment pending | D9-01 | Rentals, Bookings, Fleet |
+| D9-02 | P0 | Convert confirmed bookings into immutable active rental contracts | Completed | Codex; app `65358ab`, merge `68c8e26`; migrations `20260804125633` and `20260804125801`; validate and live schema verification passed; production Ready | D9-01 | Rentals, Bookings, Fleet |
 
 ## Planned module sequence
 

@@ -8,12 +8,12 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D9-02 rental activation implemented and migrated; release pending |
+| Delivery position | D9-02 rental activation released; D9-03 rental extensions next |
 | Git branch | `main` |
-| Last verified application commit | `8e47251` - Merge D9-01-H1 bookings render hotfix |
+| Last verified application commit | `68c8e26` - Merge D9-02 atomic rental activation |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-brphxc4zy-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-af4ifawj3-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804125801_rental_activation_hardening.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
@@ -109,7 +109,7 @@ Live:
 
 Mock or placeholder:
 
-- Rentals, payments, and service operational data
+- Payments and service operational data
 - Drivers, reports, and notifications
 
 Live: fleet directory and derived availability (D7-01), released from merge
@@ -120,6 +120,9 @@ merge commit `5e83ef0`).
 
 Live: date-range availability search, conflict-safe booking creation, and
 immutable pricing snapshots (D9-01, merge `ccdcc72`).
+
+Live: confirmed-booking activation into immutable active rental contracts
+(D9-02, merge `68c8e26`).
 
 Do not describe placeholder screens as backend-complete.
 
@@ -154,15 +157,15 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260804120339`.
+- Continue migration numbering after `20260804125801`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Release D9-02 and verify `/rentals` after authentication. Production currently
-has no verified customers or active pricing plans, so create legitimate setup
-records before the first end-to-end booking activation. Then implement rental
-extensions as D9-03.
+Implement rental extensions as D9-03. Production currently has no verified
+customers or active pricing plans, so create legitimate setup records before the
+first end-to-end booking activation. Re-open `/rentals` after an authenticated
+login to complete the browser smoke test without fabricating business records.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
