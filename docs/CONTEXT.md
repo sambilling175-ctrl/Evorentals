@@ -10,13 +10,13 @@
 | Updated | 2026-08-04 |
 | Delivery position | Day 5 in progress; D5-01 customer experience complete |
 | Git branch | `main` |
-| Last verified application commit | `f2698fc` - Add signed KYC document access |
+| Last verified application commit | `109f3b0` - Complete Day 5 customer experience |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | Triggered from `main` for Day 4 |
+| Production deployment | `evorentals-1mblrcvky-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804075659_customer_timeline_events.sql` |
-| Last quality gate | `npm run validate` passed on 2026-08-04 |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
 
 ## Product
 
