@@ -98,3 +98,20 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: UI visibility is not treated as authorization. Employee invites
   require a protected server secret and custom SMTP and must not be simulated
   with public keys or direct profile inserts.
+
+## ADR-011 - Derived vehicle availability
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Vehicle availability is derived, never stored. `bikes.status` holds
+  only the base operational state (`available`, `reserved`, `maintenance`, or
+  `retired`). A vehicle with an
+  active rental (`rentals.status = 'active'`, not soft-deleted, same company) is
+  `rented`; otherwise availability is the normalized `bikes.status`. `rented`
+  is never written to `bikes.status` by hand. The D7-01 migration reconciles
+  legacy stored `rented` rows to `available` before enforcing this invariant.
+- Consequence: Booking/rental lifecycle work must maintain `rentals.status`
+  accurately or fleet availability will drift. The dashboard's available count
+  (`bikes.status = 'available'`) matches the fleet derivation only while rental
+  and bike statuses stay consistent; reconcile both onto this rule when the
+  rental lifecycle module lands.
