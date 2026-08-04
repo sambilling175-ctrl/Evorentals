@@ -29,9 +29,10 @@ export function MobileNav() {
         size="icon-sm"
         className="lg:hidden"
         onClick={() => setMobileOpen(true)}
+        aria-label="Open navigation menu"
+        aria-expanded={isMobileOpen}
       >
         <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle menu</span>
       </Button>
 
       <Sheet open={isMobileOpen} onOpenChange={setMobileOpen}>
@@ -67,6 +68,7 @@ export function MobileNav() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                       isActive

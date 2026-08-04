@@ -1,7 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
+
+const SIDEBAR_STORAGE_KEY = "evo-sidebar-collapsed";
+const SIDEBAR_STORAGE_EVENT = "evo-sidebar-storage";
+
+function subscribeToSidebarPreference(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(SIDEBAR_STORAGE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(SIDEBAR_STORAGE_EVENT, callback);
+  };
+}
+
+function getSidebarPreference() {
+  return localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+}
 
 interface SidebarContextType {
   isCollapsed: boolean;
@@ -18,15 +34,12 @@ const SidebarContext = React.createContext<SidebarContextType>({
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isCollapsed = useSyncExternalStore(subscribeToSidebarPreference, getSidebarPreference, () => false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const toggle = useCallback(() => {
-    setIsCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem("evo-sidebar-collapsed", JSON.stringify(next));
-      return next;
-    });
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(!getSidebarPreference()));
+    window.dispatchEvent(new Event(SIDEBAR_STORAGE_EVENT));
   }, []);
 
   const setMobileOpen = useCallback((open: boolean) => {

@@ -115,10 +115,3 @@ export const STATUS_CONFIG: Record<
     className: "bg-amber-500/15 text-amber-400 border-amber-500/30",
   },
 };
-
-export const BRANCHES = [
-  { id: "1", name: "Koramangala", code: "KOR" },
-  { id: "2", name: "Indiranagar", code: "IND" },
-  { id: "3", name: "HSR Layout", code: "HSR" },
-  { id: "4", name: "Whitefield", code: "WHF" },
-];

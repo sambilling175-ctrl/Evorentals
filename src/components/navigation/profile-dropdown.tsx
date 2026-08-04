@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut, Settings, User, HelpCircle } from "lucide-react";
+import Link from "next/link";
+import { LogOut, Settings, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/app/(dashboard)/actions";
@@ -32,7 +33,7 @@ export function ProfileDropdown({ currentUser }: { currentUser: CurrentUserProfi
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full cursor-pointer">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full cursor-pointer" aria-label={`Open account menu for ${currentUser.fullName}`}>
           <Avatar className="h-8 w-8 border-2 border-border">
             <AvatarImage src={currentUser.avatarUrl ?? undefined} alt={currentUser.fullName} />
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs font-bold">
@@ -55,17 +56,17 @@ export function ProfileDropdown({ currentUser }: { currentUser: CurrentUserProfi
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem className="gap-2 cursor-pointer">
-            <User className="h-4 w-4" />
-            Profile
+          <DropdownMenuItem asChild>
+            <Link href="/employees" className="gap-2">
+              <Users className="h-4 w-4" />
+              Employees
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2 cursor-pointer">
-            <Settings className="h-4 w-4" />
-            Settings
-          </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2 cursor-pointer">
-            <HelpCircle className="h-4 w-4" />
-            Help & Support
+          <DropdownMenuItem asChild>
+            <Link href="/settings" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

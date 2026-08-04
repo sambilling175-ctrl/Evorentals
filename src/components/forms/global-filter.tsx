@@ -3,23 +3,14 @@
 import * as React from "react";
 import { SearchBar } from "@/components/forms/search-bar";
 import { DateRangePicker } from "@/components/forms/date-range-picker";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BRANCHES } from "@/lib/constants";
 
 // To make this fully self-contained and clean with our shadcn wrapper structure:
 interface GlobalFilterProps {
   onFilterChange?: (filters: {
     search: string;
-    branch: string;
     dateRange: { from?: Date; to?: Date };
   }) => void;
   className?: string;
@@ -27,23 +18,20 @@ interface GlobalFilterProps {
 
 export function GlobalFilter({ onFilterChange, className }: GlobalFilterProps) {
   const [search, setSearch] = React.useState("");
-  const [branch, setBranch] = React.useState("all");
   const [dateRange, setDateRange] = React.useState<{ from?: Date; to?: Date }>({});
 
   const handleReset = () => {
     setSearch("");
-    setBranch("all");
     setDateRange({});
-    triggerChange("", "all", {});
+    triggerChange("", {});
   };
 
   const triggerChange = (
     s = search,
-    b = branch,
     d = dateRange
   ) => {
     if (onFilterChange) {
-      onFilterChange({ search: s, branch: b, dateRange: d });
+      onFilterChange({ search: s, dateRange: d });
     }
   };
 
@@ -54,33 +42,10 @@ export function GlobalFilter({ onFilterChange, className }: GlobalFilterProps) {
         <SearchBar
           onSearch={(val) => {
             setSearch(val);
-            triggerChange(val, branch, dateRange);
+            triggerChange(val, dateRange);
           }}
           placeholder="Search items..."
         />
-      </div>
-
-      {/* Branch Dropdown Selector */}
-      <div className="w-full md:w-48 shrink-0">
-        <Select
-          value={branch}
-          onValueChange={(val) => {
-            setBranch(val);
-            triggerChange(search, val, dateRange);
-          }}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select Branch" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Branches</SelectItem>
-            {BRANCHES.map((b) => (
-              <SelectItem key={b.id} value={b.code}>
-                {b.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Date Picker */}
@@ -88,7 +53,7 @@ export function GlobalFilter({ onFilterChange, className }: GlobalFilterProps) {
         <DateRangePicker
           onRangeChange={(range) => {
             setDateRange(range);
-            triggerChange(search, branch, range);
+            triggerChange(search, range);
           }}
         />
       </div>

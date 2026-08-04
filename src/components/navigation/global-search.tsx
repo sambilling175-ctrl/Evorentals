@@ -82,14 +82,16 @@ export function GlobalSearch() {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
+        aria-label="Open page and action search"
         className="inline-flex items-center gap-2 rounded-lg border border-input bg-background/50 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring w-full max-w-[260px] cursor-pointer"
       >
         <Search className="h-4 w-4" />
-        <span className="hidden sm:inline-flex">Search everything...</span>
+        <span className="hidden sm:inline-flex">Search pages and actions...</span>
         <span className="sm:hidden">Search...</span>
         <kbd className="pointer-events-none ml-auto hidden h-5 select-none items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
+          Ctrl K
         </kbd>
       </button>
 
@@ -100,7 +102,7 @@ export function GlobalSearch() {
             <div className="flex items-center border-b border-border px-3">
               <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
               <Command.Input
-                placeholder="Search customers, vehicles, bookings..."
+                placeholder="Search pages and actions..."
                 className="flex h-12 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>

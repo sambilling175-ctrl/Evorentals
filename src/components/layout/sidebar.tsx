@@ -66,6 +66,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
@@ -138,6 +139,8 @@ export function Sidebar() {
           variant="ghost"
           size={isCollapsed ? "icon-sm" : "sm"}
           onClick={toggle}
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? "Expand navigation sidebar" : "Collapse navigation sidebar"}
           className={cn(
             "w-full justify-center text-muted-foreground hover:text-foreground",
             !isCollapsed && "justify-start gap-2"

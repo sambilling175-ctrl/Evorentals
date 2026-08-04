@@ -18,10 +18,13 @@ export function DashboardShell({
     <SidebarProvider>
       <TooltipProvider delayDuration={0}>
         <div className="flex h-screen overflow-hidden">
+          <a href="#main-content" className="sr-only z-50 rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+            Skip to main content
+          </a>
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <TopNavbar currentUser={currentUser} />
-            <main className="flex-1 overflow-y-auto">
+            <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto outline-none">
               <div className="space-y-6 px-4 py-4 lg:px-6 lg:py-6">
                 <BreadcrumbNav />
                 {children}
