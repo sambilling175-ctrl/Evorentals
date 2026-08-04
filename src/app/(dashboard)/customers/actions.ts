@@ -161,3 +161,33 @@ export async function updateCustomer(customerId: string, primaryAddressId: strin
   revalidatePath("/customers");
   revalidatePath(`/customers/${customerId}`);
 }
+
+export async function viewCustomerDocument(customerId: string, documentId: string) {
+  const { supabase, user, profile } = await getActor();
+  const { data: document, error: documentError } = await supabase
+    .from("customer_documents")
+    .select("id,storage_path,file_name")
+    .eq("id", documentId)
+    .eq("customer_id", customerId)
+    .eq("company_id", profile.company_id)
+    .maybeSingle();
+  if (documentError) throw new Error(documentError.message);
+  if (!document) throw new Error("Document not found or access denied");
+
+  const { data: signed, error: signedUrlError } = await supabase.storage
+    .from("customer-documents")
+    .createSignedUrl(document.storage_path, 60);
+  if (signedUrlError) throw new Error(signedUrlError.message);
+
+  const { error: timelineError } = await supabase.from("customer_timeline_events").insert({
+    company_id: profile.company_id,
+    customer_id: customerId,
+    event_type: "document_accessed",
+    summary: `KYC document opened: ${document.file_name}`,
+    details: { document_id: document.id },
+    actor_id: user.id,
+  });
+  if (timelineError) throw new Error(timelineError.message);
+
+  redirect(signed.signedUrl);
+}
