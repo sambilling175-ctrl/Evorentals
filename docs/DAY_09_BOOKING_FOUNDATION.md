@@ -56,3 +56,23 @@ Status: Complete and released
   to `https://evorentals.vercel.app`.
 - Authenticated browser smoke test was not run because the available browser
   session was signed out; re-open `/bookings` after the next authenticated login.
+
+## D9-02 rental activation
+
+- Replaced the mock `/rentals` page with a live company-scoped control board,
+  confirmed-booking activation forms, due/overdue metrics, loading, and error states.
+- Added immutable rental number, booking link, planned end, start odometer, and
+  pricing snapshot contract facts to the legacy rentals table.
+- `activate_confirmed_booking` authenticates and authorizes inside the database,
+  locks booking and vehicle rows, rejects invalid timing/odometer/open-rental
+  conflicts, inserts the contract, converts the booking, and updates odometer
+  atomically. Existing rental audit triggers preserve the transition history.
+- Unique partial indexes enforce one active/overdue rental per company vehicle
+  and one live rental per booking. Rentals RLS now has one policy per operation.
+- Migrations `20260804125633_rental_activation_contracts.sql` and
+  `20260804125801_rental_activation_hardening.sql` are applied and verified.
+- `npm.cmd run validate` passed before migration; live columns, indexes, RLS,
+  invoker mode, fixed search path, and authenticated-only RPC execution verified.
+- Operational gap: production has four available vehicles but zero verified
+  customers and zero active pricing plans, so no persistent end-to-end activation
+  was fabricated. Authenticated `/rentals` browser verification remains for release.

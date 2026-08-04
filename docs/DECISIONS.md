@@ -138,3 +138,16 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: Availability searches improve UX but are not the concurrency
   boundary. Booking insertion remains authoritative and can reject a vehicle
   that another employee reserved after the search.
+
+## ADR-014 - Atomic booking-to-rental activation
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: A confirmed booking becomes an active rental only through the
+  invoker-mode `activate_confirmed_booking` database function. The function
+  locks the booking and vehicle, validates company and Rentals permission,
+  creates one numbered contract with copied immutable pricing, converts the
+  booking, and advances the vehicle odometer in one transaction.
+- Consequence: UI availability checks are advisory. Unique indexes prevent two
+  open rentals for one vehicle and repeated conversion of one booking. Vehicle
+  base status remains `available`; the active rental derives `rented` state.
