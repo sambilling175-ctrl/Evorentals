@@ -127,3 +127,14 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: Browsers never submit trusted rates or totals. Booking
   confirmation must copy the calculated values into an immutable pricing
   snapshot instead of retaining a mutable plan reference as the financial fact.
+
+## ADR-013 - Database-enforced booking conflicts
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Pending and confirmed bookings reserve a half-open timestamp range.
+  A GiST exclusion constraint prevents overlapping ranges for the same company
+  vehicle, and the inserted pricing snapshot and total are immutable.
+- Consequence: Availability searches improve UX but are not the concurrency
+  boundary. Booking insertion remains authoritative and can reject a vehicle
+  that another employee reserved after the search.
