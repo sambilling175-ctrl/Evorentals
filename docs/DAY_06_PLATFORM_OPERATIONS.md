@@ -30,10 +30,11 @@ Validation:
 
 - `npm.cmd run validate` passed on 2026-08-04.
 - Application commit: `0565b5a`.
+- Production deployment `evorentals-funxxbs36-wephotons1.vercel.app` is Ready
+  and aliased to `https://evorentals.vercel.app`.
 - Authenticated mutation testing remains dependent on a working administrator
   identity; database structure, values, and policies were verified directly.
 
 Next:
 
-- Deploy D6-01 and verify the authenticated Settings page.
 - Claim `D6-02` for live Employees and enforceable RBAC management.

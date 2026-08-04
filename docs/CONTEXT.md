@@ -8,12 +8,12 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D6-01 Settings implemented and awaiting production deployment |
-| Git branch | `agent/d6-01-live-settings` |
+| Delivery position | D6-01 Settings complete; D6-02 Employees/RBAC is next |
+| Git branch | `main` |
 | Last verified application commit | `0565b5a` - Connect settings to company configuration |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-a9nqu4ucs-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-funxxbs36-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260804093615_normalize_india_preferences.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
@@ -143,8 +143,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-After D6-01 production verification, claim `D6-02` and replace the Employees
-placeholder with live employee and enforceable RBAC management.
+Claim `D6-02` and replace the Employees placeholder with live employee and
+enforceable RBAC management.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
