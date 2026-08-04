@@ -28,7 +28,7 @@
 | D6-02 | P1 | Replace Employees placeholder and establish enforceable RBAC management | Completed | Codex / `agent/d6-02-employees-rbac`; app commit `a6645bf`; validate/database verification passed; production Ready | D6-01 | Employees, RBAC |
 | D6-03 | P1 | Add secure employee invitation and Auth provisioning | Blocked | Unassigned; requires server secret and custom SMTP | D4-06, D6-02 | Employees, Auth |
 | D7-01 | P1 | Replace Fleet placeholder with live vehicle directory and availability state | Completed | Kimi + Codex; app `de4873f`, merge `f201cf5`; migrations `20260804112443` and `20260804112716`; production Ready | D6-02 | Fleet |
-| D8-01 | P1 | Add company-scoped pricing plans and server-calculated quote preview | Review | Codex / `agent/d8-01-pricing-plans`; validate passed; migration `20260804120339` applied and verified; deployment pending | D7-01, D6-01 | Pricing, Rentals |
+| D8-01 | P1 | Add company-scoped pricing plans and server-calculated quote preview | Completed | Codex; app `8fe805d`, merge `5e83ef0`; migration `20260804120339`; production Ready | D7-01, D6-01 | Pricing, Rentals |
 
 ## Planned module sequence
 

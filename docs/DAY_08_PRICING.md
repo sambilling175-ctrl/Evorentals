@@ -3,7 +3,7 @@
 Date: 2026-08-04
 Task: D8-01 - Company-scoped pricing plans and server-calculated quote preview
 Owner: Codex / branch `agent/d8-01-pricing-plans`
-Status: Review (implementation and live migration verified; deployment pending)
+Status: Complete and released
 
 ## Delivered
 
@@ -28,9 +28,18 @@ Status: Review (implementation and live migration verified; deployment pending)
 - Supabase advisors: no Pricing security findings; only expected unused-index
   informational notices immediately after table creation.
 
+## Release
+
+- Application commit: `8fe805d`
+- Merge commit: `5e83ef0`
+- Pull request: `#2`
+- Production deployment: `evorentals-p9xf0ti42-wephotons1.vercel.app` (Ready,
+  aliased to `https://evorentals.vercel.app`)
+- Production `/pricing` protected-route smoke test passed without console errors.
+
 ## Remaining
 
-- Deploy and smoke-test `/pricing` with an authenticated administrator.
+- Complete authenticated administrator and view-only role interaction testing.
 - Create the first real Evo Rentals rate cards through the UI; no fabricated
   production prices were seeded.
 - Booking confirmation must persist an immutable pricing snapshot per ADR-012.
