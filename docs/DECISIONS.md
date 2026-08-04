@@ -75,3 +75,13 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   immediately with the cookie-backed SSR client and removes them from the URL.
 - Consequence: Recovery links work across browser/email handoffs. Normal login,
   session refresh, authorization, and all other authentication remain on SSR PKCE.
+
+## ADR-009 - Company-scoped singleton operational settings
+
+- Date: 2026-08-04
+- Status: Accepted
+- Decision: Rental, payment, and system-preference configuration use one row per
+  company, protected by company-scoped read policies and administrator-only
+  update policies. Branch configuration is excluded while branch tenancy is off.
+- Consequence: New operational settings tables must carry `company_id`; global
+  singleton policies and deprecated `auth.role()` authorization are not allowed.

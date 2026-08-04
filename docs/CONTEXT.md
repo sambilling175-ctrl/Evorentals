@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | Day 5 complete; D6-01 Settings is next |
-| Git branch | `main` |
-| Last verified application commit | `bd0bbe6` - Complete accessible navigation controls |
+| Delivery position | D6-01 Settings implemented and awaiting production deployment |
+| Git branch | `agent/d6-01-live-settings` |
+| Last verified application commit | `0565b5a` - Connect settings to company configuration |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-a9nqu4ucs-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260804075659_customer_timeline_events.sql` |
+| Latest migration | `20260804093615_normalize_india_preferences.sql` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
 
 ## Product
@@ -85,6 +85,13 @@ before using framework APIs. This project uses `src/proxy.ts`.
 - Single-branch navigation, real route actions, persisted sidebar state,
   accessible keyboard/mobile behavior, and reliable theme selection (D5-03)
 
+### Day 6 - platform operations (in progress)
+
+- Live company profile, rental defaults, payment controls, and India regional
+  preferences under typed Settings services and administrator-only actions
+- Company-scoped rental, payment, and preference rows with hardened RLS
+- Migrations `20260804093529` and `20260804093615`
+
 ## Live versus placeholder functionality
 
 Live:
@@ -98,7 +105,7 @@ Live:
 Mock or placeholder:
 
 - Bookings, fleet, rentals, payments, and service operational data
-- Drivers, employees, settings, reports, and notifications
+- Drivers, employees, reports, and notifications
 
 Do not describe placeholder screens as backend-complete.
 
@@ -136,8 +143,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim `D6-01` from `docs/NEXT_STEPS.md` and replace the Settings placeholder with
-live company and operational configuration, after verifying the remote schema.
+After D6-01 production verification, claim `D6-02` and replace the Employees
+placeholder with live employee and enforceable RBAC management.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -165,6 +172,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 3 | 2026-07-28 to 2026-07-29 | Auth, customers/KYC, recovery fixes | `DAY_03_CUSTOMER_KYC.md` |
 | 4 | 2026-08-04 | Identity/logout, customer edit/timeline, signed KYC access | `DAY_04_OPERATIONAL_LOOSE_ENDS.md` |
 | 5 | 2026-08-04 | Customer UX, live dashboard, navigation/theme/mobile (D5-01 to D5-03) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
+| 6 | 2026-08-04 | Live Settings and company-scoped operational configuration (D6-01) | `DAY_06_PLATFORM_OPERATIONS.md` |
 
 ## Handoff rule
 
