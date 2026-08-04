@@ -63,3 +63,15 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   browser so the PKCE verifier is available when the email callback is opened.
 - Consequence: Recovery links should be opened once in the same browser that
   initiated recovery. Configure production custom SMTP before onboarding.
+
+## ADR-008 - Browser-portable password recovery links
+
+- Status: Accepted (2026-08-04)
+- Context: Production recovery links repeatedly failed with a missing PKCE code
+  verifier even when recovery was initiated in the application browser. Email
+  clients and browser handoffs cannot reliably preserve a browser-bound verifier.
+- Decision: Use Supabase's client-only implicit flow only when requesting a
+  password recovery email. The callback consumes the returned fragment tokens
+  immediately with the cookie-backed SSR client and removes them from the URL.
+- Consequence: Recovery links work across browser/email handoffs. Normal login,
+  session refresh, authorization, and all other authentication remain on SSR PKCE.

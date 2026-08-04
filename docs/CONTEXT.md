@@ -127,6 +127,19 @@ Do not describe placeholder screens as backend-complete.
 Claim `D5-01` from `docs/NEXT_STEPS.md` and align the customer experience with
 the supplied design references.
 
+## 2026-08-04 password recovery hotfix
+
+- Production evidence: recovery callbacks returned `PKCE code verifier not found
+  in storage` after the email link was opened.
+- Resolution: recovery-email requests use Supabase's client-only implicit flow;
+  `/auth/callback` immediately consumes fragment tokens into the cookie-backed
+  SSR session and removes them from the URL.
+- Scope: normal login and session management remain on SSR PKCE.
+- Validation: `npm.cmd run typecheck`, `npm.cmd run lint`, and
+  `npm.cmd run build` pass locally.
+- Operational next step: after deployment, request one new reset email. Previously
+  generated recovery links retain their original PKCE flow and must not be reused.
+
 ## Progress log
 
 | Day | Date | Delivered | Handoff |
