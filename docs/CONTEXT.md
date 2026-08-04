@@ -8,7 +8,7 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | Core Day 4 complete; Day 5 is next |
+| Delivery position | Day 5 in progress; D5-01 customer experience complete |
 | Git branch | `main` |
 | Last verified application commit | `f2698fc` - Add signed KYC document access |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
@@ -75,6 +75,13 @@ before using framework APIs. This project uses `src/proxy.ts`.
 - Private KYC viewing through short-lived signed URLs
 - Migration `20260804075659_customer_timeline_events.sql`
 
+### Day 5 - experience alignment (in progress)
+
+- Reference-aligned live customer directory and customer detail workspace
+- Responsive KYC filters, operational status signals, mobile customer cards,
+  signed-document access, review actions, and timeline retained
+- No migration for D5-01; validation recorded in `DAY_05_CUSTOMER_EXPERIENCE.md`
+
 ## Live versus placeholder functionality
 
 Live:
@@ -124,8 +131,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim `D5-01` from `docs/NEXT_STEPS.md` and align the customer experience with
-the supplied design references.
+Claim `D5-02` from `docs/NEXT_STEPS.md` and rebuild dashboard sections around
+reusable live-data contracts.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -152,6 +159,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 2 | 2026-07-28 | Company tenancy and RLS | `DAY_02_PLATFORM_FOUNDATION.md` |
 | 3 | 2026-07-28 to 2026-07-29 | Auth, customers/KYC, recovery fixes | `DAY_03_CUSTOMER_KYC.md` |
 | 4 | 2026-08-04 | Identity/logout, customer edit/timeline, signed KYC access | `DAY_04_OPERATIONAL_LOOSE_ENDS.md` |
+| 5 | 2026-08-04 | Customer experience alignment (D5-01) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
 
 ## Handoff rule
 

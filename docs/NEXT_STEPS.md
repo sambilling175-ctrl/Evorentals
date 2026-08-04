@@ -21,7 +21,7 @@
 | D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Ready | Unassigned | Stable SMTP/test mailbox | Auth, tests |
 | D4-05 | P1 | Add two-company RLS isolation integration test | Ready | Unassigned | Test identities | Supabase, tests |
 | D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Ready | Unassigned | SMTP provider decision | Supabase Auth |
-| D5-01 | P1 | Align customer page with supplied design references | Ready | Unassigned | Day 4 customers | UI |
+| D5-01 | P1 | Align customer page with supplied design references | Completed | Codex / `main`; `npm.cmd run validate` passed; no migration; deployment pending | Day 4 customers | UI |
 | D5-02 | P1 | Rebuild dashboard sections using reusable live-data contracts | Ready | Unassigned | Metrics services | Dashboard |
 | D5-03 | P2 | Complete navigation actions, theme control, and mobile behavior | Ready | Unassigned | D4-01 | Navigation |
 
