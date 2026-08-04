@@ -27,5 +27,19 @@
 
 ## Remaining Day 5 scope
 
-- `D5-02`: reusable live dashboard data contracts and sections.
 - `D5-03`: navigation actions, theme control, and mobile behavior.
+
+## D5-02 - Live dashboard contracts
+
+- Replaced the client-only mock dashboard with an async Server Component.
+- Added a typed `DashboardOverview` service contract using parallel exact-count
+  Supabase queries protected by existing RLS.
+- Live metrics: customers, total fleet, available vehicles, active rentals, and
+  pending KYC.
+- Live sections: recent customers, KYC distribution, and customer timeline.
+- Operational modules without authoritative data tables are visibly marked as
+  workflow/backend pending rather than populated with demonstration totals.
+- Production schema verification on 2026-08-04 returned 4 customers, 4 pending
+  KYC, 5 fleet vehicles, 3 available vehicles, 0 active rentals, and 0 timeline
+  events.
+- No database migration was required.

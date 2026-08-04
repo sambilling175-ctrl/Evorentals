@@ -8,7 +8,7 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | Day 5 in progress; D5-01 customer experience complete |
+| Delivery position | Day 5 in progress; D5-01 and D5-02 complete |
 | Git branch | `main` |
 | Last verified application commit | `109f3b0` - Complete Day 5 customer experience |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
@@ -89,10 +89,11 @@ Live:
 - Authentication and session protection
 - Customer directory, customer details, creation, and KYC review
 - Company-scoped customer data and policies
+- Dashboard customer, KYC, fleet, availability, active-rental counts, recent
+  customer records, and customer timeline
 
 Mock or placeholder:
 
-- Dashboard metrics and charts
 - Bookings, fleet, rentals, payments, and service operational data
 - Drivers, employees, settings, reports, and notifications
 
@@ -131,8 +132,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim `D5-02` from `docs/NEXT_STEPS.md` and rebuild dashboard sections around
-reusable live-data contracts.
+Claim `D5-03` from `docs/NEXT_STEPS.md` and complete navigation actions, theme
+control, and mobile behavior.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;

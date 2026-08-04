@@ -1,0 +1,100 @@
+import "server-only";
+
+import { createClient } from "@/lib/supabase/server";
+import type { KycStatus } from "@/lib/services/customers";
+
+export interface DashboardMetric {
+  key: "customers" | "fleet" | "available" | "activeRentals" | "pendingKyc";
+  label: string;
+  value: number;
+  helper: string;
+  href: string;
+  tone: "blue" | "green" | "amber" | "red" | "purple";
+}
+
+export interface DashboardCustomer {
+  id: string;
+  customerNumber: string;
+  fullName: string;
+  phone: string | null;
+  kycStatus: KycStatus;
+  createdAt: string;
+}
+
+export interface DashboardActivity {
+  id: string;
+  summary: string;
+  eventType: string;
+  occurredAt: string;
+}
+
+export interface DashboardOverview {
+  metrics: DashboardMetric[];
+  kyc: Record<KycStatus, number>;
+  recentCustomers: DashboardCustomer[];
+  recentActivity: DashboardActivity[];
+  generatedAt: string;
+}
+
+export async function getDashboardOverview(): Promise<DashboardOverview> {
+  const supabase = await createClient();
+  const countQuery = (status?: KycStatus) => {
+    let query = supabase.from("customers").select("id", { count: "exact", head: true }).is("deleted_at", null);
+    if (status) query = query.eq("kyc_status", status);
+    return query;
+  };
+
+  const [totalResult, verifiedResult, pendingResult, rejectedResult, expiredResult, fleetResult, availableResult, activeRentalsResult, customersResult, activityResult] = await Promise.all([
+    countQuery(),
+    countQuery("verified"),
+    countQuery("pending"),
+    countQuery("rejected"),
+    countQuery("expired"),
+    supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null),
+    supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "available"),
+    supabase.from("rentals").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "active"),
+    supabase.from("customers").select("id,customer_number,full_name,phone,kyc_status,created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(6),
+    supabase.from("customer_timeline_events").select("id,event_type,summary,occurred_at").order("occurred_at", { ascending: false }).limit(6),
+  ]);
+
+  const results = [totalResult, verifiedResult, pendingResult, rejectedResult, expiredResult, fleetResult, availableResult, activeRentalsResult, customersResult, activityResult];
+  const failed = results.find((result) => result.error);
+  if (failed?.error) throw new Error(`Unable to load dashboard: ${failed.error.message}`);
+
+  const total = totalResult.count ?? 0;
+  const kyc = {
+    verified: verifiedResult.count ?? 0,
+    pending: pendingResult.count ?? 0,
+    rejected: rejectedResult.count ?? 0,
+    expired: expiredResult.count ?? 0,
+  };
+  return {
+    metrics: [
+      { key: "customers", label: "Total customers", value: total, helper: "Live customer records", href: "/customers", tone: "blue" },
+      { key: "fleet", label: "Total fleet", value: fleetResult.count ?? 0, helper: "Live vehicle records", href: "/fleet", tone: "purple" },
+      { key: "available", label: "Available vehicles", value: availableResult.count ?? 0, helper: "Ready for assignment", href: "/fleet", tone: "green" },
+      { key: "activeRentals", label: "Active rentals", value: activeRentalsResult.count ?? 0, helper: "Currently on rent", href: "/rentals", tone: "blue" },
+      { key: "pendingKyc", label: "Awaiting KYC", value: kyc.pending, helper: `${percent(kyc.pending, total)} · review queue`, href: "/customers", tone: "amber" },
+    ],
+    kyc,
+    recentCustomers: (customersResult.data ?? []).map((row) => ({
+      id: row.id,
+      customerNumber: row.customer_number,
+      fullName: row.full_name,
+      phone: row.phone,
+      kycStatus: row.kyc_status as KycStatus,
+      createdAt: row.created_at,
+    })),
+    recentActivity: (activityResult.data ?? []).map((row) => ({
+      id: row.id,
+      summary: row.summary,
+      eventType: row.event_type,
+      occurredAt: row.occurred_at,
+    })),
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function percent(value: number, total: number) {
+  return total === 0 ? "No records yet" : `${Math.round((value / total) * 100)}% of customer base`;
+}
