@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-04 |
-| Delivery position | D6-02 Employees/RBAC complete; D7-01 Fleet is next |
-| Git branch | `main` |
+| Delivery position | D7-01 Fleet directory complete; ready to commit and deploy |
+| Git branch | `agent/d7-01-fleet-directory` |
 | Last verified application commit | `a6645bf` - Connect employees to enforceable RBAC |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-x0xd2tg64-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260804100044_employee_rbac_indexes.sql` |
+| Latest migration | `20260804112716_fleet_directory_hardening.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
 
 ## Product
@@ -109,8 +109,11 @@ Live:
 
 Mock or placeholder:
 
-- Bookings, fleet, rentals, payments, and service operational data
+- Bookings, rentals, payments, and service operational data
 - Drivers, reports, and notifications
+
+Implemented on `agent/d7-01-fleet-directory`, awaiting deployment: live fleet
+directory and derived availability (D7-01).
 
 Do not describe placeholder screens as backend-complete.
 
@@ -145,13 +148,13 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `202607280006`.
+- Continue migration numbering after `20260804120000`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Claim `D7-01` and replace the Fleet placeholder with the live vehicle directory
-and derived availability state.
+Commit and deploy `agent/d7-01-fleet-directory`, smoke-test `/fleet`, and then
+claim the next module in the sequence: Pricing.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -180,6 +183,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 4 | 2026-08-04 | Identity/logout, customer edit/timeline, signed KYC access | `DAY_04_OPERATIONAL_LOOSE_ENDS.md` |
 | 5 | 2026-08-04 | Customer UX, live dashboard, navigation/theme/mobile (D5-01 to D5-03) | `DAY_05_CUSTOMER_EXPERIENCE.md` |
 | 6 | 2026-08-04 | Live Settings and company-scoped operational configuration (D6-01) | `DAY_06_PLATFORM_OPERATIONS.md` |
+| 7 | 2026-08-04 | Live fleet directory and derived availability (D7-01, complete; deployment pending) | `DAY_07_FLEET_AVAILABILITY.md` |
 
 ## Handoff rule
 

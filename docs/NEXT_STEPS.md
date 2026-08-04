@@ -27,7 +27,7 @@
 | D6-01 | P1 | Replace settings foundation with live company and operational configuration | Completed | Codex / `agent/d6-01-live-settings`; app commit `0565b5a`; validate/database verification passed; production Ready | D5-03 | Settings |
 | D6-02 | P1 | Replace Employees placeholder and establish enforceable RBAC management | Completed | Codex / `agent/d6-02-employees-rbac`; app commit `a6645bf`; validate/database verification passed; production Ready | D6-01 | Employees, RBAC |
 | D6-03 | P1 | Add secure employee invitation and Auth provisioning | Blocked | Unassigned; requires server secret and custom SMTP | D4-06, D6-02 | Employees, Auth |
-| D7-01 | P1 | Replace Fleet placeholder with live vehicle directory and availability state | Ready | Unassigned | D6-02 | Fleet |
+| D7-01 | P1 | Replace Fleet placeholder with live vehicle directory and availability state | Completed | Kimi + Codex / `agent/d7-01-fleet-directory`; validate passed; migrations `20260804112443` and `20260804112716` applied and verified; deployment pending | D6-02 | Fleet |
 
 ## Planned module sequence
 

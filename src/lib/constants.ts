@@ -102,6 +102,10 @@ export const STATUS_CONFIG: Record<
     label: "Reserved",
     className: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
   },
+  retired: {
+    label: "Retired",
+    className: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
+  },
   paid: {
     label: "Paid",
     className: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
