@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-07-29 |
-| Delivery position | End of Day 3; Day 4 is next |
+| Updated | 2026-08-04 |
+| Delivery position | Core Day 4 complete; Day 5 is next |
 | Git branch | `main` |
-| Last verified application commit | `1b4a655` - Keep password recovery PKCE in browser |
+| Last verified application commit | `f2698fc` - Add signed KYC document access |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | Ready for commit `1b4a655` |
+| Production deployment | Triggered from `main` for Day 4 |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `202607280006_customer_kyc_indexes.sql` |
-| Last quality gate | `npm run validate` passed on 2026-07-29 |
+| Latest migration | `20260804075659_customer_timeline_events.sql` |
+| Last quality gate | `npm run validate` passed on 2026-08-04 |
 
 ## Product
 
@@ -67,6 +67,14 @@ before using framework APIs. This project uses `src/proxy.ts`.
 - Private `customer-documents` storage structure and policies
 - Migrations `202607280005` and `202607280006`
 
+### Day 4 - operational loose ends
+
+- Live authenticated profile identity and working logout
+- Customer profile and primary-address editing
+- Append-only customer timeline events
+- Private KYC viewing through short-lived signed URLs
+- Migration `20260804075659_customer_timeline_events.sql`
+
 ## Live versus placeholder functionality
 
 Live:
@@ -87,10 +95,6 @@ Do not describe placeholder screens as backend-complete.
 
 - Supabase built-in email provider permits only two project-wide Auth emails per
   hour. Configure custom SMTP before production onboarding.
-- Logout and displayed profile identity are not connected to the authenticated
-  user; the navigation still contains hardcoded identity values.
-- Customer editing is missing.
-- KYC document signed view/download is not wired.
 - Notification drawer and live counts are not wired.
 - No automated tests currently cover auth, RLS isolation, or customer workflows.
 - The legacy base schema has no rebuildable `0001` baseline migration.
@@ -120,8 +124,8 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Claim a Day 4 task from `docs/NEXT_STEPS.md`. Recommended first task: `D4-01`,
-connect logout and real authenticated profile identity.
+Claim `D5-01` from `docs/NEXT_STEPS.md` and align the customer experience with
+the supplied design references.
 
 ## Progress log
 
@@ -130,6 +134,7 @@ connect logout and real authenticated profile identity.
 | 1 | 2026-07-27 | UI shell and mock operations pages | Repository history |
 | 2 | 2026-07-28 | Company tenancy and RLS | `DAY_02_PLATFORM_FOUNDATION.md` |
 | 3 | 2026-07-28 to 2026-07-29 | Auth, customers/KYC, recovery fixes | `DAY_03_CUSTOMER_KYC.md` |
+| 4 | 2026-08-04 | Identity/logout, customer edit/timeline, signed KYC access | `DAY_04_OPERATIONAL_LOOSE_ENDS.md` |
 
 ## Handoff rule
 

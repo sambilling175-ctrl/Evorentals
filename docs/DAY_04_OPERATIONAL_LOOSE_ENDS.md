@@ -1,6 +1,6 @@
 # Day 4 - Operational Loose Ends
 
-## Delivered for review
+## Completed
 
 - Authenticated profile identity in the top navigation using the live Supabase
   user and employee profile.
@@ -32,4 +32,4 @@
 
 ## Next handoff
 
-Deploy and smoke-test the Day 4 branch, then move to Day 5 design alignment.
+Move to Day 5 design alignment, beginning with `D5-01`.

@@ -15,9 +15,9 @@
 
 | ID | Priority | Task | Status | Owner / branch | Dependencies | Primary area |
 | --- | --- | --- | --- | --- | --- | --- |
-| D4-01 | P0 | Connect logout and real authenticated profile identity | Review | Codex / `agent/d4-01-auth-profile` | Day 3 auth | Navigation, auth |
-| D4-02 | P0 | Add customer editing with validation and timeline event | Review | Codex / `agent/d4-01-auth-profile` | Customer service | Customers |
-| D4-03 | P0 | Add signed KYC document view/download | Review | Codex / `agent/d4-01-auth-profile` | Private storage | Customers, storage |
+| D4-01 | P0 | Connect logout and real authenticated profile identity | Completed | Codex / `main` | Day 3 auth | Navigation, auth |
+| D4-02 | P0 | Add customer editing with validation and timeline event | Completed | Codex / `main` | Customer service | Customers |
+| D4-03 | P0 | Add signed KYC document view/download | Completed | Codex / `main` | Private storage | Customers, storage |
 | D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Ready | Unassigned | Stable SMTP/test mailbox | Auth, tests |
 | D4-05 | P1 | Add two-company RLS isolation integration test | Ready | Unassigned | Test identities | Supabase, tests |
 | D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Ready | Unassigned | SMTP provider decision | Supabase Auth |
