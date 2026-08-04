@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# private legacy-system exports (PII; never commit)
+/legacy-data/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

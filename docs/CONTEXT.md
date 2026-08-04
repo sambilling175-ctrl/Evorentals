@@ -127,6 +127,10 @@ Do not describe placeholder screens as backend-complete.
 Claim `D5-01` from `docs/NEXT_STEPS.md` and align the customer experience with
 the supplied design references.
 
+Legacy data discovery and migration constraints are recorded in
+`docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
+obtain a complete export or implement a resumable batched extractor first.
+
 ## 2026-08-04 password recovery hotfix
 
 - Production evidence: recovery callbacks returned `PKCE code verifier not found
