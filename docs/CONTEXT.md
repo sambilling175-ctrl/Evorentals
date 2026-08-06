@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-04 |
-| Delivery position | D9-03 rental extensions released; D9-04 vehicle swaps next |
-| Git branch | `main` |
+| Updated | 2026-08-06 |
+| Delivery position | D9-04 vehicle swaps implemented and migrated; release pending |
+| Git branch | `agent/d9-04-vehicle-swaps` |
 | Last verified application commit | `9549929` - Merge D9-03 conflict-safe rental extensions |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-24vkie3qm-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260804131557_rental_extension_activation_compatibility.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-04 |
+| Latest migration | `20260806133028_rental_vehicle_swaps_hardening.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-06 |
 
 ## Product
 
@@ -127,6 +127,9 @@ Live: confirmed-booking activation into immutable active rental contracts
 Live: immutable, conflict-aware rental extensions with additive contract totals
 (D9-03, merge `9549929`).
 
+Live in database, release pending in application: atomic vehicle swaps with
+immutable assignment history and odometer reconciliation (D9-04).
+
 Do not describe placeholder screens as backend-complete.
 
 ## Known issues and debt
@@ -160,15 +163,14 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260804131557`.
+- Continue migration numbering after `20260806133028`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Implement vehicle swaps as D9-04. Production currently has no verified customers,
-active pricing plans, bookings, or rentals, so create legitimate setup records
-before the first end-to-end extension. Re-open `/rentals` after authentication
-to complete the UI smoke test without fabricating business records.
+Release D9-04 and verify `/rentals` after authentication. Production currently
+has no verified customers, active pricing plans, bookings, or rentals, so do not
+fabricate a swap. Implement return inspection as D9-05 after the swap release.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;

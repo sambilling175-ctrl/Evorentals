@@ -164,3 +164,16 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: Settlement can allocate and report extension charges separately
   without losing the agreed starting contract. All due-date changes must use the
   extension RPC; direct client updates are not an authorized workflow.
+
+## ADR-016 - Current assignment with immutable vehicle swap history
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: `rentals.original_bike_id` preserves the contracted vehicle while
+  `rentals.bike_id` is the current assignment used by availability. Each change
+  is made only through the invoker-mode swap RPC and recorded in an immutable
+  company-scoped swap row with both odometers and the returned-bike disposition.
+- Consequence: Fleet availability remains derived from one open rental/current
+  bike, while audit and settlement can reconstruct every assignment. An overdue
+  rental must be extended before swapping so the replacement conflict horizon is
+  explicit and protected against future bookings.

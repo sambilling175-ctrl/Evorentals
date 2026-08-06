@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { activateBooking, extendRental } from "@/lib/services/rentals";
+import { activateBooking, extendRental, swapRentalVehicle } from "@/lib/services/rentals";
 import type { RentalActionState } from "@/lib/rentals/action-state";
 
 const schema=z.object({bookingId:z.string().uuid(),startedAt:z.iso.datetime({local:true}),startOdometer:z.coerce.number().int().min(0).max(10000000)});
@@ -10,3 +10,6 @@ export async function activateRental(_:RentalActionState,formData:FormData):Prom
 
 const extensionSchema=z.object({rentalId:z.string().uuid(),extendedEndAt:z.iso.datetime({local:true}),reason:z.string().trim().max(500).optional()});
 export async function extendActiveRental(_:RentalActionState,formData:FormData):Promise<RentalActionState>{const parsed=extensionSchema.safeParse(Object.fromEntries(formData));if(!parsed.success)return{status:"error",message:parsed.error.issues[0]?.message??"Check extension details"};try{const result=await extendRental({...parsed.data,extendedEndAt:new Date(`${parsed.data.extendedEndAt}:00+05:30`).toISOString()});revalidatePath("/rentals");revalidatePath("/bookings");revalidatePath("/fleet");revalidatePath("/");return{status:"success",message:`${result.rentalNumber} extended · ${new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR"}).format(result.extensionAmount)} added`};}catch(error){return{status:"error",message:error instanceof Error?error.message:"Unable to extend rental"};}}
+
+const swapSchema=z.object({rentalId:z.string().uuid(),toBikeId:z.string().uuid(),swappedAt:z.iso.datetime({local:true}),fromReturnOdometer:z.coerce.number().int().min(0).max(10000000),toStartOdometer:z.coerce.number().int().min(0).max(10000000),returnedVehicleStatus:z.enum(["available","maintenance"]),reason:z.string().trim().min(3).max(500)});
+export async function swapVehicle(_:RentalActionState,formData:FormData):Promise<RentalActionState>{const parsed=swapSchema.safeParse(Object.fromEntries(formData));if(!parsed.success)return{status:"error",message:parsed.error.issues[0]?.message??"Check swap details"};try{const result=await swapRentalVehicle({...parsed.data,swappedAt:new Date(`${parsed.data.swappedAt}:00+05:30`).toISOString()});revalidatePath("/rentals");revalidatePath("/bookings");revalidatePath("/fleet");revalidatePath("/");return{status:"success",message:`${result.rentalNumber} vehicle swapped`};}catch(error){return{status:"error",message:error instanceof Error?error.message:"Unable to swap vehicle"};}}
