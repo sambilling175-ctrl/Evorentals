@@ -112,3 +112,24 @@ Status: Complete and released
   `https://evorentals.vercel.app`.
 - Post-release check: Vercel reported no `/rentals` runtime errors. The available
   browser session was signed out, so authenticated UI smoke testing was not claimed.
+
+## D9-04 vehicle swaps
+
+- Added a permission-gated vehicle swap form for active rentals with replacement
+  selection, swap time, both odometers, returned-bike disposition, and reason.
+- The original contract vehicle is preserved in immutable `original_bike_id`;
+  `bike_id` represents the current assignment used by derived fleet availability.
+- Every swap appends an immutable `rental_swaps` row containing both vehicles,
+  both odometers, timing, disposition, reason, actor, and company scope.
+- `swap_rental_vehicle` runs as invoker and locks the rental, conflicting future
+  bookings, and both bikes in a consistent order. It rejects cross-company access,
+  unavailable or already-rented replacements, booking conflicts, invalid timing,
+  stale odometers, and non-active rentals.
+- The transaction updates the returned bike odometer/status, replacement bike
+  odometer, current rental assignment, and existing rental audit history together.
+- Migrations `20260806132958_rental_vehicle_swaps.sql` and
+  `20260806133028_rental_vehicle_swaps_hardening.sql` are applied and verified.
+  RLS, explicit Data API grants, anonymous denial, invoker mode, fixed search path,
+  foreign-key/query indexes, and original-assignment backfill were confirmed live.
+- `npm.cmd run validate` passed on 2026-08-06. Production has no rentals or swap
+  rows, so no persistent business data was fabricated for a swap smoke test.
