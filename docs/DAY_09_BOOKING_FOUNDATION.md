@@ -133,3 +133,8 @@ Status: Complete and released
   foreign-key/query indexes, and original-assignment backfill were confirmed live.
 - `npm.cmd run validate` passed on 2026-08-06. Production has no rentals or swap
   rows, so no persistent business data was fabricated for a swap smoke test.
+- Release: PR #7 merged as `55fdc15`; Vercel production deployment
+  `evorentals-bliivi816-wephotons1.vercel.app` is Ready and aliased to
+  `https://evorentals.vercel.app`.
+- Post-release check: Vercel reported no `/rentals` runtime errors. The available
+  browser session was signed out, so authenticated UI smoke testing was not claimed.
