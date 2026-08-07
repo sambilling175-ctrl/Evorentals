@@ -177,3 +177,18 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   bike, while audit and settlement can reconstruct every assignment. An overdue
   rental must be extended before swapping so the replacement conflict horizon is
   explicit and protected against future bookings.
+
+## ADR-017 - Atomic return inspection before settlement
+
+- Date: 2026-08-07
+- Status: Accepted
+- Decision: An active or overdue rental can be returned only through the
+  invoker-mode `record_rental_return` RPC. It locks the rental and its current
+  vehicle, validates the return time and odometer, inserts one immutable return
+  inspection plus immutable damage-charge rows, updates vehicle telemetry and
+  disposition, and marks the rental `returned` in one transaction.
+- Consequence: Return inspection is intentionally separate from settlement.
+  Damage charges are historical operational facts and are not added to the
+  rental contract total until a future settlement workflow allocates them.
+  A unique rental inspection and immutable-history triggers reject repeats or
+  edits, while company-scoped RLS protects both new tables.

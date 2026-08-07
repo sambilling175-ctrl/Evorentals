@@ -76,6 +76,10 @@ export const STATUS_CONFIG: Record<
     label: "Completed",
     className: "bg-blue-500/15 text-blue-400 border-blue-500/30",
   },
+  returned: {
+    label: "Returned",
+    className: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+  },
   overdue: {
     label: "Overdue",
     className: "bg-red-500/15 text-red-400 border-red-500/30",
