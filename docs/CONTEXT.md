@@ -10,7 +10,7 @@
 | Updated | 2026-08-07 |
 | Delivery position | D9-05 return inspection implemented; draft PR #8 open for review |
 | Git branch | `agent/d9-05-return-inspection` |
-| Last verified application commit | `1b6a6c4` - Implement D9-05 return inspection |
+| Last verified application commit | `8fa0ad9` - Fix rentals relationship embedding |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -132,6 +132,12 @@ reconciliation (D9-04, merge `55fdc15`).
 
 In review: atomic return inspection with immutable inspection and damage-charge
 history (D9-05, feature branch `agent/d9-05-return-inspection`, draft PR #8).
+The first preview exposed a PostgREST ambiguous relationship error because
+`rentals` has both current and original bike foreign keys. The rental workspace
+now names the `rentals_bike_id_fkey` and `bookings_bike_id_fkey` relationships
+explicitly. The fix is `8fa0ad9`; its READY preview is
+`https://evorentals-h7teszpz8-wephotons1.vercel.app` and the deployment has no
+runtime error logs.
 Migration `20260807082825_rental_return_inspection.sql` is applied to Supabase;
 no production business records were created. The READY preview is
 `https://evorentals-q9imvfwwi-wephotons1.vercel.app`.

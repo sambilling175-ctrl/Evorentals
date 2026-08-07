@@ -163,8 +163,12 @@ Status: Complete and released
   pre-existing project findings; no D9-05-specific finding. Initial inspection,
   damage-charge, and rental counts remain zero.
 - `npm.cmd run validate` passed on 2026-08-07.
-- Release status: application commit `1b6a6c4` on feature branch
+- Review fix `8fa0ad9` names the current bike foreign-key relationships in the
+  rental and booking workspace queries. This resolves the live PostgREST error
+  `Could not embed because more than one relationship was found for 'rentals'
+  and 'bikes'`. The new READY preview has no runtime error logs.
+- Release status: application fix commit `8fa0ad9` on feature branch
   `agent/d9-05-return-inspection`; draft PR #8 is open. Preview
-  `evorentals-q9imvfwwi-wephotons1.vercel.app` is READY. Authenticated browser
+  `evorentals-h7teszpz8-wephotons1.vercel.app` is READY. Authenticated browser
   smoke testing is still pending because the available preview access is
   protected and the current browser session is not authenticated.
