@@ -94,8 +94,8 @@ export async function getRentalWorkspace(): Promise<RentalWorkspaceData> {
     throw new Error("You do not have permission to view rentals");
   }
   const [rentalsResult, bookingsResult, fleetResult] = await Promise.all([
-    a.supabase.from("rentals").select("id,bike_id,rental_number,started_at,planned_end_at,start_odometer,status,contract_amount,extension_amount,total_amount,customers(full_name),bikes(serial_number,model,current_odometer,battery_level)").eq("company_id", a.profile.company_id).is("deleted_at", null).order("created_at", { ascending: false }),
-    a.supabase.from("bookings").select("id,booking_number,starts_at,ends_at,total_amount,customers(full_name),bikes(serial_number,model,current_odometer)").eq("company_id", a.profile.company_id).eq("status", "confirmed").is("deleted_at", null).order("starts_at"),
+    a.supabase.from("rentals").select("id,bike_id,rental_number,started_at,planned_end_at,start_odometer,status,contract_amount,extension_amount,total_amount,customers!rentals_customer_id_fkey(full_name),bikes!rentals_bike_id_fkey(serial_number,model,current_odometer,battery_level)").eq("company_id", a.profile.company_id).is("deleted_at", null).order("created_at", { ascending: false }),
+    a.supabase.from("bookings").select("id,booking_number,starts_at,ends_at,total_amount,customers!bookings_customer_id_fkey(full_name),bikes!bookings_bike_id_fkey(serial_number,model,current_odometer)").eq("company_id", a.profile.company_id).eq("status", "confirmed").is("deleted_at", null).order("starts_at"),
     a.supabase.from("bikes").select("id,serial_number,model,current_odometer,battery_level").eq("company_id", a.profile.company_id).eq("status", "available").is("deleted_at", null).order("serial_number"),
   ]);
   const error = rentalsResult.error ?? bookingsResult.error ?? fleetResult.error;
