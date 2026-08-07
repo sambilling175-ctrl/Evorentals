@@ -163,5 +163,8 @@ Status: Complete and released
   pre-existing project findings; no D9-05-specific finding. Initial inspection,
   damage-charge, and rental counts remain zero.
 - `npm.cmd run validate` passed on 2026-08-07.
-- Release status: feature branch `agent/d9-05-return-inspection`; push and
-  Vercel preview readiness are pending review.
+- Release status: application commit `1b6a6c4` on feature branch
+  `agent/d9-05-return-inspection`; draft PR #8 is open. Preview
+  `evorentals-q9imvfwwi-wephotons1.vercel.app` is READY. Authenticated browser
+  smoke testing is still pending because the available preview access is
+  protected and the current browser session is not authenticated.

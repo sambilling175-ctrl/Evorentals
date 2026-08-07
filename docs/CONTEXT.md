@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-07 |
-| Delivery position | D9-05 return inspection implemented; preview and release review pending |
+| Delivery position | D9-05 return inspection implemented; draft PR #8 open for review |
 | Git branch | `agent/d9-05-return-inspection` |
-| Last verified application commit | `55fdc15` - Merge D9-04 atomic rental vehicle swaps |
+| Last verified application commit | `1b6a6c4` - Implement D9-05 return inspection |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -131,9 +131,10 @@ Live: atomic vehicle swaps with immutable assignment history and odometer
 reconciliation (D9-04, merge `55fdc15`).
 
 In review: atomic return inspection with immutable inspection and damage-charge
-history (D9-05, feature branch `agent/d9-05-return-inspection`; migration
-`20260807082825_rental_return_inspection.sql` applied to Supabase; no production
-business records created).
+history (D9-05, feature branch `agent/d9-05-return-inspection`, draft PR #8).
+Migration `20260807082825_rental_return_inspection.sql` is applied to Supabase;
+no production business records were created. The READY preview is
+`https://evorentals-q9imvfwwi-wephotons1.vercel.app`.
 
 Do not describe placeholder screens as backend-complete.
 

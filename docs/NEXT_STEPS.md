@@ -34,7 +34,7 @@
 | D9-02 | P0 | Convert confirmed bookings into immutable active rental contracts | Completed | Codex; app `65358ab`, merge `68c8e26`; migrations `20260804125633` and `20260804125801`; validate and live schema verification passed; production Ready | D9-01 | Rentals, Bookings, Fleet |
 | D9-03 | P0 | Extend active rentals with immutable pricing and audit history | Completed | Codex; app `5f065dc`, merge `9549929`; migrations `20260804131305`, `20260804131358`, `20260804131557`; validate/live schema passed; production Ready | D9-02 | Rentals, Pricing, Fleet |
 | D9-04 | P0 | Swap vehicles on open rentals with odometer reconciliation and immutable history | Completed | Codex; app `7041d0a`, merge `55fdc15`; migrations `20260806132958` and `20260806133028`; validate/live schema passed; production Ready | D9-03 | Rentals, Fleet, Bookings |
-| D9-05 | P0 | Return inspection with immutable damage history and atomic rental/vehicle transition | Review | Codex; `agent/d9-05-return-inspection`; started 2026-08-07 Asia/Kolkata; migration owner: yes; validate and live schema/advisors passed; preview pending | D9-04 | Rentals, Fleet |
+| D9-05 | P0 | Return inspection with immutable damage history and atomic rental/vehicle transition | Review | Codex; `agent/d9-05-return-inspection`; commit `1b6a6c4`; draft PR #8; migration owner: yes; validate and live schema/advisors passed; preview READY `evorentals-q9imvfwwi-wephotons1.vercel.app`; authenticated smoke test pending | D9-04 | Rentals, Fleet |
 
 ## Planned module sequence
 
