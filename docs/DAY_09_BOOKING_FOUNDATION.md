@@ -138,3 +138,30 @@ Status: Complete and released
   `https://evorentals.vercel.app`.
 - Post-release check: Vercel reported no `/rentals` runtime errors. The available
   browser session was signed out, so authenticated UI smoke testing was not claimed.
+
+## D9-05 return inspection
+
+- Added a permission-gated return inspection form for active and overdue
+  rentals. It captures India-local return time, odometer, battery level,
+  condition, checklist values, notes, vehicle disposition, evidence metadata,
+  and a validated JSON array of damage items.
+- Migration `20260807082825_rental_return_inspection.sql` adds the
+  company-scoped `rental_return_inspections` and `rental_damage_charges`
+  tables, immutable-history triggers, explicit authenticated grants, and the
+  `returned` rental state. No production business records were created.
+- `record_rental_return` is a SECURITY INVOKER function with an empty fixed
+  search path. It authorizes the employee, locks the open rental and current
+  vehicle, rejects cross-company access, stale odometers, future/early returns,
+  booking conflicts, invalid JSON, invalid states, and repeated inspections,
+  then inserts inspection/charge history, updates vehicle telemetry and
+  disposition, and marks the rental `returned` atomically.
+- Damage charges remain separate operational facts; final settlement is not
+  included in D9-05.
+- Live verification: migration applied successfully; new tables have RLS,
+  authenticated-only table access, company policies, and the RPC is invoker
+  mode with `search_path = ""`. Security/performance advisors show only
+  pre-existing project findings; no D9-05-specific finding. Initial inspection,
+  damage-charge, and rental counts remain zero.
+- `npm.cmd run validate` passed on 2026-08-07.
+- Release status: feature branch `agent/d9-05-return-inspection`; push and
+  Vercel preview readiness are pending review.

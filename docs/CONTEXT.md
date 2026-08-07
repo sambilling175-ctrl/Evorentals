@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-06 |
-| Delivery position | D9-04 vehicle swaps released; D9-05 return inspection next |
-| Git branch | `main` |
+| Updated | 2026-08-07 |
+| Delivery position | D9-05 return inspection implemented; preview and release review pending |
+| Git branch | `agent/d9-05-return-inspection` |
 | Last verified application commit | `55fdc15` - Merge D9-04 atomic rental vehicle swaps |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260806133028_rental_vehicle_swaps_hardening.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-06 |
+| Latest migration | `20260807082825_rental_return_inspection.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-07 |
 
 ## Product
 
@@ -130,6 +130,11 @@ Live: immutable, conflict-aware rental extensions with additive contract totals
 Live: atomic vehicle swaps with immutable assignment history and odometer
 reconciliation (D9-04, merge `55fdc15`).
 
+In review: atomic return inspection with immutable inspection and damage-charge
+history (D9-05, feature branch `agent/d9-05-return-inspection`; migration
+`20260807082825_rental_return_inspection.sql` applied to Supabase; no production
+business records created).
+
 Do not describe placeholder screens as backend-complete.
 
 ## Known issues and debt
@@ -163,14 +168,15 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260806133028`.
+- Continue migration numbering after `20260807082825`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Implement return inspection as D9-05. Production currently has no verified
-customers, active pricing plans, bookings, or rentals, so do not fabricate a
-swap. Re-open `/rentals` after authentication to complete the UI smoke test.
+Push `agent/d9-05-return-inspection`, wait for the Vercel preview to become
+READY, complete the authenticated `/rentals` smoke test, and then request review
+before merging. Production currently has no verified customers, active pricing
+plans, bookings, or rentals, so do not fabricate a return inspection.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -202,6 +208,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 7 | 2026-08-04 | Live fleet directory and derived availability (D7-01, released) | `DAY_07_FLEET_AVAILABILITY.md` |
 | 8 | 2026-08-04 | Company pricing plans and server quote preview (D8-01, released) | `DAY_08_PRICING.md` |
 | 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
+| 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 
 ## Handoff rule
 
