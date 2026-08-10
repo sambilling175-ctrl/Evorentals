@@ -1,5 +1,8 @@
 -- D10-01: authoritative, append-only receivables ledger.
 
+create unique index if not exists rentals_company_id_id_key on public.rentals(company_id, id);
+create unique index if not exists customers_company_id_id_key on public.customers(company_id, id);
+
 create table public.receivable_invoices (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null references public.companies(id),
@@ -17,7 +20,10 @@ create table public.receivable_invoices (
   created_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
   constraint receivable_invoices_company_number_key unique (company_id, invoice_number),
+  constraint receivable_invoices_company_id_id_key unique (company_id, id),
   constraint receivable_invoices_one_rental_key unique (rental_id),
+  constraint receivable_invoices_rental_company_fkey foreign key (company_id, rental_id) references public.rentals(company_id, id),
+  constraint receivable_invoices_customer_company_fkey foreign key (company_id, customer_id) references public.customers(company_id, id),
   constraint receivable_invoices_due_check check (due_at >= issued_at),
   constraint receivable_invoices_total_check check (total_amount = subtotal + tax_amount)
 );
@@ -35,6 +41,7 @@ create table public.receivable_invoice_lines (
   source_metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(source_metadata) = 'object'),
   created_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
+  constraint receivable_invoice_lines_invoice_company_fkey foreign key (company_id, invoice_id) references public.receivable_invoices(company_id, id),
   constraint receivable_invoice_lines_amount_check check (line_amount = round(quantity * unit_amount, 2))
 );
 
@@ -52,7 +59,9 @@ create table public.receivable_payments (
   notes text check (notes is null or char_length(notes) <= 1000),
   created_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
-  constraint receivable_payments_company_number_key unique (company_id, payment_number)
+  constraint receivable_payments_company_number_key unique (company_id, payment_number),
+  constraint receivable_payments_company_id_id_key unique (company_id, id),
+  constraint receivable_payments_customer_company_fkey foreign key (company_id, customer_id) references public.customers(company_id, id)
 );
 
 create table public.receivable_payment_allocations (
@@ -63,7 +72,9 @@ create table public.receivable_payment_allocations (
   amount numeric(12,2) not null check (amount > 0),
   allocated_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
-  constraint receivable_payment_allocations_pair_key unique (payment_id, invoice_id)
+  constraint receivable_payment_allocations_pair_key unique (payment_id, invoice_id),
+  constraint receivable_allocations_payment_company_fkey foreign key (company_id, payment_id) references public.receivable_payments(company_id, id),
+  constraint receivable_allocations_invoice_company_fkey foreign key (company_id, invoice_id) references public.receivable_invoices(company_id, id)
 );
 
 create table public.receivable_deposit_movements (
@@ -79,6 +90,9 @@ create table public.receivable_deposit_movements (
   reverses_movement_id uuid references public.receivable_deposit_movements(id),
   created_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
+  constraint receivable_deposits_rental_company_fkey foreign key (company_id, rental_id) references public.rentals(company_id, id),
+  constraint receivable_deposits_customer_company_fkey foreign key (company_id, customer_id) references public.customers(company_id, id),
+  constraint receivable_deposits_payment_company_fkey foreign key (company_id, payment_id) references public.receivable_payments(company_id, id),
   constraint receivable_deposit_reversal_key unique (reverses_movement_id),
   constraint receivable_deposit_reversal_check check ((movement_type = 'reversed') = (reverses_movement_id is not null))
 );
@@ -99,6 +113,9 @@ create table public.receivable_refunds (
   created_at timestamptz not null default timezone('utc', now()),
   created_by uuid references public.profiles(id) on delete set null,
   constraint receivable_refunds_company_number_key unique (company_id, refund_number),
+  constraint receivable_refunds_rental_company_fkey foreign key (company_id, rental_id) references public.rentals(company_id, id),
+  constraint receivable_refunds_customer_company_fkey foreign key (company_id, customer_id) references public.customers(company_id, id),
+  constraint receivable_refunds_payment_company_fkey foreign key (company_id, payment_id) references public.receivable_payments(company_id, id),
   constraint receivable_refund_reversal_key unique (reverses_refund_id)
 );
 
@@ -155,6 +172,38 @@ create trigger protect_receivable_payments before update or delete on public.rec
 create trigger protect_receivable_allocations before update or delete on public.receivable_payment_allocations for each row execute function private.protect_receivables_history();
 create trigger protect_receivable_deposits before update or delete on public.receivable_deposit_movements for each row execute function private.protect_receivables_history();
 create trigger protect_receivable_refunds before update or delete on public.receivable_refunds for each row execute function private.protect_receivables_history();
+
+create or replace function private.validate_receivable_allocation()
+returns trigger language plpgsql security invoker set search_path = '' as $$
+declare
+  v_payment_total numeric;
+  v_payment_allocated numeric;
+  v_invoice_total numeric;
+  v_invoice_allocated numeric;
+begin
+  perform 1 from public.receivable_payments where id = new.payment_id for update;
+  perform 1 from public.receivable_invoices where id = new.invoice_id for update;
+
+  select amount into v_payment_total from public.receivable_payments where id = new.payment_id;
+  select coalesce(sum(amount), 0) into v_payment_allocated
+  from public.receivable_payment_allocations where payment_id = new.payment_id;
+  if v_payment_allocated + new.amount > v_payment_total then
+    raise exception 'Allocation exceeds unallocated payment amount';
+  end if;
+
+  select total_amount into v_invoice_total from public.receivable_invoices where id = new.invoice_id;
+  select coalesce(sum(amount), 0) into v_invoice_allocated
+  from public.receivable_payment_allocations where invoice_id = new.invoice_id;
+  if v_invoice_allocated + new.amount > v_invoice_total then
+    raise exception 'Allocation exceeds invoice balance';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger validate_receivable_allocation
+before insert on public.receivable_payment_allocations
+for each row execute function private.validate_receivable_allocation();
 
 create view public.receivable_invoice_balances
 with (security_invoker = true)
