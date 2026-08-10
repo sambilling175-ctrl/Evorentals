@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-10 |
-| Delivery position | D9-05 return inspection validated; PR #8 ready to merge |
-| Git branch | `agent/d9-05-return-inspection` |
-| Last verified application commit | `9e12286` - Merge current main into D9-05 |
+| Delivery position | D9-05 released; D9-06 rental settlement in progress |
+| Git branch | `agent/d9-06-rental-settlement` |
+| Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -130,8 +130,8 @@ Live: immutable, conflict-aware rental extensions with additive contract totals
 Live: atomic vehicle swaps with immutable assignment history and odometer
 reconciliation (D9-04, merge `55fdc15`).
 
-In review: atomic return inspection with immutable inspection and damage-charge
-history (D9-05, feature branch `agent/d9-05-return-inspection`, draft PR #8).
+Live: atomic return inspection with immutable inspection and damage-charge
+history (D9-05, merge `e3893a9`).
 The first preview exposed a PostgREST ambiguous relationship error because
 `rentals` has both current and original bike foreign keys. The rental workspace
 now names the `rentals_bike_id_fkey` and `bookings_bike_id_fkey` relationships
@@ -184,10 +184,12 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Merge D9-05 PR #8 after its final Vercel check, verify the production rentals
-workspace, then define and claim D9-06 settlement from updated `main`.
-Production currently has no verified customers, active pricing plans, bookings,
-or rentals, so do not fabricate a return inspection or settlement.
+Implement D9-06 rental settlement on `agent/d9-06-rental-settlement`. Live schema
+verification found no invoice, payment, payment-allocation, deposit, refund, dues,
+or settlement tables; D9-06 must therefore introduce a narrow immutable
+settlement ledger and atomic returned-to-closed transition without claiming the
+future collections module is complete. Production has no rentals, so do not
+fabricate a settlement.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
