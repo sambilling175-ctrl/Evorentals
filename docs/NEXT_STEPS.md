@@ -34,7 +34,8 @@
 | D9-02 | P0 | Convert confirmed bookings into immutable active rental contracts | Completed | Codex; app `65358ab`, merge `68c8e26`; migrations `20260804125633` and `20260804125801`; validate and live schema verification passed; production Ready | D9-01 | Rentals, Bookings, Fleet |
 | D9-03 | P0 | Extend active rentals with immutable pricing and audit history | Completed | Codex; app `5f065dc`, merge `9549929`; migrations `20260804131305`, `20260804131358`, `20260804131557`; validate/live schema passed; production Ready | D9-02 | Rentals, Pricing, Fleet |
 | D9-04 | P0 | Swap vehicles on open rentals with odometer reconciliation and immutable history | Completed | Codex; app `7041d0a`, merge `55fdc15`; migrations `20260806132958` and `20260806133028`; validate/live schema passed; production Ready | D9-03 | Rentals, Fleet, Bookings |
-| AUTH-H2 | P0 | Make implicit password recovery resilient when Supabase falls back to the login Site URL | Review | Codex / `agent/password-recovery-callback`; validate passed; Vercel preview READY and fallback smoke-tested; no migration; PR #9 awaits merge approval | Day 3 auth | Auth |
+| D9-05 | P0 | Return inspection with immutable damage history and atomic rental/vehicle transition | Review | Codex; `agent/d9-05-return-inspection`; fix commit `8fa0ad9`; draft PR #8; migration owner: yes; validate/live schema/advisors passed; refreshed preview READY; authenticated `/rentals` smoke test passed; no records created | D9-04 | Rentals, Fleet |
+| AUTH-H2 | P0 | Make implicit password recovery resilient when Supabase falls back to the login Site URL | Completed | Codex; merge `c7a4956`; validate passed; production READY and fallback smoke-tested; no migration | Day 3 auth | Auth |
 
 ## Planned module sequence
 

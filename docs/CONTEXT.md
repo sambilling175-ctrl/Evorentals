@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-06 |
-| Delivery position | D9-04 vehicle swaps released; D9-05 return inspection next |
-| Git branch | `main` |
-| Last verified application commit | `55fdc15` - Merge D9-04 atomic rental vehicle swaps |
+| Updated | 2026-08-10 |
+| Delivery position | D9-05 return inspection validated; PR #8 ready to merge |
+| Git branch | `agent/d9-05-return-inspection` |
+| Last verified application commit | `9e12286` - Merge current main into D9-05 |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260806133028_rental_vehicle_swaps_hardening.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-06 |
+| Latest migration | `20260807082825_rental_return_inspection.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
 
 ## Product
 
@@ -130,6 +130,22 @@ Live: immutable, conflict-aware rental extensions with additive contract totals
 Live: atomic vehicle swaps with immutable assignment history and odometer
 reconciliation (D9-04, merge `55fdc15`).
 
+In review: atomic return inspection with immutable inspection and damage-charge
+history (D9-05, feature branch `agent/d9-05-return-inspection`, draft PR #8).
+The first preview exposed a PostgREST ambiguous relationship error because
+`rentals` has both current and original bike foreign keys. The rental workspace
+now names the `rentals_bike_id_fkey` and `bookings_bike_id_fkey` relationships
+explicitly. The fix is `8fa0ad9`; its READY preview is
+`https://evorentals-h7teszpz8-wephotons1.vercel.app` and the deployment has no
+runtime error logs.
+Migration `20260807082825_rental_return_inspection.sql` is applied to Supabase;
+no production business records were created. The READY preview is
+`https://evorentals-q9imvfwwi-wephotons1.vercel.app`.
+The refreshed branch preview was authenticated and smoke-tested on 2026-08-10:
+`/rentals` loaded the live control board, zero-record metrics, activation empty
+state, and contracts empty state without the prior relationship failure. No
+business record was created.
+
 Do not describe placeholder screens as backend-complete.
 
 ## Known issues and debt
@@ -163,14 +179,15 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260806133028`.
+- Continue migration numbering after `20260807082825`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Implement return inspection as D9-05. Production currently has no verified
-customers, active pricing plans, bookings, or rentals, so do not fabricate a
-swap. Re-open `/rentals` after authentication to complete the UI smoke test.
+Merge D9-05 PR #8 after its final Vercel check, verify the production rentals
+workspace, then define and claim D9-06 settlement from updated `main`.
+Production currently has no verified customers, active pricing plans, bookings,
+or rentals, so do not fabricate a return inspection or settlement.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
@@ -217,6 +234,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 7 | 2026-08-04 | Live fleet directory and derived availability (D7-01, released) | `DAY_07_FLEET_AVAILABILITY.md` |
 | 8 | 2026-08-04 | Company pricing plans and server quote preview (D8-01, released) | `DAY_08_PRICING.md` |
 | 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
+| 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 
 ## Handoff rule
 
