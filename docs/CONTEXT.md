@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-07 |
-| Delivery position | D9-05 return inspection implemented; draft PR #8 open for review |
+| Updated | 2026-08-10 |
+| Delivery position | D9-05 return inspection validated; PR #8 ready to merge |
 | Git branch | `agent/d9-05-return-inspection` |
-| Last verified application commit | `8fa0ad9` - Fix rentals relationship embedding |
+| Last verified application commit | `9e12286` - Merge current main into D9-05 |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260807082825_rental_return_inspection.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-07 |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
 
 ## Product
 
@@ -141,6 +141,10 @@ runtime error logs.
 Migration `20260807082825_rental_return_inspection.sql` is applied to Supabase;
 no production business records were created. The READY preview is
 `https://evorentals-q9imvfwwi-wephotons1.vercel.app`.
+The refreshed branch preview was authenticated and smoke-tested on 2026-08-10:
+`/rentals` loaded the live control board, zero-record metrics, activation empty
+state, and contracts empty state without the prior relationship failure. No
+business record was created.
 
 Do not describe placeholder screens as backend-complete.
 
@@ -180,10 +184,10 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Push `agent/d9-05-return-inspection`, wait for the Vercel preview to become
-READY, complete the authenticated `/rentals` smoke test, and then request review
-before merging. Production currently has no verified customers, active pricing
-plans, bookings, or rentals, so do not fabricate a return inspection.
+Merge D9-05 PR #8 after its final Vercel check, verify the production rentals
+workspace, then define and claim D9-06 settlement from updated `main`.
+Production currently has no verified customers, active pricing plans, bookings,
+or rentals, so do not fabricate a return inspection or settlement.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
