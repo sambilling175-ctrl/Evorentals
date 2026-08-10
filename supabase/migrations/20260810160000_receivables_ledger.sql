@@ -205,6 +205,131 @@ create trigger validate_receivable_allocation
 before insert on public.receivable_payment_allocations
 for each row execute function private.validate_receivable_allocation();
 
+create or replace function public.issue_returned_rental_invoice(
+  p_rental_id uuid,
+  p_due_at timestamptz,
+  p_notes text default null
+)
+returns table(invoice_id uuid, invoice_number text, total_amount numeric)
+language plpgsql security invoker set search_path = '' as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_company_id uuid;
+  v_role text;
+  v_rental public.rentals%rowtype;
+  v_damage_total numeric := 0;
+  v_invoice_id uuid := gen_random_uuid();
+  v_invoice_number text;
+  v_total numeric;
+begin
+  select p.company_id, p.role into v_company_id, v_role
+  from public.profiles p
+  where p.id = v_user_id and p.status = 'active' and p.deleted_at is null;
+  if v_company_id is null then raise exception 'Active employee profile required'; end if;
+  if v_role not in ('admin','super_admin') and not exists (
+    select 1 from public.roles r where r.company_id = v_company_id and r.name = v_role
+      and r.deleted_at is null
+      and coalesce(r.permissions -> 'Payments', '[]'::jsonb) ?| array['Create','Edit','Manage']
+  ) then raise exception 'You do not have permission to issue invoices'; end if;
+
+  select * into v_rental from public.rentals r
+  where r.id = p_rental_id and r.company_id = v_company_id and r.deleted_at is null
+  for update;
+  if not found then raise exception 'Rental not found'; end if;
+  if v_rental.status <> 'returned' then raise exception 'Only returned rentals can be invoiced'; end if;
+  if p_due_at < timezone('utc', now()) then raise exception 'Invoice due time cannot be in the past'; end if;
+  if char_length(coalesce(p_notes, '')) > 2000 then raise exception 'Invoice notes cannot exceed 2000 characters'; end if;
+  if not exists (select 1 from public.rental_return_inspections i where i.rental_id = v_rental.id and i.company_id = v_company_id) then
+    raise exception 'Return inspection required before invoicing';
+  end if;
+  if exists (select 1 from public.receivable_invoices i where i.rental_id = v_rental.id) then
+    raise exception 'Rental already has an invoice';
+  end if;
+
+  select coalesce(sum(d.amount), 0) into v_damage_total
+  from public.rental_damage_charges d
+  where d.rental_id = v_rental.id and d.company_id = v_company_id;
+  v_total := round(coalesce(v_rental.total_amount, 0) + v_damage_total, 2);
+  v_invoice_number := 'INV-' || to_char(timezone('Asia/Kolkata', now()), 'YYYYMMDD') || '-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
+
+  insert into public.receivable_invoices(
+    id, company_id, rental_id, customer_id, invoice_number, issued_at, due_at,
+    subtotal, tax_amount, total_amount, source_snapshot, notes, created_by
+  ) values (
+    v_invoice_id, v_company_id, v_rental.id, v_rental.customer_id, v_invoice_number,
+    timezone('utc', now()), p_due_at, v_total, 0, v_total,
+    jsonb_build_object('version', 1, 'rentalAmount', v_rental.total_amount,
+      'contractAmount', v_rental.contract_amount, 'extensionAmount', v_rental.extension_amount,
+      'damageAmount', v_damage_total, 'rentalPricing', v_rental.pricing_snapshot),
+    nullif(btrim(coalesce(p_notes, '')), ''), v_user_id
+  );
+
+  insert into public.receivable_invoice_lines(company_id, invoice_id, line_type, description, quantity, unit_amount, line_amount, source_entity_id, created_by)
+  values (v_company_id, v_invoice_id, 'rental', 'Rental contract and extensions', 1, v_rental.total_amount, v_rental.total_amount, v_rental.id, v_user_id);
+
+  insert into public.receivable_invoice_lines(company_id, invoice_id, line_type, description, quantity, unit_amount, line_amount, source_entity_id, source_metadata, created_by)
+  select v_company_id, v_invoice_id, 'damage', d.description, 1, d.amount, d.amount, d.id,
+         jsonb_build_object('inspectionId', d.inspection_id, 'evidenceMetadata', d.evidence_metadata), v_user_id
+  from public.rental_damage_charges d where d.rental_id = v_rental.id and d.company_id = v_company_id;
+
+  return query select v_invoice_id, v_invoice_number, v_total;
+end;
+$$;
+
+create or replace function public.post_receivable_payment(
+  p_customer_id uuid,
+  p_amount numeric,
+  p_method text,
+  p_reference text,
+  p_collected_at timestamptz,
+  p_allocations jsonb,
+  p_notes text default null
+)
+returns table(payment_id uuid, payment_number text, allocated_amount numeric)
+language plpgsql security invoker set search_path = '' as $$
+declare
+  v_user_id uuid := auth.uid(); v_company_id uuid; v_role text;
+  v_payment_id uuid := gen_random_uuid(); v_payment_number text;
+  v_item jsonb; v_invoice_id uuid; v_amount numeric; v_allocated numeric := 0;
+begin
+  select p.company_id, p.role into v_company_id, v_role from public.profiles p
+  where p.id = v_user_id and p.status = 'active' and p.deleted_at is null;
+  if v_company_id is null then raise exception 'Active employee profile required'; end if;
+  if v_role not in ('admin','super_admin') and not exists (
+    select 1 from public.roles r where r.company_id = v_company_id and r.name = v_role and r.deleted_at is null
+      and coalesce(r.permissions -> 'Payments', '[]'::jsonb) ?| array['Create','Edit','Manage']
+  ) then raise exception 'You do not have permission to post payments'; end if;
+  if p_amount <= 0 or round(p_amount, 2) <> p_amount then raise exception 'Payment amount must be positive with at most two decimals'; end if;
+  if p_method not in ('cash','upi','card','bank_transfer','other') then raise exception 'Invalid payment method'; end if;
+  if p_collected_at > now() + interval '15 minutes' then raise exception 'Collection time cannot be in the future'; end if;
+  if jsonb_typeof(coalesce(p_allocations, '[]'::jsonb)) <> 'array' then raise exception 'Allocations must be an array'; end if;
+  if not exists (select 1 from public.customers c where c.id = p_customer_id and c.company_id = v_company_id and c.deleted_at is null) then raise exception 'Customer not found'; end if;
+
+  v_payment_number := 'PAY-' || to_char(timezone('Asia/Kolkata', now()), 'YYYYMMDD') || '-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
+  insert into public.receivable_payments(id, company_id, customer_id, payment_number, amount, method, reference, collected_at, collector_id, notes, created_by)
+  values (v_payment_id, v_company_id, p_customer_id, v_payment_number, p_amount, p_method,
+    nullif(btrim(coalesce(p_reference, '')), ''), p_collected_at, v_user_id,
+    nullif(btrim(coalesce(p_notes, '')), ''), v_user_id);
+
+  for v_item in select value from jsonb_array_elements(coalesce(p_allocations, '[]'::jsonb)) loop
+    begin v_invoice_id := (v_item ->> 'invoiceId')::uuid; v_amount := (v_item ->> 'amount')::numeric;
+    exception when others then raise exception 'Allocation invoice and amount are invalid'; end;
+    if v_amount <= 0 or round(v_amount, 2) <> v_amount then raise exception 'Allocation amount must be positive with at most two decimals'; end if;
+    if not exists (select 1 from public.receivable_invoices i where i.id = v_invoice_id and i.company_id = v_company_id and i.customer_id = p_customer_id) then raise exception 'Invoice is unavailable for this customer'; end if;
+    insert into public.receivable_payment_allocations(company_id, payment_id, invoice_id, amount, created_by)
+    values (v_company_id, v_payment_id, v_invoice_id, v_amount, v_user_id);
+    v_allocated := v_allocated + v_amount;
+  end loop;
+  if v_allocated > p_amount then raise exception 'Allocations exceed payment amount'; end if;
+  return query select v_payment_id, v_payment_number, v_allocated;
+end;
+$$;
+
+revoke all on function public.issue_returned_rental_invoice(uuid,timestamptz,text) from public, anon;
+grant execute on function public.issue_returned_rental_invoice(uuid,timestamptz,text) to authenticated;
+revoke all on function public.post_receivable_payment(uuid,numeric,text,text,timestamptz,jsonb,text) from public, anon;
+grant execute on function public.post_receivable_payment(uuid,numeric,text,text,timestamptz,jsonb,text) to authenticated;
+
 create view public.receivable_invoice_balances
 with (security_invoker = true)
 as
