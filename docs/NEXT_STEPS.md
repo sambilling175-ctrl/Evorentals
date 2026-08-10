@@ -35,6 +35,7 @@
 | D9-03 | P0 | Extend active rentals with immutable pricing and audit history | Completed | Codex; app `5f065dc`, merge `9549929`; migrations `20260804131305`, `20260804131358`, `20260804131557`; validate/live schema passed; production Ready | D9-02 | Rentals, Pricing, Fleet |
 | D9-04 | P0 | Swap vehicles on open rentals with odometer reconciliation and immutable history | Completed | Codex; app `7041d0a`, merge `55fdc15`; migrations `20260806132958` and `20260806133028`; validate/live schema passed; production Ready | D9-03 | Rentals, Fleet, Bookings |
 | D9-05 | P0 | Return inspection with immutable damage history and atomic rental/vehicle transition | Review | Codex; `agent/d9-05-return-inspection`; fix commit `8fa0ad9` (explicit PostgREST bike relationships); draft PR #8; migration owner: yes; validate/live schema/advisors passed; preview READY `evorentals-h7teszpz8-wephotons1.vercel.app`; deployment runtime logs clean; authenticated smoke test pending | D9-04 | Rentals, Fleet |
+| AUTH-H2 | P0 | Make implicit password recovery resilient when Supabase falls back to the login Site URL | Completed | Codex; merge `c7a4956`; validate passed; production READY and fallback smoke-tested; no migration | Day 3 auth | Auth |
 
 ## Planned module sequence
 
