@@ -172,3 +172,14 @@ Status: Complete and released
   `evorentals-h7teszpz8-wephotons1.vercel.app` is READY. Authenticated browser
   smoke testing is still pending because the available preview access is
   protected and the current browser session is not authenticated.
+
+## D9-06 rental settlement
+
+- Status: In progress on `agent/d9-06-rental-settlement`.
+- Live schema verification on 2026-08-10 found no invoice, payment,
+  payment-allocation, deposit, refund, dues, or settlement tables. Only
+  company-scoped payment settings and the D9-05 damage facts exist.
+- Scope boundary: introduce an immutable settlement snapshot and atomic
+  returned-to-closed transition. Do not describe payment collection, refund
+  execution, invoicing, or gateway integration as complete until their own
+  ledger workflows are delivered.
