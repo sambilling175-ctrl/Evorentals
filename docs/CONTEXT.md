@@ -206,6 +206,8 @@ close a returned rental until the immutable receivables ledger exists.
 - `/payments` now uses a server-only typed receivables service and live invoice,
   allocation, payment, refund, outstanding, and overdue totals. The former mock
   collections dataset has been removed. `npm.cmd run validate` passes.
+- Draft PR #10 is open. Its Vercel preview is READY, and an unauthenticated
+  `/payments` request correctly resolves to `/login?next=/payments`.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
