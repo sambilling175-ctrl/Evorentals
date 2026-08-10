@@ -203,6 +203,9 @@ close a returned rental until the immutable receivables ledger exists.
 - Security advisors report no D10-01 findings. Performance advisors report no
   missing D10-01 foreign-key indexes; unused-index INFO notices are expected
   until real ledger traffic exists.
+- `/payments` now uses a server-only typed receivables service and live invoice,
+  allocation, payment, refund, outstanding, and overdue totals. The former mock
+  collections dataset has been removed. `npm.cmd run validate` passes.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
