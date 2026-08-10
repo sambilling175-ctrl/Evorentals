@@ -8,8 +8,8 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-10 |
-| Delivery position | D9-05 released; D9-06 blocked on receivables ledger D10-01 |
-| Git branch | `agent/d9-06-rental-settlement` |
+| Delivery position | D10-01 receivables ledger in progress; D9-06 blocked pending it |
+| Git branch | `agent/d10-01-receivables-ledger` |
 | Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -184,7 +184,7 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement D10-01 receivables before resuming D9-06. Live verification found no
+Implement D10-01 on `agent/d10-01-receivables-ledger` before resuming D9-06. Live verification found no
 invoice, payment, allocation, deposit, refund, dues, or settlement tables, while
 `rentals.total_amount` already includes the quoted deposit component. The system
 therefore cannot determine collected rent, held deposit, outstanding balance, or
