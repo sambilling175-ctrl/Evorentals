@@ -198,6 +198,10 @@ obtain a complete export or implement a resumable batched extractor first.
   callback; the callback verifies the authenticated user and hard-navigates only
   after the cookie-backed SSR session is established.
 - Validation: `npm.cmd run validate` passed locally on 2026-08-10.
+- Preview: Vercel deployment `2Pj83VsxqFFD42SLDj9SxjPkPRe7` is READY;
+  browser smoke testing verified `/login#type=recovery` forwards through the
+  callback, removes fragment credentials, and reaches the expected error state
+  when no real recovery tokens are supplied.
 - No database migration or production business data change is involved.
 
 ## Progress log
