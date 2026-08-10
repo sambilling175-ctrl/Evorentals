@@ -45,9 +45,19 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      window.history.replaceState(null, "", window.location.pathname);
-      router.replace(next);
-      router.refresh();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        router.replace(
+          `/forgot-password?error=${encodeURIComponent(userError?.message ?? "Unable to establish the recovery session")}`,
+        );
+        return;
+      }
+
+      // A hard navigation guarantees the cookie-backed session written by
+      // setSession is available to the route proxy before it protects the
+      // update-password page. It also removes fragment credentials from view.
+      window.location.replace(next);
     };
 
     void completeRecovery();

@@ -189,6 +189,17 @@ obtain a complete export or implement a resumable batched extractor first.
 - Operational next step: after deployment, request one new reset email. Previously
   generated recovery links retain their original PKCE flow and must not be reused.
 
+## 2026-08-10 password recovery callback follow-up
+
+- Production evidence: Supabase accepted the newest recovery link and created a
+  valid implicit recovery session, but its fragment credentials landed on
+  `/login` instead of being consumed by `/auth/callback`.
+- Resolution in review: the login page forwards recovery fragments to the
+  callback; the callback verifies the authenticated user and hard-navigates only
+  after the cookie-backed SSR session is established.
+- Validation: `npm.cmd run validate` passed locally on 2026-08-10.
+- No database migration or production business data change is involved.
+
 ## Progress log
 
 | Day | Date | Delivered | Handoff |
