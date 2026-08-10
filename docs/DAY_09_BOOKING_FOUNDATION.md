@@ -175,7 +175,7 @@ Status: Complete and released
 
 ## D9-06 rental settlement
 
-- Status: In progress on `agent/d9-06-rental-settlement`.
+- Status: Blocked on receivables ledger task D10-01.
 - Live schema verification on 2026-08-10 found no invoice, payment,
   payment-allocation, deposit, refund, dues, or settlement tables. Only
   company-scoped payment settings and the D9-05 damage facts exist.
@@ -183,3 +183,10 @@ Status: Complete and released
   returned-to-closed transition. Do not describe payment collection, refund
   execution, invoicing, or gateway integration as complete until their own
   ledger workflows are delivered.
+- Exact blocker: `rentals.total_amount` includes the pricing snapshot's quoted
+  deposit, but no authoritative row records whether rent or deposit was paid,
+  allocated, retained, or refunded. A settlement RPC cannot safely derive
+  balance due or refund due without inventing manual financial facts.
+- Resume condition: D10-01 supplies immutable company-scoped invoices/payments,
+  allocations, deposit movements, refunds, and due balances with RLS and atomic
+  posting rules. No D9-06 migration was created or applied.

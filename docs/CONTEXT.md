@@ -8,7 +8,7 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-10 |
-| Delivery position | D9-05 released; D9-06 rental settlement in progress |
+| Delivery position | D9-05 released; D9-06 blocked on receivables ledger D10-01 |
 | Git branch | `agent/d9-06-rental-settlement` |
 | Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
@@ -184,12 +184,12 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement D9-06 rental settlement on `agent/d9-06-rental-settlement`. Live schema
-verification found no invoice, payment, payment-allocation, deposit, refund, dues,
-or settlement tables; D9-06 must therefore introduce a narrow immutable
-settlement ledger and atomic returned-to-closed transition without claiming the
-future collections module is complete. Production has no rentals, so do not
-fabricate a settlement.
+Implement D10-01 receivables before resuming D9-06. Live verification found no
+invoice, payment, allocation, deposit, refund, dues, or settlement tables, while
+`rentals.total_amount` already includes the quoted deposit component. The system
+therefore cannot determine collected rent, held deposit, outstanding balance, or
+refund due from authoritative facts. Do not accept manual paid/deposit totals or
+close a returned rental until the immutable receivables ledger exists.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
