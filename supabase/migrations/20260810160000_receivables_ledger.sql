@@ -173,6 +173,37 @@ create trigger protect_receivable_allocations before update or delete on public.
 create trigger protect_receivable_deposits before update or delete on public.receivable_deposit_movements for each row execute function private.protect_receivables_history();
 create trigger protect_receivable_refunds before update or delete on public.receivable_refunds for each row execute function private.protect_receivables_history();
 
+create or replace function private.deposit_movement_effect(p_type text, p_amount numeric)
+returns numeric language sql immutable security invoker set search_path = '' as $$
+  select case p_type when 'received' then p_amount
+    when 'applied' then -p_amount when 'refunded' then -p_amount
+    when 'forfeited' then -p_amount else 0 end;
+$$;
+
+create or replace function private.validate_deposit_movement()
+returns trigger language plpgsql security invoker set search_path = '' as $$
+declare v_balance numeric; v_original public.receivable_deposit_movements%rowtype; v_effect numeric;
+begin
+  perform 1 from public.rentals where id = new.rental_id for update;
+  select coalesce(sum(private.deposit_movement_effect(m.movement_type, m.amount)), 0)
+    into v_balance from public.receivable_deposit_movements m where m.rental_id = new.rental_id;
+  if new.movement_type = 'reversed' then
+    select * into v_original from public.receivable_deposit_movements m
+      where m.id = new.reverses_movement_id and m.rental_id = new.rental_id and m.company_id = new.company_id;
+    if not found or v_original.movement_type = 'reversed' then raise exception 'Deposit reversal target is invalid'; end if;
+    if new.amount <> v_original.amount then raise exception 'Deposit reversal amount must match the original movement'; end if;
+    v_effect := -private.deposit_movement_effect(v_original.movement_type, v_original.amount);
+  else
+    v_effect := private.deposit_movement_effect(new.movement_type, new.amount);
+  end if;
+  if v_balance + v_effect < 0 then raise exception 'Deposit movement exceeds held balance'; end if;
+  return new;
+end;
+$$;
+
+create trigger validate_deposit_movement before insert on public.receivable_deposit_movements
+for each row execute function private.validate_deposit_movement();
+
 create or replace function private.validate_receivable_allocation()
 returns trigger language plpgsql security invoker set search_path = '' as $$
 declare
@@ -329,6 +360,69 @@ revoke all on function public.issue_returned_rental_invoice(uuid,timestamptz,tex
 grant execute on function public.issue_returned_rental_invoice(uuid,timestamptz,text) to authenticated;
 revoke all on function public.post_receivable_payment(uuid,numeric,text,text,timestamptz,jsonb,text) from public, anon;
 grant execute on function public.post_receivable_payment(uuid,numeric,text,text,timestamptz,jsonb,text) to authenticated;
+
+create or replace function public.post_deposit_movement(
+  p_rental_id uuid, p_movement_type text, p_amount numeric, p_occurred_at timestamptz,
+  p_payment_id uuid default null, p_reason text default null, p_reverses_movement_id uuid default null
+)
+returns uuid language plpgsql security invoker set search_path = '' as $$
+declare v_user_id uuid := auth.uid(); v_company_id uuid; v_role text; v_rental public.rentals%rowtype; v_id uuid := gen_random_uuid();
+begin
+  select p.company_id, p.role into v_company_id, v_role from public.profiles p
+  where p.id = v_user_id and p.status = 'active' and p.deleted_at is null;
+  if v_company_id is null then raise exception 'Active employee profile required'; end if;
+  if v_role not in ('admin','super_admin') and not exists (
+    select 1 from public.roles r where r.company_id = v_company_id and r.name = v_role and r.deleted_at is null
+      and coalesce(r.permissions -> 'Payments', '[]'::jsonb) ?| array['Create','Edit','Manage']
+  ) then raise exception 'You do not have permission to post deposit movements'; end if;
+  if p_movement_type not in ('received','applied','refunded','forfeited','reversed') then raise exception 'Invalid deposit movement'; end if;
+  if p_amount <= 0 or round(p_amount, 2) <> p_amount then raise exception 'Deposit amount must be positive with at most two decimals'; end if;
+  if p_occurred_at > now() + interval '15 minutes' then raise exception 'Deposit movement cannot be in the future'; end if;
+  select * into v_rental from public.rentals r where r.id = p_rental_id and r.company_id = v_company_id and r.deleted_at is null for update;
+  if not found then raise exception 'Rental not found'; end if;
+  if p_movement_type = 'received' and p_payment_id is null then raise exception 'Received deposit requires a payment'; end if;
+  if p_payment_id is not null and not exists (
+    select 1 from public.receivable_payments p where p.id = p_payment_id and p.company_id = v_company_id and p.customer_id = v_rental.customer_id
+  ) then raise exception 'Deposit payment is unavailable'; end if;
+  insert into public.receivable_deposit_movements(id, company_id, rental_id, customer_id, payment_id, movement_type, amount, occurred_at, reason, reverses_movement_id, created_by)
+  values (v_id, v_company_id, v_rental.id, v_rental.customer_id, p_payment_id, p_movement_type, p_amount, p_occurred_at,
+    nullif(btrim(coalesce(p_reason, '')), ''), p_reverses_movement_id, v_user_id);
+  return v_id;
+end;
+$$;
+
+create or replace function public.post_deposit_refund(
+  p_rental_id uuid, p_amount numeric, p_method text, p_reference text, p_refunded_at timestamptz, p_reason text
+)
+returns table(refund_id uuid, refund_number text)
+language plpgsql security invoker set search_path = '' as $$
+declare v_user_id uuid := auth.uid(); v_company_id uuid; v_role text; v_rental public.rentals%rowtype;
+  v_refund_id uuid := gen_random_uuid(); v_number text; v_movement_id uuid;
+begin
+  select p.company_id, p.role into v_company_id, v_role from public.profiles p
+  where p.id = v_user_id and p.status = 'active' and p.deleted_at is null;
+  if v_company_id is null then raise exception 'Active employee profile required'; end if;
+  if v_role not in ('admin','super_admin') and not exists (
+    select 1 from public.roles r where r.company_id = v_company_id and r.name = v_role and r.deleted_at is null
+      and coalesce(r.permissions -> 'Payments', '[]'::jsonb) ?| array['Edit','Manage']
+  ) then raise exception 'You do not have permission to refund deposits'; end if;
+  if p_method not in ('cash','upi','card','bank_transfer','other') then raise exception 'Invalid refund method'; end if;
+  if char_length(btrim(coalesce(p_reason, ''))) not between 3 and 1000 then raise exception 'Refund reason is required'; end if;
+  select * into v_rental from public.rentals r where r.id = p_rental_id and r.company_id = v_company_id and r.deleted_at is null for update;
+  if not found then raise exception 'Rental not found'; end if;
+  v_number := 'REF-' || to_char(timezone('Asia/Kolkata', now()), 'YYYYMMDD') || '-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
+  insert into public.receivable_refunds(id, company_id, customer_id, rental_id, refund_number, amount, method, reference, refunded_at, reason, created_by)
+  values (v_refund_id, v_company_id, v_rental.customer_id, v_rental.id, v_number, p_amount, p_method,
+    nullif(btrim(coalesce(p_reference, '')), ''), p_refunded_at, btrim(p_reason), v_user_id);
+  v_movement_id := public.post_deposit_movement(v_rental.id, 'refunded', p_amount, p_refunded_at, null, p_reason, null);
+  return query select v_refund_id, v_number;
+end;
+$$;
+
+revoke all on function public.post_deposit_movement(uuid,text,numeric,timestamptz,uuid,text,uuid) from public, anon;
+grant execute on function public.post_deposit_movement(uuid,text,numeric,timestamptz,uuid,text,uuid) to authenticated;
+revoke all on function public.post_deposit_refund(uuid,numeric,text,text,timestamptz,text) from public, anon;
+grant execute on function public.post_deposit_refund(uuid,numeric,text,text,timestamptz,text) to authenticated;
 
 create view public.receivable_invoice_balances
 with (security_invoker = true)
