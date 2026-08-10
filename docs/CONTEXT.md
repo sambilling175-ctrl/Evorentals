@@ -15,7 +15,7 @@
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260807082825_rental_return_inspection.sql` (applied and verified) |
+| Latest migration | `20260810160100_receivables_indexes.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
 
 ## Product
@@ -190,6 +190,19 @@ invoice, payment, allocation, deposit, refund, dues, or settlement tables, while
 therefore cannot determine collected rent, held deposit, outstanding balance, or
 refund due from authoritative facts. Do not accept manual paid/deposit totals or
 close a returned rental until the immutable receivables ledger exists.
+
+### D10-01 database checkpoint
+
+- Migrations `20260810160000_receivables_ledger.sql` and
+  `20260810160100_receivables_indexes.sql` are applied to the live project.
+- Six company-scoped ledger tables have RLS, explicit authenticated policies,
+  immutable-history triggers, composite tenancy constraints, and covering
+  foreign-key indexes. Initial row counts remain zero.
+- Invoice, payment, deposit, and refund posting functions are SECURITY INVOKER,
+  use `search_path = ""`, deny anonymous execution, and allow authenticated execution.
+- Security advisors report no D10-01 findings. Performance advisors report no
+  missing D10-01 foreign-key indexes; unused-index INFO notices are expected
+  until real ledger traffic exists.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
