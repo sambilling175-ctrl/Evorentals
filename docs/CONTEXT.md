@@ -7,15 +7,15 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-10 |
-| Delivery position | D9-05 released; D9-06 blocked on receivables ledger D10-01 |
+| Updated | 2026-08-14 |
+| Delivery position | D10-01 ledger verified in preview; D9-06 settlement in progress |
 | Git branch | `agent/d9-06-rental-settlement` |
 | Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260807082825_rental_return_inspection.sql` (applied and verified) |
+| Latest migration | `20260810160100_receivables_indexes.sql` (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
 
 ## Product
@@ -184,12 +184,55 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement D10-01 receivables before resuming D9-06. Live verification found no
-invoice, payment, allocation, deposit, refund, dues, or settlement tables, while
-`rentals.total_amount` already includes the quoted deposit component. The system
-therefore cannot determine collected rent, held deposit, outstanding balance, or
-refund due from authoritative facts. Do not accept manual paid/deposit totals or
-close a returned rental until the immutable receivables ledger exists.
+Implement D9-06 settlement on this branch now that D10-01 has supplied the
+immutable receivables ledger. Live verification previously found no invoice,
+payment, allocation, deposit, refund, dues, or settlement tables, while
+`rentals.total_amount` already includes the quoted deposit component. The
+settlement workflow must derive due/refund amounts from ledger facts and close
+returned rentals atomically; it must not accept manual financial totals.
+
+### D10-01 database checkpoint
+
+- Migrations `20260810160000_receivables_ledger.sql` and
+  `20260810160100_receivables_indexes.sql` are applied to the live project.
+- Six company-scoped ledger tables have RLS, explicit authenticated policies,
+  immutable-history triggers, composite tenancy constraints, and covering
+  foreign-key indexes. Initial row counts remain zero.
+- Invoice, payment, deposit, and refund posting functions are SECURITY INVOKER,
+  use `search_path = ""`, deny anonymous execution, and allow authenticated execution.
+- Security advisors report no D10-01 findings. Performance advisors report no
+  missing D10-01 foreign-key indexes; unused-index INFO notices are expected
+  until real ledger traffic exists.
+- `/payments` now uses a server-only typed receivables service and live invoice,
+  allocation, payment, refund, outstanding, and overdue totals. The former mock
+  collections dataset has been removed. `npm.cmd run validate` passes.
+- Draft PR #10 is open. Its Vercel preview is READY, and an unauthenticated
+  `/payments` request correctly resolves to `/login?next=/payments`.
+- The receivables module now exposes typed invoice, payment, and deposit-refund
+  commands through Zod-validated server actions and guarded forms. Collection
+  totals are calculated from all posted payments; the recent list remains
+  limited to the latest 20 rows. No migration or business records were created.
+- The refreshed D10-01 preview is READY; unauthenticated `/payments` still
+  resolves to `/login`. Authenticated form smoke testing remains pending.
+- Runtime investigation on 2026-08-14 found the authenticated preview 500 was
+  caused by an ambiguous PostgREST `customers` embed on `receivable_payments`.
+  The workspace now selects customer IDs and resolves names through the
+  company-scoped customer map; returned-rental options use the same seam and
+  no longer embed `customers`. `npm.cmd run validate` passes after the fix.
+- Live Supabase schema verification confirms the required customer ID and
+  status/deletion columns. Security/performance advisors were rerun; current
+  warnings are pre-existing legacy functions/policies and unrelated indexes,
+  not the D10-01 receivables objects.
+
+### Architecture deepening checkpoint
+
+- The Availability module (`src/lib/services/availability.ts`) is the shared
+  interface for date-window vehicle search, transactional reservation checks,
+  and open-rental occupancy. Booking search/creation and fleet availability use
+  this seam; the database booking exclusion constraint remains the write-time
+  race guard.
+- This refactor has no migration and creates no business records.
+- `npm.cmd run validate` passes after the refactor.
 
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;

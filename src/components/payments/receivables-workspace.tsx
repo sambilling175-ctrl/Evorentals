@@ -1,0 +1,60 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { BadgeIndianRupee, HandCoins, ReceiptIndianRupee, RotateCcw, TriangleAlert } from "lucide-react";
+import { issueInvoiceAction, initialReceivableActionState, postPaymentAction, refundDepositAction, type ReceivableActionState } from "@/app/(dashboard)/payments/actions";
+import type { ReceivableOption, ReceivablesWorkspaceData } from "@/lib/services/receivables";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { StatusBadge } from "@/components/feedback/status-badge";
+
+const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" });
+const date = (value: string) => new Date(value).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+const localInput = (value: Date) => { const offset = value.getTimezoneOffset() * 60000; return new Date(value.getTime() - offset).toISOString().slice(0, 16); };
+
+function Submit({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return <Button type="submit" disabled={pending}>{pending ? "Saving…" : label}</Button>;
+}
+
+function ActionMessage({ state }: { state: ReceivableActionState }) {
+  if (!state.message) return null;
+  return <p role="status" className={state.status === "error" ? "text-sm text-destructive" : "text-sm text-emerald-500"}>{state.message}</p>;
+}
+
+function OptionSelect({ label, name, options, empty }: { label: string; name: string; options: ReceivableOption[]; empty: string }) {
+  return <div className="space-y-2"><Label>{label}</Label><select name={name} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" required disabled={!options.length} defaultValue=""><option value="" disabled>{options.length ? `Select ${label.toLowerCase()}` : empty}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select></div>;
+}
+
+function InvoiceForm({ rentals }: { rentals: ReceivableOption[] }) {
+  const [state, action] = useActionState(issueInvoiceAction, initialReceivableActionState);
+  const [defaultDueAt] = useState(() => localInput(new Date(Date.now() + 7 * 86400000)));
+  return <Card><CardHeader><CardTitle>Issue rental invoice</CardTitle><CardDescription>Only returned rentals with an immutable inspection can be invoiced.</CardDescription></CardHeader><CardContent><form action={action} className="space-y-3"><OptionSelect label="Returned rental" name="rentalId" options={rentals} empty="No returned rentals" /><div className="space-y-2"><Label htmlFor="invoice-due-at">Due at</Label><Input id="invoice-due-at" name="dueAt" type="datetime-local" defaultValue={defaultDueAt} required /></div><div className="space-y-2"><Label htmlFor="invoice-notes">Notes</Label><Input id="invoice-notes" name="notes" maxLength={2000} placeholder="Optional invoice note" /></div><Submit label="Issue invoice" /><ActionMessage state={state} /></form></CardContent></Card>;
+}
+
+function PaymentForm({ customers }: { customers: ReceivableOption[] }) {
+  const [state, action] = useActionState(postPaymentAction, initialReceivableActionState);
+  const [defaultCollectedAt] = useState(() => localInput(new Date()));
+  return <Card><CardHeader><CardTitle>Post collection</CardTitle><CardDescription>Payments may be posted unallocated and allocated later.</CardDescription></CardHeader><CardContent><form action={action} className="space-y-3"><OptionSelect label="Customer" name="customerId" options={customers} empty="No active customers" /><div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="payment-amount">Amount (₹)</Label><Input id="payment-amount" name="amount" type="number" min="0.01" step="0.01" required /></div><div className="space-y-2"><Label htmlFor="payment-method">Method</Label><select id="payment-method" name="method" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" defaultValue="upi"><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="other">Other</option></select></div></div><div className="space-y-2"><Label htmlFor="payment-collected-at">Collected at</Label><Input id="payment-collected-at" name="collectedAt" type="datetime-local" defaultValue={defaultCollectedAt} required /></div><div className="space-y-2"><Label htmlFor="payment-reference">Reference</Label><Input id="payment-reference" name="reference" maxLength={200} placeholder="UPI or receipt reference" /></div><input type="hidden" name="allocations" value="[]" /><Submit label="Post payment" /><ActionMessage state={state} /></form></CardContent></Card>;
+}
+
+function RefundForm({ rentals }: { rentals: ReceivableOption[] }) {
+  const [state, action] = useActionState(refundDepositAction, initialReceivableActionState);
+  const [defaultRefundedAt] = useState(() => localInput(new Date()));
+  return <Card><CardHeader><CardTitle>Refund deposit</CardTitle><CardDescription>The ledger and deposit-balance rules validate the refund atomically.</CardDescription></CardHeader><CardContent><form action={action} className="space-y-3"><OptionSelect label="Returned rental" name="rentalId" options={rentals} empty="No returned rentals" /><div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="refund-amount">Amount (₹)</Label><Input id="refund-amount" name="amount" type="number" min="0.01" step="0.01" required /></div><div className="space-y-2"><Label htmlFor="refund-method">Method</Label><select id="refund-method" name="method" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" defaultValue="upi"><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="other">Other</option></select></div></div><div className="space-y-2"><Label htmlFor="refund-refunded-at">Refunded at</Label><Input id="refund-refunded-at" name="refundedAt" type="datetime-local" defaultValue={defaultRefundedAt} required /></div><div className="space-y-2"><Label htmlFor="refund-reason">Reason</Label><Input id="refund-reason" name="reason" minLength={3} maxLength={1000} placeholder="Deposit returned after inspection" required /></div><div className="space-y-2"><Label htmlFor="refund-reference">Reference</Label><Input id="refund-reference" name="reference" maxLength={200} placeholder="Refund reference" /></div><Submit label="Post refund" /><ActionMessage state={state} /></form></CardContent></Card>;
+}
+
+export function ReceivablesWorkspace({ data }: { data: ReceivablesWorkspaceData }) {
+  const metrics = [["Invoiced", data.totals.invoiced, ReceiptIndianRupee], ["Collected", data.totals.collected, HandCoins], ["Outstanding", data.totals.outstanding, BadgeIndianRupee], ["Overdue", data.totals.overdue, TriangleAlert], ["Refunded", data.totals.refunds, RotateCcw]] as const;
+  return <div className="space-y-5">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{metrics.map(([label, value, Icon]) => <Card key={label}><CardContent className="p-4"><div className="flex items-center justify-between"><p className="text-xs text-muted-foreground">{label}</p><Icon className="h-4 w-4 text-primary" /></div><p className="mt-2 text-xl font-bold">{money.format(value)}</p></CardContent></Card>)}</div>
+    {data.canManage && <div className="grid gap-5 xl:grid-cols-3"><InvoiceForm rentals={data.returnedRentals} /><PaymentForm customers={data.customers} /><RefundForm rentals={data.returnedRentals} /></div>}
+    <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
+      <Card><CardHeader><CardTitle>Invoices and dues</CardTitle><CardDescription>Balances are derived from immutable invoices and payment allocations.</CardDescription></CardHeader><CardContent className="space-y-2">{data.invoices.map((invoice) => <article key={invoice.id} className="grid gap-2 rounded-xl border p-3 sm:grid-cols-[1fr_auto] sm:items-center"><div><div className="flex items-center gap-2"><p className="font-semibold">{invoice.number}</p><StatusBadge status={invoice.status} /></div><p className="text-sm">{invoice.customer} · {invoice.rental}</p><p className="text-xs text-muted-foreground">Issued {date(invoice.issuedAt)} · Due {date(invoice.dueAt)}</p></div><div className="text-left sm:text-right"><p className="font-semibold">{money.format(invoice.balance)}</p><p className="text-xs text-muted-foreground">of {money.format(invoice.total)}</p></div></article>)}{!data.invoices.length && <p className="py-12 text-center text-sm text-muted-foreground">No invoices have been issued.</p>}</CardContent></Card>
+      <Card><CardHeader><CardTitle>Recent collections</CardTitle><CardDescription>Latest posted payment facts.</CardDescription></CardHeader><CardContent className="space-y-2">{data.payments.map((payment) => <div key={payment.id} className="flex items-center justify-between gap-3 rounded-lg border p-3"><div><p className="font-medium">{payment.number}</p><p className="text-xs text-muted-foreground">{payment.customer} · {payment.method.replaceAll("_", " ")} · {date(payment.collectedAt)}</p></div><p className="font-semibold text-emerald-500">{money.format(payment.amount)}</p></div>)}{!data.payments.length && <p className="py-12 text-center text-sm text-muted-foreground">No collections have been posted.</p>}</CardContent></Card>
+    </div>
+  </div>;
+}
