@@ -270,8 +270,9 @@ data or create business records.
   index, trigger, grant, and invoker checks. Security and performance advisors
   show only pre-existing legacy warnings; no D10-03-specific finding was
   reported. New allocation, receipt, and receipt-event row counts are zero.
-  Authenticated form smoke and transactional denial tests remain pending; no
-  business records were created.
+  READY preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
+  has no `/payments` runtime errors. Authenticated form smoke and transactional
+  denial tests remain pending; no business records were created.
 
 ### Architecture deepening checkpoint
 

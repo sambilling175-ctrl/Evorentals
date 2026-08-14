@@ -30,3 +30,6 @@ Status: Review
 - Required next action: authenticated form smoke plus authorized test collection
   on a non-production test identity, cross-company denial, line-balance checks,
   receipt/audit snapshot verification, and immutability rollback verification.
+- Preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
+  is READY and Vercel reports no `/payments` runtime errors. The preview host
+  requires its own authenticated session.
