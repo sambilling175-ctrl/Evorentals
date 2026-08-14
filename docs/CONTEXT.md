@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-14 |
-| Delivery position | D10-01 ledger verified in preview; D9-06 settlement in progress |
-| Git branch | `agent/d9-06-rental-settlement` |
-| Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
+| Delivery position | D9-06 settlement review; D10-02 live reports in progress |
+| Git branch | `agent/d10-02-live-reports` |
+| Last verified application commit | `7b5bdc0` - Implement atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -184,12 +184,11 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement D9-06 settlement on this branch now that D10-01 has supplied the
-immutable receivables ledger. Live verification previously found no invoice,
-payment, allocation, deposit, refund, dues, or settlement tables, while
-`rentals.total_amount` already includes the quoted deposit component. The
-settlement workflow must derive due/refund amounts from ledger facts and close
-returned rentals atomically; it must not accept manual financial totals.
+Implement D10-02 live reporting summaries and CSV export on the claimed
+`agent/d10-02-live-reports` branch. Reports must use company-scoped typed
+services and the live rental, fleet, customer, receivables, and settlement
+tables; they must not render the old demonstration catalogue as production
+data or create business records.
 
 ### D10-01 database checkpoint
 
@@ -236,6 +235,23 @@ returned rentals atomically; it must not accept manual financial totals.
 - The rentals service, Zod server action, and rental control board now expose
   settlement without accepting manual financial totals. No business records
   were created. `npm.cmd run validate` passes.
+
+### D10-02 reports checkpoint
+
+- `src/lib/services/reports.ts` now provides a typed, company-scoped report
+  projection for customers, fleet, open/overdue rentals, invoice balances, and
+  immutable settlements. It resolves customer and vehicle labels through ID
+  maps rather than ambiguous PostgREST relationship embeds.
+- `src/components/reports/reports-workspace.tsx` replaces the reports
+  placeholder with live KPI cards, searchable operational rows, and a client
+  CSV export. The UI does not query Supabase directly and no business records
+  were created.
+- `npm.cmd run validate` passes on 2026-08-14. No migration was required.
+  Preview `https://evorentals-git-agent-d10-02-live-reports-wephotons1.vercel.app`
+  serves `/reports` and correctly redirects unauthenticated requests to login;
+  Vercel reports no runtime errors. Authenticated smoke testing remains pending
+  because the preview host has a separate session and no production business
+  records were created.
 
 ### Architecture deepening checkpoint
 
