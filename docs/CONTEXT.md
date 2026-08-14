@@ -10,7 +10,7 @@
 | Updated | 2026-08-14 |
 | Delivery position | D10-02 live reports in review |
 | Git branch | `agent/d10-02-live-reports` |
-| Last verified application commit | `843bc30` - Harden reports auth refresh rendering |
+| Last verified application commit | `ffa149e` - Make report CSV export download-safe |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -249,10 +249,12 @@ data or create business records.
 - `npm.cmd run validate` passes on 2026-08-14. No migration was required.
   `/reports` is force-dynamic and has a route-level retry boundary to protect
   the auth-cookie refresh path. READY deployment
-  `dpl_DrLCKjmAuCcEuegY2MeTMVm7yRxi` serves the preview and correctly redirects
-  unauthenticated requests to login; Vercel reports no current runtime errors.
-  Authenticated smoke testing remains pending because this preview host has a
-  separate session and no production business records were created.
+  `dpl_FTc7x8Fo2qQcLs7bubQ8XtiA2fkX` serves the preview. Authenticated smoke
+  verified all KPI cards, the zero-row state, search filtering, and the export
+  action with no browser or current Vercel runtime errors. The browser harness
+  does not emit a download event for synthetic Blob links, so the file transfer
+  itself remains a manual browser check. No production business records were
+  created.
 
 ### Architecture deepening checkpoint
 
