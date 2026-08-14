@@ -210,7 +210,10 @@ business records; do not create production business records.
   totals are calculated from all posted payments; the recent list remains
   limited to the latest 20 rows. No migration or business records were created.
 - The refreshed D10-01 preview is READY; unauthenticated `/payments` still
-  resolves to `/login`. Authenticated form smoke testing remains pending.
+  resolves to `/login`. Authenticated smoke now renders the ledger KPIs,
+  posting forms, and empty invoice/collection states with zero console errors
+  or warnings. Financial command submission remains intentionally unexecuted
+  because it requires non-production test records.
 - Runtime investigation on 2026-08-14 found the authenticated preview 500 was
   caused by an ambiguous PostgREST `customers` embed on `receivable_payments`.
   The workspace now selects customer IDs and resolves names through the
