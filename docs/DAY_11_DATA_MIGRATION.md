@@ -45,4 +45,5 @@ blank in the legacy system itself; they are not a CSV rendering omission. Those
 records must remain quarantined or receive an explicitly approved placeholder
 policy. Duplicate email/mobile groups are also retained as separate legacy IDs
 until the business confirms whether they represent shared contact details or
-duplicate accounts.
+duplicate accounts. D11-01 is now in `Review`; D11-02 is the explicit business
+decision gate before any write-enabled import task can be claimed.
