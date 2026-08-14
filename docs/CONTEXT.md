@@ -8,8 +8,8 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-14 |
-| Delivery position | D10-03-H1 invoice-lock RLS fix in review; isolated lifecycle acceptance passed |
-| Git branch | `agent/d10-03-h1-rpc-rls-locks` |
+| Delivery position | D4-05 RLS isolation test in review; live transaction-only test passed |
+| Git branch | `agent/d4-05-rls-isolation` |
 | Last verified application commit | `9b54cc8` - Harden payments auth refresh rendering |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -184,9 +184,9 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Review and release D10-03-H1 on `agent/d10-03-h1-rpc-rls-locks`. The live
-invoice-lock RLS fix is applied and the isolated D9-05 -> D10-03 -> D9-06
-acceptance harness passes; do not create production business records.
+Review D4-05 on `agent/d4-05-rls-isolation`, then release the queued review
+branches. The live two-company RLS test is transaction-only and leaves no
+business records; do not create production business records.
 
 ### D10-01 database checkpoint
 
@@ -293,6 +293,18 @@ acceptance harness passes; do not create production business records.
 - All test writes were rolled back. Post-test verification found zero dummy
   companies, Auth users, profiles, customers, bikes, rentals, inspections,
   invoices, settlements, audit rows, or temporary policies.
+
+### D4-05 RLS isolation checkpoint (2026-08-14)
+
+- `supabase/tests/rls_isolation.sql` is a transaction-only integration test;
+  it reuses the existing authenticated bootstrap actor, creates a temporary
+  second company, and inserts temporary customer, bike, and rental rows for
+  both companies before switching to the authenticated role.
+- The live test passed: the actor can read only its own company rows and a
+  cross-company customer insert is denied. The second-company customer, bike,
+  and rental are all hidden under the actor's JWT claims.
+- Rollback verification returned zero temporary companies, customers, bikes,
+  or rentals. No migration or production business data was created.
 
 ### Architecture deepening checkpoint
 
