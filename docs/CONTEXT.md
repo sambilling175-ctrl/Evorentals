@@ -271,8 +271,11 @@ data or create business records.
   show only pre-existing legacy warnings; no D10-03-specific finding was
   reported. New allocation, receipt, and receipt-event row counts are zero.
   READY preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
-  has no `/payments` runtime errors. Authenticated form smoke and transactional
-  denial tests remain pending; no business records were created.
+  has no persistent `/payments` runtime errors. A first-request auth refresh
+  race was observed as `Active employee profile required`; `/payments` is now
+  forced dynamic and has a route-level retry state, and a fresh authenticated
+  smoke renders the empty live ledger correctly. Transactional denial tests
+  remain pending; no business records were created.
 
 ### Architecture deepening checkpoint
 

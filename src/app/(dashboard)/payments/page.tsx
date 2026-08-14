@@ -1,6 +1,9 @@
 import { ReceivablesWorkspace } from "@/components/payments/receivables-workspace";
 import { getReceivablesWorkspace } from "@/lib/services/receivables";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function PaymentsPage() {
   const data = await getReceivablesWorkspace();
   return <div className="space-y-6">
