@@ -9,6 +9,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit",
+    "legacy:customers:stage": "node scripts/legacy-customers-stage.mjs",
     "validate": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {

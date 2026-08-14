@@ -39,8 +39,11 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 ## Extraction status
 
 - `legacy-data/` is Git-ignored because it contains private customer data.
-- `legacy-data/customers.raw.json` currently contains a 2,000-row partial raw
-  snapshot and must not be treated or imported as the full customer dataset.
+- `legacy-data/customers.raw.json` contains a 2,000-row partial raw snapshot and
+  must not be treated or imported as the full customer dataset.
+- `legacy-data/customers.csv` is now a complete 13,792-row metadata export. It
+  is validated locally by `npm.cmd run legacy:customers:stage` and remains
+  Git-ignored because it contains personal data.
 - No legacy records have been written to Supabase.
 - No source records were modified.
 
@@ -64,7 +67,8 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 
 ## Next action
 
-Request a complete database export from the legacy host/provider if available.
-Otherwise build a resumable, read-only extractor around the discovered
-server-side DataTables endpoints, with encrypted local staging, checkpoints,
-rate limiting, and per-dataset manifests.
+The complete customer metadata export is staged locally first. Review
+`legacy-data/customers.staging.json` and approve the legacy-ID mapping before
+building the write-enabled customer import. KYC/photo binaries still require a
+separate manifest and private-storage transfer; the CSV's `Documents` column is
+not a binary export.

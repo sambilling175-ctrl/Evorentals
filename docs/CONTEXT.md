@@ -332,6 +332,18 @@ Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
 obtain a complete export or implement a resumable batched extractor first.
 
+### D11-01 legacy customer staging checkpoint
+
+- The complete legacy customer CSV is present locally at
+  `legacy-data/customers.csv` (13,792 rows; Git-ignored PII).
+- `npm.cmd run legacy:customers:stage` normalizes the metadata and writes only
+  `legacy-data/customers.staging.json`; it never calls Supabase.
+- Current validation findings are 10 missing names, 2 duplicate email groups,
+  and 10 duplicate mobile groups. The staging report therefore remains
+  `safeToImport: false` until those identity conflicts are reviewed.
+- The CSV contains document-link markers only. KYC/photo binary transfer is a
+  separate private-storage task and has not started.
+
 ## 2026-08-04 password recovery hotfix
 
 - Production evidence: recovery callbacks returned `PKCE code verifier not found
