@@ -343,6 +343,8 @@ obtain a complete export or implement a resumable batched extractor first.
   and 10 duplicate mobile groups affecting 30 rows. The staging report
   therefore remains `safeToImport: false` until those identity conflicts are
   reviewed.
+- The authenticated legacy edit forms confirmed that all 10 missing names are
+  blank in the source system, so they are not an export rendering artifact.
 - The CSV contains document-link markers only. KYC/photo binary transfer is a
   separate private-storage task and has not started.
 

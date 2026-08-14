@@ -170,6 +170,10 @@ async function main() {
     source: result.source,
     safeToImport,
     summary: result.summary,
+    duplicateGroups: {
+      email: [...emailDuplicates.values()].map((ids) => ({ legacyIds: ids })),
+      mobile: [...phoneDuplicates.values()].map((ids) => ({ legacyIds: ids })),
+    },
     conflicts: rows.filter((row) => row.issues.length > 0).map((row) => ({
       sourceRow: row.sourceRow,
       legacyId: row.legacyId || null,

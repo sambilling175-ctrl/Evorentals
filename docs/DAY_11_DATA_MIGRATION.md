@@ -39,3 +39,10 @@ The current ID-only review manifest identifies 30 affected rows (10 missing
 names and 20 duplicate-identity rows). The next task is to review those rows
 and approve the legacy-ID mapping/import design. No migration has been created
 and no business records have been written.
+
+The authenticated source edit forms confirmed that all 10 missing names are
+blank in the legacy system itself; they are not a CSV rendering omission. Those
+records must remain quarantined or receive an explicitly approved placeholder
+policy. Duplicate email/mobile groups are also retained as separate legacy IDs
+until the business confirms whether they represent shared contact details or
+duplicate accounts.
