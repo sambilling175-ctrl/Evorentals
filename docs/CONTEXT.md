@@ -224,6 +224,19 @@ returned rentals atomically; it must not accept manual financial totals.
   warnings are pre-existing legacy functions/policies and unrelated indexes,
   not the D10-01 receivables objects.
 
+### D9-06 settlement checkpoint
+
+- Migration `20260814052728_rental_settlements.sql` is applied to the live
+  project. It adds an immutable company-scoped settlement snapshot table,
+  explicit RLS/grants, and fixed-search-path immutable-history protection.
+- `settle_returned_rental(uuid)` is live as `SECURITY INVOKER`. It locks the
+  returned rental and invoice, derives invoice allocation, deposit balance,
+  damage, amount due, and deposit refund due from ledger facts, inserts one
+  immutable snapshot, and atomically marks the rental `completed`.
+- The rentals service, Zod server action, and rental control board now expose
+  settlement without accepting manual financial totals. No business records
+  were created. `npm.cmd run validate` passes.
+
 ### Architecture deepening checkpoint
 
 - The Availability module (`src/lib/services/availability.ts`) is the shared
