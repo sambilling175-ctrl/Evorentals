@@ -84,12 +84,12 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
       .select("invoice_id,customer_id,rental_id,invoice_number,issued_at,due_at,total_amount,allocated_amount,balance_due")
       .eq("company_id", profile.company_id).order("issued_at", { ascending: false }),
     supabase.from("receivable_payments")
-      .select("id,payment_number,amount,method,collected_at,customers(full_name)")
+      .select("id,payment_number,amount,method,collected_at,customer_id")
       .eq("company_id", profile.company_id).order("collected_at", { ascending: false }).limit(20),
     supabase.from("receivable_payments").select("amount").eq("company_id", profile.company_id),
     supabase.from("receivable_refunds").select("amount").eq("company_id", profile.company_id),
-    supabase.from("customers").select("id,full_name,customer_number").eq("company_id", profile.company_id).eq("status", "active").is("deleted_at", null).order("full_name"),
-    supabase.from("rentals").select("id,rental_number,customer_id,customers(full_name)").eq("company_id", profile.company_id).eq("status", "returned").is("deleted_at", null).order("created_at", { ascending: false }),
+    supabase.from("customers").select("id,full_name,customer_number,status,deleted_at").eq("company_id", profile.company_id).order("full_name"),
+    supabase.from("rentals").select("id,rental_number,customer_id").eq("company_id", profile.company_id).eq("status", "returned").is("deleted_at", null).order("created_at", { ascending: false }),
   ]);
   const error = balancesResult.error ?? paymentsResult.error ?? allPaymentsResult.error ?? refundsResult.error ?? customersResult.error ?? rentalsResult.error;
   if (error) throw new Error(`Unable to load collections: ${error.message}`);
@@ -103,6 +103,7 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
   ]);
   if (invoiceCustomersResult.error || invoiceRentalsResult.error) throw new Error(`Unable to load collection references: ${invoiceCustomersResult.error?.message ?? invoiceRentalsResult.error?.message}`);
   const customerNames = new Map((invoiceCustomersResult.data ?? []).map((row) => [row.id, row.full_name]));
+  for (const row of customersResult.data ?? []) customerNames.set(row.id, row.full_name);
   const rentalNumbers = new Map((invoiceRentalsResult.data ?? []).map((row) => [row.id, row.rental_number]));
 
   const now = Date.now();
@@ -116,13 +117,12 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
     } satisfies ReceivableInvoice;
   });
   const payments = ((paymentsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => {
-    const customer = row.customers as Record<string, unknown> | null;
-    return { id: String(row.id), number: String(row.payment_number), customer: String(customer?.full_name ?? "Unknown"), amount: amount(row.amount), method: String(row.method), collectedAt: String(row.collected_at) };
+    return { id: String(row.id), number: String(row.payment_number), customer: customerNames.get(String(row.customer_id)) ?? "Unknown", amount: amount(row.amount), method: String(row.method), collectedAt: String(row.collected_at) };
   });
   return {
     invoices, payments,
-    customers: (customersResult.data ?? []).map((row) => ({ id: row.id, label: `${row.full_name} · ${row.customer_number}` })),
-    returnedRentals: (rentalsResult.data ?? []).map((row) => ({ id: row.id, label: `${row.rental_number} · ${(row.customers as { full_name?: string } | null)?.full_name ?? "Unknown"}` })),
+    customers: (customersResult.data ?? []).filter((row) => row.status === "active" && row.deleted_at === null).map((row) => ({ id: row.id, label: `${row.full_name} · ${row.customer_number}` })),
+    returnedRentals: (rentalsResult.data ?? []).map((row) => ({ id: row.id, label: `${row.rental_number} · ${customerNames.get(row.customer_id) ?? "Unknown"}` })),
     canManage: allowed(profile.role, permissions, ["Create", "Edit", "Manage"]),
     totals: {
       invoiced: invoices.reduce((sum, row) => sum + row.total, 0),

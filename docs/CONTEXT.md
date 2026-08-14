@@ -214,6 +214,15 @@ close a returned rental until the immutable receivables ledger exists.
   limited to the latest 20 rows. No migration or business records were created.
 - The refreshed D10-01 preview is READY; unauthenticated `/payments` still
   resolves to `/login`. Authenticated form smoke testing remains pending.
+- Runtime investigation on 2026-08-14 found the authenticated preview 500 was
+  caused by an ambiguous PostgREST `customers` embed on `receivable_payments`.
+  The workspace now selects customer IDs and resolves names through the
+  company-scoped customer map; returned-rental options use the same seam and
+  no longer embed `customers`. `npm.cmd run validate` passes after the fix.
+- Live Supabase schema verification confirms the required customer ID and
+  status/deletion columns. Security/performance advisors were rerun; current
+  warnings are pre-existing legacy functions/policies and unrelated indexes,
+  not the D10-01 receivables objects.
 
 ### Architecture deepening checkpoint
 
