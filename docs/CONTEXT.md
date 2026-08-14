@@ -250,10 +250,10 @@ business records; do not create production business records.
   were created.
 - `npm.cmd run validate` passes on 2026-08-14. No migration was required.
   Preview `https://evorentals-git-agent-d10-02-live-reports-wephotons1.vercel.app`
-  serves `/reports` and correctly redirects unauthenticated requests to login;
-  Vercel reports no runtime errors. Authenticated smoke testing remains pending
-  because the preview host has a separate session and no production business
-  records were created.
+  serves `/reports` and correctly redirects unauthenticated requests to login.
+  An authenticated smoke passed with live KPIs, the empty operational table,
+  and the CSV action; the browser captured zero console errors or warnings.
+  No production business records were created.
 
 ### D10-03 returned-rental collections checkpoint
 
