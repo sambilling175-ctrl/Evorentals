@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-14 |
-| Delivery position | D10-03 returned-rental collections in review |
-| Git branch | `agent/d10-03-returned-rental-collections` |
+| Delivery position | D10-03-H1 invoice-lock RLS fix in review; isolated lifecycle acceptance passed |
+| Git branch | `agent/d10-03-h1-rpc-rls-locks` |
 | Last verified application commit | `9b54cc8` - Harden payments auth refresh rendering |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260814060344` - returned-rental collections (applied and verified) |
+| Latest migration | `20260814073417` - D10-03-H1 invoice-lock RLS (applied and verified) |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-14 |
 
 ## Product
@@ -184,11 +184,9 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Implement D10-02 live reporting summaries and CSV export on the claimed
-`agent/d10-02-live-reports` branch. Reports must use company-scoped typed
-services and the live rental, fleet, customer, receivables, and settlement
-tables; they must not render the old demonstration catalogue as production
-data or create business records.
+Review and release D10-03-H1 on `agent/d10-03-h1-rpc-rls-locks`. The live
+invoice-lock RLS fix is applied and the isolated D9-05 -> D10-03 -> D9-06
+acceptance harness passes; do not create production business records.
 
 ### D10-01 database checkpoint
 
@@ -235,6 +233,10 @@ data or create business records.
 - The rentals service, Zod server action, and rental control board now expose
   settlement without accepting manual financial totals. No business records
   were created. `npm.cmd run validate` passes.
+- D10-03-H1 adds authenticated company-scoped UPDATE policies and UPDATE
+  grants for `receivable_invoices` and `receivable_invoice_lines`. Existing
+  immutable-history triggers remain in place; the policies exist only so
+  SECURITY INVOKER RPCs can lock rows with `FOR UPDATE`.
 
 ### D10-02 reports checkpoint
 
@@ -268,14 +270,29 @@ data or create business records.
 - `npm.cmd run validate` passes on 2026-08-14. The migration was applied through
   Supabase as live version `20260814060344` and verified with table/RLS/policy,
   index, trigger, grant, and invoker checks. Security and performance advisors
-  show only pre-existing legacy warnings; no D10-03-specific finding was
-  reported. New allocation, receipt, and receipt-event row counts are zero.
+  show pre-existing legacy warnings plus informational unindexed-FK notices
+  for the new receipt/allocation tables. New allocation, receipt, and
+  receipt-event row counts are zero.
   READY preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
   has no persistent `/payments` runtime errors. A first-request auth refresh
   race was observed as `Active employee profile required`; `/payments` is now
   forced dynamic and has a route-level retry state, and a fresh authenticated
   smoke renders the empty live ledger correctly. Transactional denial tests
-  remain pending; no business records were created.
+  now pass with the H1 RLS lock policies. No business records were created.
+
+### D10-03-H1 acceptance checkpoint (2026-08-14)
+
+- `20260814073417_d10_03_h1_invoice_lock_rls.sql` is applied to Supabase.
+  It adds only company-scoped authenticated UPDATE policies and grants for
+  the two immutable invoice tables; their protection triggers remain active.
+- Isolated temporary-company acceptance passed end to end: stale-odometer
+  rejection and atomicity, cross-company denial, valid return inspection and
+  damage snapshot, invoice snapshot, allocation mismatch rejection, payment
+  and receipt history, paid settlement closure, and repeated-settlement
+  rejection.
+- All test writes were rolled back. Post-test verification found zero dummy
+  companies, Auth users, profiles, customers, bikes, rentals, inspections,
+  invoices, settlements, audit rows, or temporary policies.
 
 ### Architecture deepening checkpoint
 
