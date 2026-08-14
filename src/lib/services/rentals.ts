@@ -203,3 +203,18 @@ export async function recordRentalReturn(input: ReturnInspectionInput) {
   if (!result) throw new Error("Return inspection did not return a result");
   return { rentalNumber: String(result.rental_number), damageTotal: money(result.damage_total), vehicleStatus: String(result.vehicle_status) };
 }
+
+export async function settleReturnedRental(input: { rentalId: string }) {
+  const a = await actor();
+  if (!allowed(a.profile.role, a.permissions, ["Edit", "Manage"])) throw new Error("You do not have permission to settle rentals");
+  const { data, error } = await a.supabase.rpc("settle_returned_rental", { p_rental_id: input.rentalId });
+  if (error) throw new Error(error.message);
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result) throw new Error("Rental settlement did not return a result");
+  return {
+    rentalNumber: String(result.rental_number),
+    settlementNumber: String(result.settlement_number),
+    amountDue: money(result.amount_due),
+    depositRefundDue: money(result.deposit_refund_due),
+  };
+}
