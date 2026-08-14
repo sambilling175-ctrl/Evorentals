@@ -10,13 +10,13 @@
 | Updated | 2026-08-14 |
 | Delivery position | D10-03 returned-rental collections in review |
 | Git branch | `agent/d10-03-returned-rental-collections` |
-| Last verified application commit | `1621c72` - Implement returned-rental collections |
+| Last verified application commit | `9b54cc8` - Harden payments auth refresh rendering |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260810160100_receivables_indexes.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
+| Latest migration | `20260814060344` - returned-rental collections (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-14 |
 
 ## Product
 
