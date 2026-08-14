@@ -207,3 +207,16 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   and each damage charge. Receipt and allocation rows cannot be edited or
   deleted; corrections require a future explicit reversal workflow. Settlement
   continues to derive totals from the authoritative invoice allocation ledger.
+
+## ADR-019 - Conservative legacy customer conflict import
+
+- Date: 2026-08-14
+- Status: Accepted
+- Decision: Do not invent names for legacy rows whose source name fields are
+  blank, and do not merge customers solely because email or mobile values are
+  shared. Quarantine those rows in an ID-only review manifest and import only
+  the conflict-free customer metadata set until an operator resolves each
+  legacy ID.
+- Consequence: D11-03 may import the 13,762 clean rows after its dry-run and
+  mapping checks. The 30 quarantined rows remain traceable by legacy ID and
+  cannot silently overwrite or merge customer identities.

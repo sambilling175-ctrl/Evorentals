@@ -45,5 +45,6 @@ blank in the legacy system itself; they are not a CSV rendering omission. Those
 records must remain quarantined or receive an explicitly approved placeholder
 policy. Duplicate email/mobile groups are also retained as separate legacy IDs
 until the business confirms whether they represent shared contact details or
-duplicate accounts. D11-01 is now in `Review`; D11-02 is the explicit business
-decision gate before any write-enabled import task can be claimed.
+duplicate accounts. D11-01 is now in `Review`; ADR-019 resolves D11-02 by
+quarantining all 30 conflict rows. D11-03 is the next task and may only import
+the 13,762 conflict-free metadata rows after its dry-run and mapping checks.
