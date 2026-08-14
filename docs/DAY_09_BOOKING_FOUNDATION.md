@@ -175,18 +175,18 @@ Status: Complete and released
 
 ## D9-06 rental settlement
 
-- Status: Blocked on receivables ledger task D10-01.
-- Live schema verification on 2026-08-10 found no invoice, payment,
-  payment-allocation, deposit, refund, dues, or settlement tables. Only
-  company-scoped payment settings and the D9-05 damage facts exist.
-- Scope boundary: introduce an immutable settlement snapshot and atomic
-  returned-to-closed transition. Do not describe payment collection, refund
-  execution, invoicing, or gateway integration as complete until their own
-  ledger workflows are delivered.
-- Exact blocker: `rentals.total_amount` includes the pricing snapshot's quoted
-  deposit, but no authoritative row records whether rent or deposit was paid,
-  allocated, retained, or refunded. A settlement RPC cannot safely derive
-  balance due or refund due without inventing manual financial facts.
-- Resume condition: D10-01 supplies immutable company-scoped invoices/payments,
-  allocations, deposit movements, refunds, and due balances with RLS and atomic
-  posting rules. No D9-06 migration was created or applied.
+- Status: Review.
+- Migration `20260814052728_rental_settlements.sql` adds the immutable
+  settlement snapshot and atomic returned-to-closed transition after the
+  D10-01 receivables ledger became available. Payment collection, refund
+  execution, and invoice posting remain separate ledger workflows.
+- The settlement RPC is SECURITY INVOKER with a fixed empty search path and
+  revalidates company scope, rental state, invoice balance, deposit balance,
+  and actor permissions before writing the immutable snapshot and closing the
+  rental atomically.
+- `npm.cmd run validate` passed on the D9-06 branch. Authenticated preview
+  smoke passed on 2026-08-14 for `/rentals` and `/payments`: zero-state metrics,
+  settlement controls, and empty ledger states rendered with no browser console
+  or current Vercel runtime errors. No business records were created.
+- Remaining: authorized mutation smoke with a non-production returned rental
+  and invoice, followed by cross-company and repeated-settlement denial checks.
