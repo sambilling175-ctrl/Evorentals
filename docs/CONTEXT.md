@@ -10,7 +10,7 @@
 | Updated | 2026-08-14 |
 | Delivery position | D10-03 returned-rental collections in review |
 | Git branch | `agent/d10-03-returned-rental-collections` |
-| Last verified application commit | `7b5bdc0` - Implement atomic rental settlement |
+| Last verified application commit | `1621c72` - Implement returned-rental collections |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
@@ -265,9 +265,13 @@ data or create business records.
 - `/payments` exposes typed returned-rental charge cards, Zod-validated server
   actions, allocation inputs, and immutable receipt history. UI code does not
   query Supabase directly and does not accept a trusted payment total.
-- `npm.cmd run validate` passes on 2026-08-14. The migration has not been applied;
-  live advisors, database transaction verification, and authenticated form smoke
-  remain the release gates. No business records were created.
+- `npm.cmd run validate` passes on 2026-08-14. The migration was applied through
+  Supabase as live version `20260814060344` and verified with table/RLS/policy,
+  index, trigger, grant, and invoker checks. Security and performance advisors
+  show only pre-existing legacy warnings; no D10-03-specific finding was
+  reported. New allocation, receipt, and receipt-event row counts are zero.
+  Authenticated form smoke and transactional denial tests remain pending; no
+  business records were created.
 
 ### Architecture deepening checkpoint
 

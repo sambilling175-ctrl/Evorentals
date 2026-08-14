@@ -21,11 +21,12 @@ Status: Review
 ### Verification and release state
 
 - `npm.cmd run validate` passed on 2026-08-14.
-- Migration: `20260814055140_returned_rental_collections.sql` created locally and
-  pending application. No production schema or business data was changed.
-- Supabase CLI database lint could not run because the sandboxed npm invocation
-  could not reach the package registry. Run database advisors and an atomic
-  rollback smoke after applying the migration to a non-production target.
-- Required next action: apply the migration, run security/performance advisors,
-  then post one authorized test collection and verify cross-company denial,
-  line balances, receipt snapshot, audit event, and immutability rollback.
+- Migration `20260814055140_returned_rental_collections.sql` was applied through
+  Supabase as live version `20260814060344`; table/RLS/policy, index, trigger,
+  grant, and invoker checks passed. New D10-03 table counts remain zero.
+- Supabase CLI database lint was attempted but requires a `SUPABASE_ACCESS_TOKEN`;
+  the Supabase advisors were run through the authenticated connector instead.
+  They report only pre-existing legacy warnings and no D10-03-specific finding.
+- Required next action: authenticated form smoke plus authorized test collection
+  on a non-production test identity, cross-company denial, line-balance checks,
+  receipt/audit snapshot verification, and immutability rollback verification.
