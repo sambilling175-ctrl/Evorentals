@@ -209,6 +209,16 @@ close a returned rental until the immutable receivables ledger exists.
 - Draft PR #10 is open. Its Vercel preview is READY, and an unauthenticated
   `/payments` request correctly resolves to `/login?next=/payments`.
 
+### Architecture deepening checkpoint
+
+- The Availability module (`src/lib/services/availability.ts`) is the shared
+  interface for date-window vehicle search, transactional reservation checks,
+  and open-rental occupancy. Booking search/creation and fleet availability use
+  this seam; the database booking exclusion constraint remains the write-time
+  race guard.
+- This refactor has no migration and creates no business records.
+- `npm.cmd run validate` passes after the refactor.
+
 Legacy data discovery and migration constraints are recorded in
 `docs/LEGACY_DATA_MIGRATION.md`. Do not import the partial customer snapshot;
 obtain a complete export or implement a resumable batched extractor first.

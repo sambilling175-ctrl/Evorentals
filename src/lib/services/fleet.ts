@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { listOpenRentalBikeIds } from "@/lib/services/availability";
 
 type PermissionMap = Record<string, string[]>;
 
@@ -77,24 +78,19 @@ function normalizeAvailability(status: string | null): string {
 export async function getFleetWorkspace(): Promise<FleetWorkspaceData> {
   const actor = await getActor();
   const { supabase, profile } = actor;
-  const [bikesResult, rentalsResult, actorPermissions] = await Promise.all([
+  const [bikesResult, actorPermissions, onRentIds] = await Promise.all([
     supabase.from("bikes")
       .select("id,serial_number,model,manufacturer,variant,color,category,registration_number,vin_number,manufacturing_year,purchase_date,current_odometer,battery_level,notes,status,last_serviced_at,updated_at")
       .eq("company_id", profile.company_id).is("deleted_at", null).order("serial_number"),
-    supabase.from("rentals").select("bike_id")
-      .eq("company_id", profile.company_id).is("deleted_at", null).eq("status", "active"),
     getActorPermissions(actor),
+    listOpenRentalBikeIds({ supabase, companyId: profile.company_id }),
   ]);
-  const firstError = bikesResult.error ?? rentalsResult.error;
+  const firstError = bikesResult.error;
   if (firstError) throw new Error(`Unable to load fleet: ${firstError.message}`);
 
   if (!hasPermission(profile.role, actorPermissions, "Vehicles", ["View", "Manage", "Edit"])) {
     throw new Error("You do not have permission to view the fleet");
   }
-
-  const onRentIds = new Set(
-    (rentalsResult.data ?? []).map((rental) => rental.bike_id).filter((id): id is string => typeof id === "string"),
-  );
 
   const vehicles = (bikesResult.data ?? []).map((bike): VehicleRecord => ({
     id: bike.id,
