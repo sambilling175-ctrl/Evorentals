@@ -208,6 +208,10 @@ close a returned rental until the immutable receivables ledger exists.
   collections dataset has been removed. `npm.cmd run validate` passes.
 - Draft PR #10 is open. Its Vercel preview is READY, and an unauthenticated
   `/payments` request correctly resolves to `/login?next=/payments`.
+- The receivables module now exposes typed invoice, payment, and deposit-refund
+  commands through Zod-validated server actions and guarded forms. Collection
+  totals are calculated from all posted payments; the recent list remains
+  limited to the latest 20 rows. No migration or business records were created.
 
 ### Architecture deepening checkpoint
 
