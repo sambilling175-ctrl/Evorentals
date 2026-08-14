@@ -13,11 +13,14 @@
 npm.cmd run legacy:customers:stage
 ```
 
-The command reads `legacy-data/customers.csv` and writes the ignored file
-`legacy-data/customers.staging.json`. It normalizes email, Indian phone numbers,
-account status, and KYC status, then reports missing identity fields, duplicate
-email/mobile identities, malformed timestamps, document-link presence, and
-source-count mismatches.
+The command reads `legacy-data/customers.csv` and writes the ignored files
+`legacy-data/customers.staging.json` and
+`legacy-data/customers.identity-review.json`. It normalizes email, Indian phone
+numbers, account status, and KYC status, then reports missing identity fields,
+duplicate email/mobile identities, malformed timestamps, document-link presence,
+and source-count mismatches. The identity-review file contains only source row
+numbers, legacy IDs, and issue codes so it can be reviewed without duplicating
+customer contact data.
 
 The command exits with code `2` when the dataset is not safe to import. This is
 intentional: a complete count match and zero identity/timestamp issues are
@@ -32,6 +35,7 @@ future workstream.
 
 ## Handoff
 
-After validation, the next task is to review the staging report and approve the
-legacy-ID mapping/import design. No migration has been created and no business
-records have been written.
+The current ID-only review manifest identifies 30 affected rows (10 missing
+names and 20 duplicate-identity rows). The next task is to review those rows
+and approve the legacy-ID mapping/import design. No migration has been created
+and no business records have been written.

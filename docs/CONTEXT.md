@@ -337,10 +337,12 @@ obtain a complete export or implement a resumable batched extractor first.
 - The complete legacy customer CSV is present locally at
   `legacy-data/customers.csv` (13,792 rows; Git-ignored PII).
 - `npm.cmd run legacy:customers:stage` normalizes the metadata and writes only
-  `legacy-data/customers.staging.json`; it never calls Supabase.
+  `legacy-data/customers.staging.json` plus the ID-only
+  `legacy-data/customers.identity-review.json`; it never calls Supabase.
 - Current validation findings are 10 missing names, 2 duplicate email groups,
-  and 10 duplicate mobile groups. The staging report therefore remains
-  `safeToImport: false` until those identity conflicts are reviewed.
+  and 10 duplicate mobile groups affecting 30 rows. The staging report
+  therefore remains `safeToImport: false` until those identity conflicts are
+  reviewed.
 - The CSV contains document-link markers only. KYC/photo binary transfer is a
   separate private-storage task and has not started.
 

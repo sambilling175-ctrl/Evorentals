@@ -4,14 +4,16 @@ import process from "node:process";
 
 const DEFAULT_INPUT = path.resolve("legacy-data/customers.csv");
 const DEFAULT_OUTPUT = path.resolve("legacy-data/customers.staging.json");
+const DEFAULT_REVIEW_OUTPUT = path.resolve("legacy-data/customers.identity-review.json");
 const DEFAULT_EXPECTED_COUNT = 13_792;
 
 function parseArgs(argv) {
-  const options = { input: DEFAULT_INPUT, output: DEFAULT_OUTPUT, expectedCount: DEFAULT_EXPECTED_COUNT };
+  const options = { input: DEFAULT_INPUT, output: DEFAULT_OUTPUT, reviewOutput: DEFAULT_REVIEW_OUTPUT, expectedCount: DEFAULT_EXPECTED_COUNT };
   for (const arg of argv) {
     if (arg === "--allow-partial") options.allowPartial = true;
     else if (arg.startsWith("--input=")) options.input = path.resolve(arg.slice("--input=".length));
     else if (arg.startsWith("--output=")) options.output = path.resolve(arg.slice("--output=".length));
+    else if (arg.startsWith("--review-output=")) options.reviewOutput = path.resolve(arg.slice("--review-output=".length));
     else if (arg.startsWith("--expected-count=")) options.expectedCount = Number(arg.slice("--expected-count=".length));
     else if (arg === "--help") options.help = true;
   }
@@ -19,7 +21,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log("Usage: npm run legacy:customers:stage -- [--input=legacy-data/customers.csv] [--output=legacy-data/customers.staging.json] [--expected-count=13792] [--allow-partial]");
+  console.log("Usage: npm run legacy:customers:stage -- [--input=legacy-data/customers.csv] [--output=legacy-data/customers.staging.json] [--review-output=legacy-data/customers.identity-review.json] [--expected-count=13792] [--allow-partial]");
 }
 
 function parseCsv(text) {
@@ -162,7 +164,21 @@ async function main() {
   };
   await mkdir(path.dirname(options.output), { recursive: true });
   await writeFile(options.output, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-  console.log(JSON.stringify({ output: path.relative(process.cwd(), options.output), safeToImport, summary: result.summary }, null, 2));
+  const review = {
+    schemaVersion: 1,
+    generatedAt: result.generatedAt,
+    source: result.source,
+    safeToImport,
+    summary: result.summary,
+    conflicts: rows.filter((row) => row.issues.length > 0).map((row) => ({
+      sourceRow: row.sourceRow,
+      legacyId: row.legacyId || null,
+      issues: row.issues,
+    })),
+  };
+  await mkdir(path.dirname(options.reviewOutput), { recursive: true });
+  await writeFile(options.reviewOutput, `${JSON.stringify(review, null, 2)}\n`, "utf8");
+  console.log(JSON.stringify({ output: path.relative(process.cwd(), options.output), reviewOutput: path.relative(process.cwd(), options.reviewOutput), safeToImport, summary: result.summary }, null, 2));
   if (!safeToImport) process.exitCode = 2;
 }
 
