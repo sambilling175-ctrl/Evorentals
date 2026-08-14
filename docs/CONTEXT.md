@@ -214,6 +214,11 @@ business records; do not create production business records.
   posting forms, and empty invoice/collection states with zero console errors
   or warnings. Financial command submission remains intentionally unexecuted
   because it requires non-production test records.
+- `supabase/tests/receivables_commands.sql` now provides a rollback-only live
+  command smoke. As the authenticated actor it successfully posts an
+  unallocated ₹1.25 payment through `post_receivable_payment`, rejects a zero
+  amount, and rolls back both paths. Post-test verification found zero rows
+  with the test references; `npm.cmd run validate` passes.
 - Runtime investigation on 2026-08-14 found the authenticated preview 500 was
   caused by an ambiguous PostgREST `customers` embed on `receivable_payments`.
   The workspace now selects customer IDs and resolves names through the
