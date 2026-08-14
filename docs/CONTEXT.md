@@ -212,6 +212,8 @@ close a returned rental until the immutable receivables ledger exists.
   commands through Zod-validated server actions and guarded forms. Collection
   totals are calculated from all posted payments; the recent list remains
   limited to the latest 20 rows. No migration or business records were created.
+- The refreshed D10-01 preview is READY; unauthenticated `/payments` still
+  resolves to `/login`. Authenticated form smoke testing remains pending.
 
 ### Architecture deepening checkpoint
 
