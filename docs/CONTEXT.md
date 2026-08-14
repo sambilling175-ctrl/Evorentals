@@ -232,7 +232,9 @@ business records; do not create production business records.
   immutable snapshot, and atomically marks the rental `completed`.
 - The rentals service, Zod server action, and rental control board now expose
   settlement without accepting manual financial totals. No business records
-  were created. `npm.cmd run validate` passes.
+  were created. `npm.cmd run validate` passes. An authenticated preview smoke
+  on `/rentals` renders the empty rental control board and captures zero
+  console errors or warnings.
 - D10-03-H1 adds authenticated company-scoped UPDATE policies and UPDATE
   grants for `receivable_invoices` and `receivable_invoice_lines`. Existing
   immutable-history triggers remain in place; the policies exist only so
