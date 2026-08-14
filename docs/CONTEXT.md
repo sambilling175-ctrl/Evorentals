@@ -274,7 +274,9 @@ business records; do not create production business records.
   for the new receipt/allocation tables. New allocation, receipt, and
   receipt-event row counts are zero.
   READY preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
-  has no persistent `/payments` runtime errors. A first-request auth refresh
+  has no persistent `/payments` runtime errors. A fresh authenticated smoke
+  reconfirmed the zero-balance empty state and captured zero console errors or
+  warnings. A first-request auth refresh
   race was observed as `Active employee profile required`; `/payments` is now
   forced dynamic and has a route-level retry state, and a fresh authenticated
   smoke renders the empty live ledger correctly. Transactional denial tests
