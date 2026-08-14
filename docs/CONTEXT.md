@@ -8,8 +8,8 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-14 |
-| Delivery position | D9-06 settlement review; D10-02 live reports in progress |
-| Git branch | `agent/d10-02-live-reports` |
+| Delivery position | D10-03 returned-rental collections in review |
+| Git branch | `agent/d10-03-returned-rental-collections` |
 | Last verified application commit | `7b5bdc0` - Implement atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -252,6 +252,22 @@ data or create business records.
   Vercel reports no runtime errors. Authenticated smoke testing remains pending
   because the preview host has a separate session and no production business
   records were created.
+
+### D10-03 returned-rental collections checkpoint
+
+- Migration `20260814055140_returned_rental_collections.sql` adds immutable,
+  company-scoped payment-line allocations, receipts, and receipt audit events
+  with explicit RLS, grants, indexes, and immutable-history triggers.
+- `post_returned_rental_collection` is a SECURITY INVOKER RPC that revalidates
+  the actor, company, Payments permission, returned rental, invoice, charge
+  ownership, and remaining balances. It atomically posts the payment and exact
+  rental/damage allocations and issues the receipt/audit snapshot.
+- `/payments` exposes typed returned-rental charge cards, Zod-validated server
+  actions, allocation inputs, and immutable receipt history. UI code does not
+  query Supabase directly and does not accept a trusted payment total.
+- `npm.cmd run validate` passes on 2026-08-14. The migration has not been applied;
+  live advisors, database transaction verification, and authenticated form smoke
+  remain the release gates. No business records were created.
 
 ### Architecture deepening checkpoint
 
