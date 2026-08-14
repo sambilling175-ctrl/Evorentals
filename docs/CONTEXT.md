@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-14 |
-| Delivery position | D9-06 settlement review; D10-02 live reports in progress |
+| Delivery position | D10-02 live reports in review |
 | Git branch | `agent/d10-02-live-reports` |
-| Last verified application commit | `7b5bdc0` - Implement atomic rental settlement |
+| Last verified application commit | `843bc30` - Harden reports auth refresh rendering |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migration | `20260810160100_receivables_indexes.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-14 |
 
 ## Product
 
@@ -247,11 +247,12 @@ data or create business records.
   CSV export. The UI does not query Supabase directly and no business records
   were created.
 - `npm.cmd run validate` passes on 2026-08-14. No migration was required.
-  Preview `https://evorentals-git-agent-d10-02-live-reports-wephotons1.vercel.app`
-  serves `/reports` and correctly redirects unauthenticated requests to login;
-  Vercel reports no runtime errors. Authenticated smoke testing remains pending
-  because the preview host has a separate session and no production business
-  records were created.
+  `/reports` is force-dynamic and has a route-level retry boundary to protect
+  the auth-cookie refresh path. READY deployment
+  `dpl_DrLCKjmAuCcEuegY2MeTMVm7yRxi` serves the preview and correctly redirects
+  unauthenticated requests to login; Vercel reports no current runtime errors.
+  Authenticated smoke testing remains pending because this preview host has a
+  separate session and no production business records were created.
 
 ### Architecture deepening checkpoint
 
