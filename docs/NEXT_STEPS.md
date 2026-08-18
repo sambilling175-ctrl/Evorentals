@@ -43,6 +43,42 @@
 | D11-01 | P1 | Stage and reconcile complete legacy customer metadata export without database writes | Review | Codex / `agent/d11-01-legacy-customer-staging`; commits `f3a8347`, `641fc89`, `91d83ae`; staging output and ID-only conflict manifest generated; `npm.cmd run validate` passed; no Supabase records or KYC binaries created; ADR-019 now resolves the conflict-policy gate | Complete customer CSV export | Migration, customers |
 | D11-02 | P1 | Approve legacy customer conflict policy before import | Completed | Codex; ADR-019 accepted: quarantine blank-name and duplicate-identity rows, never invent names or merge solely on shared contact values | D11-01 | Migration, customers |
 | D11-03 | P1 | Dry-run and import conflict-free legacy customer metadata | In progress | Codex / `agent/d11-03-customer-import`; commits `e8383e0`, `0430eee` pushed; schema/RPC applied and rollback tests/advisors passed; stricter validation yields 13,760 eligible and 32 quarantined rows; zero records imported; authenticated admin remote dry-run/apply token is the remaining gate; no KYC binaries in scope | D11-02 | Migration, customers |
+| D12-01 | P0 | Review and integrate D9-06 rental settlement | Ready | Unassigned | D9-05 | Rentals, release |
+| D12-02 | P0 | Review and integrate D10-01 receivables ledger | Blocked | Unassigned | D12-01 | Collections, release |
+| D12-03 | P0 | Review and integrate D10-03 returned-rental collections | Blocked | Unassigned | D12-02 | Collections, release |
+| D12-04 | P1 | Integrate RLS isolation and non-email Playwright coverage | Blocked | Unassigned | D12-03 | Tests, release |
+| D12-05 | P0 | Reconcile rental, vehicle, invoice, payment, settlement, dashboard, and report totals | Blocked | Unassigned | D12-04 | Acceptance, reporting |
+| D12-06 | P1 | Add CI gates for validation, Playwright, migration checks, and rollback-only SQL tests | Blocked | Unassigned | D12-05 | CI, release |
+| D13-01 | P1 | Add company-scoped service requests and service reasons | Blocked | Unassigned | D12-06 | Service |
+| D13-02 | P1 | Add service job cards and controlled status transitions | Blocked | Unassigned | D13-01 | Service |
+| D13-03 | P1 | Capture service intake inspection, odometer, and battery telemetry | Blocked | Unassigned | D13-02 | Service, fleet |
+| D13-04 | P1 | Assign service work to employees or external garages | Blocked | Unassigned | D13-02 | Service, employees |
+| D13-05 | P1 | Implement requested-to-completed service pipeline | Blocked | Unassigned | D13-03, D13-04 | Service |
+| D13-06 | P0 | Atomically reconcile fleet availability with service transitions | Blocked | Unassigned | D13-05 | Service, fleet |
+| D13-07 | P1 | Build live service dashboard, turnaround, overdue, and readiness metrics | Blocked | Unassigned | D13-06 | Service, dashboard |
+| D13-08 | P1 | Validate service RLS, immutable history, advisors, and rollback-only SQL tests | Blocked | Unassigned | D13-07 | Service, security |
+| D14-01 | P1 | Add vendor and garage directory | Blocked | Unassigned | D13-08 | Vendors, service |
+| D14-02 | P1 | Add spare-parts catalogue and stock movements | Blocked | Unassigned | D14-01 | Inventory |
+| D14-03 | P1 | Add job-card parts reservations and consumption | Blocked | Unassigned | D14-02 | Inventory, service |
+| D14-04 | P1 | Record labour, parts, battery, and miscellaneous service costs | Blocked | Unassigned | D14-03 | Service, finance |
+| D14-05 | P1 | Add QC checklist and failed-QC rework cycle | Blocked | Unassigned | D14-04 | Service, QC |
+| D14-06 | P0 | Release serviced vehicles to available or maintenance atomically | Blocked | Unassigned | D14-05 | Service, fleet |
+| D14-07 | P1 | Add service history and vehicle lifetime-cost reporting | Blocked | Unassigned | D14-06 | Service, reports |
+| D14-08 | P1 | Deliver reference-aligned service analytics dashboard | Blocked | Unassigned | D14-07 | Service, dashboard |
+| D15-01 | P1 | Add live notification records and unread state | Blocked | Unassigned | D14-08 | Notifications |
+| D15-02 | P1 | Add document-expiry and rental-overdue alerts | Blocked | Unassigned | D15-01 | Notifications, rentals |
+| D15-03 | P1 | Add payment, collection, and service-due alerts | Blocked | Unassigned | D15-01 | Notifications, collections |
+| D15-04 | P1 | Add employee-assigned operational tasks | Blocked | Unassigned | D15-01 | Tasks, employees |
+| D15-05 | P1 | Add realtime dashboard and alert refresh | Blocked | Unassigned | D15-02, D15-03, D15-04 | Realtime, dashboard |
+| D15-06 | P2 | Add notification preference settings | Blocked | Unassigned | D15-05 | Notifications, settings |
+| D15-07 | P1 | Validate notification access, delivery state, and task workflows | Blocked | Unassigned | D15-06 | Notifications, tests |
+| D16-01 | P0 | Complete authenticated D11-03 legacy customer remote dry-run | Blocked | Unassigned | Authenticated administrator import token | Migration, customers |
+| D16-02 | P0 | Import only approved conflict-free legacy customer metadata after confirmation | Blocked | Unassigned | D16-01, explicit operator confirmation | Migration, customers |
+| D16-03 | P1 | Preserve and resolve the 32-row legacy identity quarantine | Blocked | Unassigned | D16-02, operator-supplied source corrections | Migration, customers |
+| D16-04 | P1 | Plan private KYC image and document migration separately | Blocked | Unassigned | D16-02, source binary inventory | Migration, storage |
+| D16-05 | P1 | Run production performance, index, security, and RLS regression review | Blocked | Unassigned | D16-02 | Security, performance |
+| D16-06 | P0 | Produce backup, rollback, deployment, and operations runbook | Blocked | Unassigned | D16-05 | Operations, release |
+| D16-07 | P0 | Run final end-to-end rental lifecycle acceptance | Blocked | Unassigned | D16-06 | Acceptance, release |
 | AUTH-H2 | P0 | Make implicit password recovery resilient when Supabase falls back to the login Site URL | Completed | Codex; merge `c7a4956`; validate passed; production READY and fallback smoke-tested; no migration | Day 3 auth | Auth |
 
 ## Planned module sequence
@@ -56,6 +92,15 @@ After Day 5:
 5. Booking and rental lifecycle
 6. Collections and settlement
 7. Live dashboard and reports
+8. Integration and release hardening (Sprint 12)
+9. Service and maintenance foundation (Sprint 13)
+10. Parts, vendors, QC, and service costing (Sprint 14)
+11. Notifications and operational tasks (Sprint 15)
+12. Legacy migration and production readiness (Sprint 16)
+
+Email-dependent D4-04 final recovery testing, D4-06 SMTP activation, and D6-03
+employee invitation delivery are deliberately parked. They are outside the
+D12-D16 critical path until the operator resumes the Resend configuration.
 
 ## Task claim template
 

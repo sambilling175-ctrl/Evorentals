@@ -184,10 +184,15 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Complete D11-03 with an authenticated administrator remote dry-run of all 69
-customer chunks. Review its PII-free reconciliation plan, then provide the
-checksum-derived confirmation to apply the 13,760 eligible rows. Do not import
-the 32 quarantined rows or any KYC/document binary.
+Begin D12-01 by reviewing and integrating the D9-06 rental-settlement branch.
+Email-dependent tasks are parked. D11-03 remains safely paused before its first
+remote write while the authenticated administrator token and explicit import
+confirmation are unavailable; no quarantined row or KYC binary may be imported.
+
+The approved D12-D16 sequence is recorded in `docs/SPRINT_12_16_ROADMAP.md`.
+The shared task-loop resolves D12-01 as the next claimable P0 item; every later
+roadmap item remains dependency-blocked to prevent agents from skipping the
+integration baseline.
 
 ### D10-01 database checkpoint
 
