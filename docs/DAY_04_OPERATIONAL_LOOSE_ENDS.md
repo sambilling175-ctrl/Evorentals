@@ -23,10 +23,15 @@
 - Supabase security and performance advisors were run after the migration.
 - No new advisor finding was introduced by `customer_timeline_events`.
 - Existing legacy advisor warnings remain documented technical debt.
+- D4-04 adds a local Playwright suite for unauthenticated protected-route
+  redirects, the public recovery form, invalid recovery callbacks, and the
+  fallback login-fragment handoff. `npm.cmd run test:e2e` passes (4 tests) on
+  2026-08-18 using the installed Chrome channel.
 
 ## Deferred Day 4 hardening
 
-- Playwright auth recovery coverage requires a stable SMTP/test mailbox.
+- The final Playwright auth recovery journey requires a stable SMTP/test
+  mailbox. Route and invalid-token coverage is now automated.
 - Two-company RLS integration coverage requires isolated test identities.
 - D4-06 is using Resend. `onboarding@resend.dev` is approved only as a
   temporary test sender while the Evo Rentals domain is verified. The API key

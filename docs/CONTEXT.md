@@ -433,3 +433,14 @@ At the end of every task, update this checkpoint with:
   configuration, complete one password-recovery smoke test, then record the
   result and decide whether to verify the production sender domain before
   production onboarding.
+
+## 2026-08-18 D4-04 Playwright checkpoint
+
+- Branch: `agent/d4-04-auth-coverage`.
+- `playwright.config.ts` starts the local Next.js server and uses the locally
+  installed Chrome channel. `npm.cmd run test:e2e` passes four tests covering
+  protected-route login redirects, public recovery access, invalid callback
+  rejection, and fallback recovery-fragment forwarding.
+- The test suite does not submit a reset request and therefore creates no Auth
+  emails. The sole remaining D4-04 gate is a controlled real reset-email test
+  after the D4-06 Supabase SMTP configuration is saved.
