@@ -44,7 +44,10 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 - `legacy-data/customers.csv` is now a complete 13,792-row metadata export. It
   is validated locally by `npm.cmd run legacy:customers:stage` and remains
   Git-ignored because it contains personal data.
-- No legacy records have been written to Supabase.
+- D11-03 import infrastructure is live, but no legacy business record has been
+  written to Supabase. The current plan has 13,760 eligible rows and 32
+  quarantined rows (10 blank names, 20 duplicate-identity rows, and 2
+  unparseable Indian phone values).
 - No source records were modified.
 
 ## Migration rules
@@ -67,8 +70,9 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 
 ## Next action
 
-The complete customer metadata export is staged locally first. Review
-`legacy-data/customers.staging.json` and approve the legacy-ID mapping before
-building the write-enabled customer import. KYC/photo binaries still require a
-separate manifest and private-storage transfer; the CSV's `Documents` column is
-not a binary export.
+Run `npm.cmd run legacy:customers:import -- --remote` with a short-lived
+authenticated administrator JWT to validate every eligible chunk through the
+live SECURITY INVOKER RPC. Only after that succeeds, use the checksum-derived
+confirmation printed in the ignored import plan with `--apply`. KYC/photo
+binaries still require a separate manifest and private-storage transfer; the
+CSV's `Documents` column is not a binary export.

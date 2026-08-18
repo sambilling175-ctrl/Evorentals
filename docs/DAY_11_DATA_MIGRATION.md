@@ -35,16 +35,49 @@ future workstream.
 
 ## Handoff
 
-The current ID-only review manifest identifies 30 affected rows (10 missing
-names and 20 duplicate-identity rows). The next task is to review those rows
-and approve the legacy-ID mapping/import design. No migration has been created
-and no business records have been written.
+The first ID-only review manifest identified 30 affected rows (10 missing
+names and 20 duplicate-identity rows). D11-03's stricter import gate identified
+two additional malformed Indian phone values that cannot be corrected without
+guessing digits. Legacy IDs `2` and `638` are therefore quarantined too.
 
 The authenticated source edit forms confirmed that all 10 missing names are
 blank in the legacy system itself; they are not a CSV rendering omission. Those
 records must remain quarantined or receive an explicitly approved placeholder
 policy. Duplicate email/mobile groups are also retained as separate legacy IDs
 until the business confirms whether they represent shared contact details or
-duplicate accounts. D11-01 is now in `Review`; ADR-019 resolves D11-02 by
-quarantining all 30 conflict rows. D11-03 is the next task and may only import
-the 13,762 conflict-free metadata rows after its dry-run and mapping checks.
+duplicate accounts. D11-01 is now in `Review`; ADR-019 resolves D11-02 and its
+conservative rule also quarantines the two unparseable phones. The reconciled
+D11-03 totals are 13,760 eligible and 32 quarantined rows.
+
+## D11-03 checkpoint
+
+- Branch: `agent/d11-03-customer-import`.
+- `npm.cmd run legacy:customers:import` creates an ignored, PII-free import
+  plan. It recomputes identity uniqueness, validates `+91` phone and email
+  formats, reconciles exact counts, hashes the canonical eligible payload, and
+  derives a deterministic batch ID for safe resume.
+- Current plan: 13,792 source rows, 13,760 eligible rows, 32 quarantined rows,
+  69 chunks of at most 200 rows, SHA-256
+  `6511d29d20dca127fa75f0324b43cc62046090ee7d64f2c5af6b8e438422728c`.
+- Migrations `20260818081120_legacy_customer_import.sql`,
+  `20260818083023_legacy_customer_import_indexes.sql`, and
+  `20260818083445_legacy_customer_import_hardening.sql` are applied live as
+  versions `20260818083006`, `20260818083053`, and `20260818083524`.
+- The migrations add company-scoped import batches and immutable legacy-ID
+  mappings, admin-only RLS, explicit grants, cross-chunk imported-email
+  uniqueness, an append-only mapping trigger, and the fixed-search-path
+  SECURITY INVOKER `import_legacy_customer_batch` RPC.
+- Live transaction-only verification passed for valid dry-run, malformed-phone
+  rejection, and atomic apply/mapping/finalization. Every verification write
+  rolled back.
+- Supabase security advisors report no D11-03 finding. Performance advisors
+  report only expected unused-index INFO notices because the tables are empty;
+  both actor foreign keys have covering indexes.
+- Live row counts remain zero import batches and zero mappings; the four
+  pre-existing demo customers are unchanged. No legacy customer record or KYC
+  binary has been written.
+
+The remaining D11-03 gate is an authenticated administrator remote dry-run and
+explicit apply. The CLI deliberately requires `EVORENTALS_IMPORT_JWT` and a
+checksum-derived `EVORENTALS_IMPORT_CONFIRM`; it never accepts or prints a
+privileged service-role key.

@@ -10,6 +10,7 @@
     "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit",
     "legacy:customers:stage": "node scripts/legacy-customers-stage.mjs",
+    "legacy:customers:import": "node scripts/legacy-customers-import.mjs",
     "task:next": "node scripts/task-loop.mjs",
     "task:claim": "node scripts/task-loop.mjs",
     "validate": "npm run typecheck && npm run lint && npm run build"

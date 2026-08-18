@@ -85,6 +85,14 @@ function normalizeAccountStatus(value) {
   return value.trim().toLowerCase() === "inactive" ? "inactive" : "active";
 }
 
+function isValidEmail(value) {
+  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidIndianPhone(value) {
+  return typeof value === "string" && /^\+91\d{10}$/.test(value);
+}
+
 function duplicateValues(rows, field) {
   const groups = new Map();
   for (const row of rows) {
@@ -133,13 +141,16 @@ async function main() {
     if (!row.legacyId) row.issues.push("missing_legacy_id");
     if (!row.fullName) row.issues.push("missing_full_name");
     if (!row.email) row.issues.push("missing_email");
+    else if (!isValidEmail(row.email)) row.issues.push("invalid_email");
     if (!row.phone) row.issues.push("missing_phone");
+    else if (!isValidIndianPhone(row.phone)) row.issues.push("invalid_phone");
     if (duplicateIds.has(row.legacyId)) row.issues.push("duplicate_identity");
     if (!row.createdAt || Number.isNaN(Date.parse(row.createdAt))) row.issues.push("invalid_created_at");
   }
 
   const missingName = rows.filter((row) => row.issues.includes("missing_full_name")).length;
   const duplicateIdentityRows = rows.filter((row) => row.issues.includes("duplicate_identity")).length;
+  const invalidPhoneRows = rows.filter((row) => row.issues.includes("invalid_phone")).length;
   const invalidRows = rows.filter((row) => row.issues.length > 0).length;
   const countMatches = rows.length === options.expectedCount;
   const safeToImport = countMatches && invalidRows === 0 && (options.allowPartial || rows.length >= options.expectedCount);
@@ -154,6 +165,7 @@ async function main() {
       invalidRows,
       missingName,
       duplicateIdentityRows,
+      invalidPhoneRows,
       duplicateEmails: emailDuplicates.size,
       duplicateMobiles: phoneDuplicates.size,
       withDocumentMarkers: rows.filter((row) => row.hasDocumentMarker).length,

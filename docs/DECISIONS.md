@@ -217,6 +217,8 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   shared. Quarantine those rows in an ID-only review manifest and import only
   the conflict-free customer metadata set until an operator resolves each
   legacy ID.
-- Consequence: D11-03 may import the 13,762 clean rows after its dry-run and
-  mapping checks. The 30 quarantined rows remain traceable by legacy ID and
-  cannot silently overwrite or merge customer identities.
+- Consequence: D11-03 may import only rows that pass its complete dry-run and
+  mapping checks. The dry-run found two additional unparseable Indian phone
+  values, so 13,760 rows are currently eligible and 32 are quarantined. All
+  quarantined rows remain traceable by legacy ID and cannot silently overwrite,
+  merge, or receive invented identity values.

@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-14 |
-| Delivery position | D4-05 RLS isolation test in review; live transaction-only test passed |
-| Git branch | `agent/d4-05-rls-isolation` |
+| Updated | 2026-08-18 |
+| Delivery position | D11-03 import infrastructure applied; authenticated data dry-run/apply pending |
+| Git branch | `agent/d11-03-customer-import` |
 | Last verified application commit | `9b54cc8` - Harden payments auth refresh rendering |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260814073417` - D10-03-H1 invoice-lock RLS (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-14 |
+| Latest migration | `20260818083524` - D11-03 legacy customer import hardening (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-18 |
 
 ## Product
 
@@ -184,9 +184,10 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Review D4-05 on `agent/d4-05-rls-isolation`, then release the queued review
-branches. The live two-company RLS test is transaction-only and leaves no
-business records; do not create production business records.
+Complete D11-03 with an authenticated administrator remote dry-run of all 69
+customer chunks. Review its PII-free reconciliation plan, then provide the
+checksum-derived confirmation to apply the 13,760 eligible rows. Do not import
+the 32 quarantined rows or any KYC/document binary.
 
 ### D10-01 database checkpoint
 
@@ -340,13 +341,31 @@ obtain a complete export or implement a resumable batched extractor first.
   `legacy-data/customers.staging.json` plus the ID-only
   `legacy-data/customers.identity-review.json`; it never calls Supabase.
 - Current validation findings are 10 missing names, 2 duplicate email groups,
-  and 10 duplicate mobile groups affecting 30 rows. The staging report
-  therefore remains `safeToImport: false` until those identity conflicts are
-  reviewed.
+  10 duplicate mobile groups, and 2 unparseable Indian phone values affecting
+  32 rows. The staging report remains `safeToImport: false`; ADR-019 requires
+  every affected row to stay quarantined.
 - The authenticated legacy edit forms confirmed that all 10 missing names are
   blank in the source system, so they are not an export rendering artifact.
 - The CSV contains document-link markers only. KYC/photo binary transfer is a
   separate private-storage task and has not started.
+
+### D11-03 legacy customer import checkpoint
+
+- The ignored local import plan reconciles 13,792 source rows into 13,760
+  eligible rows and 32 quarantined rows. Its deterministic SHA-256 is
+  `6511d29d20dca127fa75f0324b43cc62046090ee7d64f2c5af6b8e438422728c`.
+- Live migrations `20260818083006`, `20260818083053`, and `20260818083524`
+  add admin-only, company-scoped import batches, immutable legacy-ID mappings,
+  the SECURITY INVOKER batch import RPC, covering actor indexes, cross-chunk
+  imported-email uniqueness, and append-only mapping enforcement.
+- SQL compilation, valid/invalid dry-run behavior, and atomic apply/finalize
+  behavior passed against live schema inside forced rollback transactions.
+- Supabase advisors have no D11-03 security warning or missing foreign-key
+  index. Unused-index INFO notices are expected before the first import.
+- Import batches and mappings remain at zero rows; existing customer count is
+  still four. No production customer metadata or KYC binary has been imported.
+- Remaining gate: run the full authenticated administrator remote dry-run, then
+  supply the checksum-derived confirmation to the CLI for explicit apply.
 
 ## 2026-08-04 password recovery hotfix
 
