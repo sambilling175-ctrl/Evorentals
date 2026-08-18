@@ -184,15 +184,30 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Begin D12-01 by reviewing and integrating the D9-06 rental-settlement branch.
+Begin D12-02 by reviewing and integrating the D9-06 rental-settlement delta.
 Email-dependent tasks are parked. D11-03 remains safely paused before its first
 remote write while the authenticated administrator token and explicit import
 confirmation are unavailable; no quarantined row or KYC binary may be imported.
 
 The approved D12-D16 sequence is recorded in `docs/SPRINT_12_16_ROADMAP.md`.
-The shared task-loop resolves D12-01 as the next claimable P0 item; every later
+The shared task-loop resolves D12-02 as the next claimable P0 item; every later
 roadmap item remains dependency-blocked to prevent agents from skipping the
 integration baseline.
+
+### D12-01 receivables integration checkpoint (2026-08-18)
+
+- Repository ancestry proved that D9-06 contains D10-01, so the original
+  settlement-first roadmap order could not produce a clean reviewable merge.
+  Sprint 12 now integrates the receivables prerequisite before settlement.
+- D10-01 PR #10 was clean, its Vercel checks passed, and it merged to `main` as
+  `f361396`. The production deployment status is successful.
+- Live Supabase verification confirms the receivables and settlement objects
+  exist, settlement RLS is enabled, `settle_returned_rental` is SECURITY
+  INVOKER with a fixed empty search path, and invoice/payment/settlement counts
+  remain zero. Security and performance advisors show pre-existing legacy
+  findings and no settlement-specific regression.
+- `npm.cmd run validate` passed on the integrated baseline. D12-02 can now
+  review the small D9-06 delta against the updated `main` branch.
 
 ### D10-01 database checkpoint
 

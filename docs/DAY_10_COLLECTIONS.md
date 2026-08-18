@@ -1,5 +1,15 @@
 # Day 10 - Collections and settlement
 
+## D10-01 receivables ledger release
+
+- PR #10 merged to `main` as `f361396` on 2026-08-18 after its Vercel preview,
+  live schema, RLS, RPC, advisor, rollback-only command, and authenticated UI
+  evidence were reviewed.
+- The production Vercel status for the merge commit is successful.
+- Live verification after merge found zero invoices, payments, and settlement
+  rows; no production financial record was created for the release.
+- D9-06 settlement remains a separate delta and is the next integration task.
+
 ## D10-03 returned-rental collections
 
 Task: D10-03 - Returned-rental payment allocation and immutable receipts  

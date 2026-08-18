@@ -19,8 +19,9 @@ The existing non-email recovery tests remain part of Sprint 12 integration.
 Goal: produce one stable baseline from the completed rental, finance, security,
 and test branches before adding another operational module.
 
-1. D12-01: review and integrate D9-06 rental settlement.
-2. D12-02: review and integrate D10-01 receivables ledger.
+1. D12-01: review and integrate D10-01 receivables ledger, which is the
+   database and application prerequisite for settlement.
+2. D12-02: review and integrate the D9-06 settlement delta after D10-01.
 3. D12-03: review and integrate D10-03 returned-rental collections.
 4. D12-04: integrate D4-05 RLS isolation and D4-04 non-email Playwright tests.
 5. D12-05: reconcile rental/vehicle state and financial/reporting totals.
