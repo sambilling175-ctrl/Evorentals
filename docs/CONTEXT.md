@@ -10,7 +10,7 @@
 | Updated | 2026-08-18 |
 | Delivery position | D11-03 import infrastructure applied; authenticated data dry-run/apply pending |
 | Git branch | `agent/d11-03-customer-import` |
-| Last verified application commit | `9b54cc8` - Harden payments auth refresh rendering |
+| Last verified application commit | `e8383e0` - Add guarded legacy customer import |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
