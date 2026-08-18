@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-10 |
-| Delivery position | D10-01 receivables ledger in progress; D9-06 blocked pending it |
-| Git branch | `agent/d10-01-receivables-ledger` |
-| Last verified application commit | `e3893a9` - Merge D9-05 return inspection |
+| Updated | 2026-08-18 |
+| Delivery position | D12-02 complete; D10-01 and D9-06 are released; D12-03 is next |
+| Git branch | `agent/d12-02-release-checkpoint` |
+| Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
-| Production deployment | `evorentals-bliivi816-wephotons1.vercel.app` - Ready; aliased to production |
+| Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260810160100_receivables_indexes.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-10 |
+| Latest migration | `20260818170000_rental_settlement_fk_index.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-18 |
 
 ## Product
 
@@ -109,8 +109,12 @@ Live:
 
 Mock or placeholder:
 
-- Payments and service operational data
+- Service operational data
 - Drivers, reports, and notifications
+
+Live: company-scoped receivables ledger, payment/deposit/refund commands, and
+atomic returned-rental settlement (D10-01 and D9-06, merges `f361396` and
+`3d3bcc8`).
 
 Live: fleet directory and derived availability (D7-01), released from merge
 commit `f201cf5`.
@@ -179,17 +183,15 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260807082825`.
+- Continue migration numbering after `20260818170000`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
 
-Implement D10-01 on `agent/d10-01-receivables-ledger` before resuming D9-06. Live verification found no
-invoice, payment, allocation, deposit, refund, dues, or settlement tables, while
-`rentals.total_amount` already includes the quoted deposit component. The system
-therefore cannot determine collected rent, held deposit, outstanding balance, or
-refund due from authoritative facts. Do not accept manual paid/deposit totals or
-close a returned rental until the immutable receivables ledger exists.
+Proceed with D12-03: review and integrate the D10-03 returned-rental collections
+branch onto current `main`. Verify that its two applied migrations, receipt and
+allocation commands, invoice-lock RLS policies, validation, preview, and rollback-
+only acceptance evidence still match the live schema before opening a clean PR.
 
 ### D10-01 database checkpoint
 
@@ -206,8 +208,8 @@ close a returned rental until the immutable receivables ledger exists.
 - `/payments` now uses a server-only typed receivables service and live invoice,
   allocation, payment, refund, outstanding, and overdue totals. The former mock
   collections dataset has been removed. `npm.cmd run validate` passes.
-- Draft PR #10 is open. Its Vercel preview is READY, and an unauthenticated
-  `/payments` request correctly resolves to `/login?next=/payments`.
+- PR #10 merged as `f361396`. Its production deployment succeeded, and an
+  unauthenticated `/payments` request correctly resolves to `/login?next=/payments`.
 - The receivables module now exposes typed invoice, payment, and deposit-refund
   commands through Zod-validated server actions and guarded forms. Collection
   totals are calculated from all posted payments; the recent list remains
@@ -236,6 +238,15 @@ close a returned rental until the immutable receivables ledger exists.
 - The rentals service, Zod server action, and rental control board now expose
   settlement without accepting manual financial totals. No business records
   were created. `npm.cmd run validate` passes.
+- Supabase security advisors have no settlement-specific finding. The missing
+  composite settlement-to-rental foreign-key index found by the performance
+  advisor was added by `20260818170000_rental_settlement_fk_index.sql`; remaining
+  unused-index notices are expected while the table contains zero rows.
+- PR #12 merged as `3d3bcc8`. The READY preview was authenticated by the operator,
+  Vercel reported no preview error/fatal logs, and production deployment
+  `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on the merge commit.
+  Production `/rentals` correctly redirects signed-out users to
+  `/login?next=/rentals`; the new production deployment has no error/fatal logs.
 
 ### Architecture deepening checkpoint
 
@@ -293,6 +304,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 8 | 2026-08-04 | Company pricing plans and server quote preview (D8-01, released) | `DAY_08_PRICING.md` |
 | 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
+| 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 
 ## Handoff rule
 
