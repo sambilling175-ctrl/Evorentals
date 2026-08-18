@@ -28,7 +28,10 @@
 
 - Playwright auth recovery coverage requires a stable SMTP/test mailbox.
 - Two-company RLS integration coverage requires isolated test identities.
-- Production custom SMTP requires a provider decision and credentials.
+- D4-06 is using Resend. `onboarding@resend.dev` is approved only as a
+  temporary test sender while the Evo Rentals domain is verified. The API key
+  must be entered directly in Supabase Auth SMTP and is never stored in this
+  repository or in Vercel environment variables.
 
 ## Next handoff
 

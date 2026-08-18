@@ -419,3 +419,16 @@ At the end of every task, update this checkpoint with:
 - migration status;
 - validation evidence;
 - blockers and exact next action.
+
+## 2026-08-18 D4-06 Resend SMTP checkpoint
+
+- Branch: `agent/d4-06-resend-smtp`.
+- Resend is the selected Supabase Auth SMTP provider. Branded recovery and
+  confirmation templates live in `supabase/auth-templates/`, and the complete
+  safe dashboard handoff is `docs/RESEND_SMTP_SETUP.md`.
+- Temporary sender: `Evo Rentals <onboarding@resend.dev>` for one controlled
+  mailbox test only. The user must enter the Resend API key directly in
+  Supabase; no key is stored in this project or Vercel.
+- Remaining gate: save the SMTP configuration, complete one password-recovery
+  smoke test, then record the result and decide whether to verify the production
+  sender domain before production onboarding.

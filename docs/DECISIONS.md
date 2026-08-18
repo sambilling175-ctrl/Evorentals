@@ -222,3 +222,18 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   values, so 13,760 rows are currently eligible and 32 are quarantined. All
   quarantined rows remain traceable by legacy ID and cannot silently overwrite,
   merge, or receive invented identity values.
+
+## ADR-020 - Resend is the Supabase Auth SMTP provider
+
+- Date: 2026-08-18
+- Status: Accepted for test configuration; production domain verification pending.
+- Decision: Supabase Auth sends transactional authentication email through
+  Resend SMTP. Until the Evo Rentals sending domain is verified in Resend, the
+  permitted sender is `Evo Rentals <onboarding@resend.dev>` and it is used only
+  for controlled mailbox tests. The Resend API key is entered directly in the
+  Supabase dashboard; it is not a repository secret and does not belong in
+  Vercel because Supabase, rather than the Next.js application, sends Auth
+  email.
+- Consequence: D4-04 recovery coverage can use a stable test mailbox once the
+  SMTP smoke test succeeds. Production onboarding remains blocked until the
+  Evo Rentals domain is verified and the sender is changed to that domain.
