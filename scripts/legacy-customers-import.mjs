@@ -37,8 +37,8 @@ function printHelp() {
     "--remote: run every chunk through the authenticated database dry-run RPC.",
     "--apply: run the complete remote dry-run, then apply resumable chunks.",
     "",
-    "Remote modes require NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,",
-    "and EVORENTALS_IMPORT_JWT in the environment. --apply additionally requires",
+    "Remote modes load public Supabase configuration from .env.local when present",
+    "and require EVORENTALS_IMPORT_JWT in the environment. --apply also requires",
     "the EVORENTALS_IMPORT_CONFIRM value printed by the local plan.",
   ].join("\n"));
 }
@@ -81,6 +81,23 @@ function readEnv(name) {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`${name} is required for remote import validation`);
   return value;
+}
+
+async function loadLocalPublicConfiguration() {
+  let contents;
+  try {
+    contents = await readFile(path.resolve(".env.local"), "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  for (const name of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"]) {
+    if (process.env[name]) continue;
+    const line = contents.split(/\r?\n/).find((candidate) => candidate.startsWith(`${name}=`));
+    if (!line) continue;
+    const value = line.slice(name.length + 1).trim().replace(/^(['"])(.*)\1$/, "$2");
+    if (value) process.env[name] = value;
+  }
 }
 
 async function callImportRpc(configuration, body) {
@@ -196,6 +213,7 @@ async function main() {
   };
 
   if (options.remote) {
+    await loadLocalPublicConfiguration();
     const configuration = {
       url: readEnv("NEXT_PUBLIC_SUPABASE_URL"),
       anonKey: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
