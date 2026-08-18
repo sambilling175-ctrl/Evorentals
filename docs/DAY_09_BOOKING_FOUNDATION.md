@@ -172,3 +172,21 @@ Status: Complete and released
   `evorentals-h7teszpz8-wephotons1.vercel.app` is READY. Authenticated browser
   smoke testing is still pending because the available preview access is
   protected and the current browser session is not authenticated.
+
+## D9-06 rental settlement
+
+- Status: Blocked on receivables ledger task D10-01.
+- Live schema verification on 2026-08-10 found no invoice, payment,
+  payment-allocation, deposit, refund, dues, or settlement tables. Only
+  company-scoped payment settings and the D9-05 damage facts exist.
+- Scope boundary: introduce an immutable settlement snapshot and atomic
+  returned-to-closed transition. Do not describe payment collection, refund
+  execution, invoicing, or gateway integration as complete until their own
+  ledger workflows are delivered.
+- Exact blocker: `rentals.total_amount` includes the pricing snapshot's quoted
+  deposit, but no authoritative row records whether rent or deposit was paid,
+  allocated, retained, or refunded. A settlement RPC cannot safely derive
+  balance due or refund due without inventing manual financial facts.
+- Resume condition: D10-01 supplies immutable company-scoped invoices/payments,
+  allocations, deposit movements, refunds, and due balances with RLS and atomic
+  posting rules. No D9-06 migration was created or applied.
