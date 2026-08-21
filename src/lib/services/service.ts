@@ -44,16 +44,36 @@ export interface ServiceJobCard {
   number: string;
   requestId: string;
   vehicle: string;
+  vehicleStatus: string;
   reason: string;
   status: ServiceJobCardStatus;
   intakeInspection: ServiceIntakeInspection | null;
   currentOdometer: number;
   currentBatteryLevel: number;
   notes: string;
+  createdAt: string;
   startedAt: string;
   completedAt: string;
   updatedAt: string;
   assignment: ServiceJobCardAssignment | null;
+}
+
+export interface ServiceOverdueJob {
+  id: string;
+  number: string;
+  vehicle: string;
+  priority: ServicePriority;
+  status: ServiceJobCardStatus;
+  ageDays: number;
+  slaDays: number;
+}
+
+export interface ServiceDashboardMetrics {
+  stageCounts: Record<ServiceJobCardStatus, number>;
+  averageTurnaroundDays: number;
+  completedJobs: number;
+  overdueJobs: ServiceOverdueJob[];
+  readyForDeployment: number;
 }
 
 export interface ServiceEmployee {
@@ -94,6 +114,7 @@ export interface ServiceWorkspaceData {
   jobCards: ServiceJobCard[];
   canCreate: boolean;
   totals: { requests: number; requested: number; highPriority: number; activeReasons: number; jobCards: number; activeJobs: number };
+  dashboard: ServiceDashboardMetrics;
 }
 
 function permissionsFrom(value: unknown): PermissionMap {
@@ -138,6 +159,60 @@ const numberValue = (value: unknown) => {
   return Number.isFinite(number) ? number : 0;
 };
 
+const SERVICE_STATUSES: ServiceJobCardStatus[] = ["requested", "inspection", "in_service", "waiting_parts", "qc", "completed"];
+const OVERDUE_SLA_DAYS: Record<ServicePriority, number> = { urgent: 1, high: 1, medium: 2, low: 3 };
+
+function validDate(value: string) {
+  const time = Date.parse(value);
+  return Number.isFinite(time) ? time : null;
+}
+
+function buildDashboardMetrics(jobCards: ServiceJobCard[], requests: ServiceRequest[], now = Date.now()): ServiceDashboardMetrics {
+  const stageCounts = Object.fromEntries(SERVICE_STATUSES.map((status) => [status, 0])) as Record<ServiceJobCardStatus, number>;
+  const requestById = new Map(requests.map((request) => [request.id, request]));
+  const completedDurations: number[] = [];
+  const overdueJobs: ServiceOverdueJob[] = [];
+
+  for (const card of jobCards) {
+    stageCounts[card.status] += 1;
+    const createdAt = validDate(card.createdAt);
+    const completedAt = validDate(card.completedAt);
+    if (card.status === "completed" && createdAt !== null && completedAt !== null && completedAt >= createdAt) {
+      completedDurations.push((completedAt - createdAt) / 86_400_000);
+    }
+    if (card.status === "completed") continue;
+    const request = requestById.get(card.requestId);
+    const priority = request?.priority ?? "medium";
+    const startedAt = validDate(request?.requestedAt ?? "") ?? createdAt;
+    if (startedAt === null) continue;
+    const ageDays = Math.max(0, (now - startedAt) / 86_400_000);
+    const slaDays = OVERDUE_SLA_DAYS[priority];
+    if (ageDays > slaDays) {
+      overdueJobs.push({
+        id: card.id,
+        number: card.number,
+        vehicle: card.vehicle,
+        priority,
+        status: card.status,
+        ageDays: Math.round(ageDays * 10) / 10,
+        slaDays,
+      });
+    }
+  }
+
+  overdueJobs.sort((left, right) => right.ageDays - left.ageDays);
+  const averageTurnaroundDays = completedDurations.length
+    ? Math.round((completedDurations.reduce((sum, value) => sum + value, 0) / completedDurations.length) * 10) / 10
+    : 0;
+  return {
+    stageCounts,
+    averageTurnaroundDays,
+    completedJobs: stageCounts.completed,
+    overdueJobs,
+    readyForDeployment: jobCards.filter((card) => card.status === "completed" && card.vehicleStatus === "available").length,
+  };
+}
+
 export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
   const a = await actor();
   if (!allowed(a.profile.role, a.permissions, ["View", "Create", "Edit", "Manage"])) {
@@ -171,7 +246,7 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       .is("deleted_at", null)
       .order("full_name"),
     a.supabase.from("service_job_cards")
-      .select("id,job_card_number,service_request_id,bike_id,status,notes,started_at,completed_at,updated_at")
+      .select("id,job_card_number,service_request_id,bike_id,status,notes,created_at,started_at,completed_at,updated_at")
       .eq("company_id", a.profile.company_id)
       .is("deleted_at", null)
       .order("updated_at", { ascending: false })
@@ -262,15 +337,17 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
     return {
       id: String(row.id), number: String(row.job_card_number), requestId: String(row.service_request_id),
       vehicle: request?.vehicle ?? (vehicle ? `${String(vehicle.serial_number)} · ${String(vehicle.model)}` : "Unknown vehicle"),
+      vehicleStatus: String(vehicle?.status ?? "unknown"),
       reason: request?.reason ?? "Service request", status: String(row.status) as ServiceJobCardStatus,
       intakeInspection: intakeByJobCard.get(String(row.id)) ?? null,
       currentOdometer: numberValue(vehicle?.current_odometer),
       currentBatteryLevel: numberValue(vehicle?.battery_level),
-      notes: String(row.notes ?? ""), startedAt: String(row.started_at ?? ""),
+      notes: String(row.notes ?? ""), createdAt: String(row.created_at ?? ""), startedAt: String(row.started_at ?? ""),
       completedAt: String(row.completed_at ?? ""), updatedAt: String(row.updated_at),
       assignment: assignmentByJobCard.get(String(row.id)) ?? null,
     };
   });
+  const dashboard = buildDashboardMetrics(jobCards, requests);
 
   return {
     reasons, vehicles, employees, requests, jobCards,
@@ -283,6 +360,7 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       jobCards: jobCards.length,
       activeJobs: jobCards.filter((card) => card.status !== "completed").length,
     },
+    dashboard,
   };
 }
 

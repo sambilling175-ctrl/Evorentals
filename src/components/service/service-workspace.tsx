@@ -2,7 +2,7 @@
 
 import { useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { ClipboardList, Plus, ShieldAlert, Wrench } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardList, Clock3, Gauge, Plus, ShieldAlert, Wrench } from "lucide-react";
 import { assignServiceJobCardAction, createServiceJobCardAction, initialServiceJobCardActionState, recordServiceIntakeInspectionAction, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
 import type { ServiceEmployee, ServiceIntakeInspection, ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
 import { PageHeader } from "@/components/layout/page-header";
@@ -28,7 +28,11 @@ export function ServiceWorkspace({ data }: { data: ServiceWorkspaceData }) {
         <Metric label="Active reasons" value={data.totals.activeReasons} icon={ClipboardList} tone="emerald" />
         <Metric label="Job cards" value={data.totals.jobCards} icon={ClipboardList} tone="purple" />
         <Metric label="Active jobs" value={data.totals.activeJobs} icon={Wrench} tone="cyan" />
+        <Metric label="Average turnaround" value={`${data.dashboard.averageTurnaroundDays.toFixed(1)} days`} icon={Clock3} tone="blue" />
+        <Metric label="Overdue jobs" value={data.dashboard.overdueJobs.length} icon={AlertTriangle} tone="red" />
+        <Metric label="Ready for deployment" value={data.dashboard.readyForDeployment} icon={CheckCircle2} tone="emerald" />
       </div>
+      <ServiceDashboard data={data} />
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         {data.canCreate ? <RequestForm data={data} /> : <Card><CardHeader><CardTitle>Request intake</CardTitle><CardDescription>Your role can view requests, but cannot create them.</CardDescription></CardHeader></Card>}
         <RequestList data={data} />
@@ -36,6 +40,44 @@ export function ServiceWorkspace({ data }: { data: ServiceWorkspaceData }) {
       <JobCardBoard data={data} />
     </div>
   );
+}
+
+const STAGE_LABELS: Record<ServiceJobCardStatus, string> = {
+  requested: "Requested",
+  inspection: "Inspection",
+  in_service: "In service",
+  waiting_parts: "Waiting parts",
+  qc: "QC",
+  completed: "Completed",
+};
+
+const STAGE_TONES: Record<ServiceJobCardStatus, string> = {
+  requested: "border-blue-500/30 bg-blue-500/10 text-blue-300",
+  inspection: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+  in_service: "border-orange-500/30 bg-orange-500/10 text-orange-300",
+  waiting_parts: "border-violet-500/30 bg-violet-500/10 text-violet-300",
+  qc: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300",
+  completed: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+};
+
+function ServiceDashboard({ data }: { data: ServiceWorkspaceData }) {
+  const stages = Object.entries(data.dashboard.stageCounts) as [ServiceJobCardStatus, number][];
+  return <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)]">
+    <Card className="border-border/80 bg-card/90">
+      <CardHeader><div className="flex items-start justify-between gap-4"><div><CardTitle>Service pipeline</CardTitle><CardDescription>Live workload by controlled job-card stage.</CardDescription></div><Gauge className="h-5 w-5 text-cyan-400" aria-hidden="true" /></div></CardHeader>
+      <CardContent className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
+        {stages.map(([status, count]) => <div key={status} className={`rounded-xl border p-3 ${STAGE_TONES[status]}`}><p className="text-2xl font-bold">{count.toLocaleString("en-IN")}</p><p className="mt-1 text-xs font-medium">{STAGE_LABELS[status]}</p></div>)}
+      </CardContent>
+    </Card>
+    <Card className="border-border/80 bg-card/90">
+      <CardHeader><div className="flex items-start justify-between gap-4"><div><CardTitle>Overdue jobs</CardTitle><CardDescription>SLA age: urgent/high 1 day, medium 2, low 3.</CardDescription></div><AlertTriangle className="h-5 w-5 text-red-400" aria-hidden="true" /></div></CardHeader>
+      <CardContent className="space-y-2">
+        {data.dashboard.overdueJobs.slice(0, 5).map((job) => <div key={job.id} className="flex items-center justify-between gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">{job.number}</p><p className="truncate text-xs text-muted-foreground">{job.vehicle}</p></div><div className="shrink-0 text-right"><StatusBadge status={job.priority} /><p className="mt-1 text-xs text-red-300">{job.ageDays.toFixed(1)}d / {job.slaDays}d SLA</p></div></div>)}
+        {data.dashboard.overdueJobs.length === 0 && <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">No active job cards are beyond their SLA.</div>}
+        {data.dashboard.overdueJobs.length > 5 && <p className="text-center text-xs text-muted-foreground">Showing 5 of {data.dashboard.overdueJobs.length.toLocaleString("en-IN")} overdue jobs.</p>}
+      </CardContent>
+    </Card>
+  </div>;
 }
 
 function RequestForm({ data }: { data: ServiceWorkspaceData }) {
@@ -66,7 +108,7 @@ function JobCardCreateForm({ serviceRequestId }: { serviceRequestId: string }) {
 }
 
 function JobCardBoard({ data }: { data: ServiceWorkspaceData }) {
-  return <Card className="border-border/80 bg-card/90"><CardHeader><CardTitle>Job-card pipeline</CardTitle><CardDescription>Every transition is validated and appended to immutable job-card history. Fleet status is unchanged until D13-06.</CardDescription></CardHeader><CardContent className="space-y-3">
+  return <Card className="border-border/80 bg-card/90"><CardHeader><CardTitle>Job-card pipeline</CardTitle><CardDescription>Every transition is validated and appended to immutable history. Completed jobs release non-retired vehicles through the D13-06 fleet sync.</CardDescription></CardHeader><CardContent className="space-y-3">
     {data.jobCards.map((card) => <JobCardRow key={card.id} card={card} canManage={data.canCreate} employees={data.employees} />)}
     {data.jobCards.length === 0 && <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Create a job card from a service request to begin the pipeline.</div>}
   </CardContent></Card>;
@@ -169,7 +211,7 @@ function SubmitButton() {
   return <Button type="submit" disabled={pending}>{pending ? "Creating…" : "Create request"}</Button>;
 }
 
-function Metric({ label, value, icon: Icon, tone }: { label: string; value: number; icon: React.ComponentType<{ className?: string }>; tone: "blue" | "amber" | "red" | "emerald" | "purple" | "cyan" }) {
+function Metric({ label, value, icon: Icon, tone }: { label: string; value: number | string; icon: React.ComponentType<{ className?: string }>; tone: "blue" | "amber" | "red" | "emerald" | "purple" | "cyan" }) {
   const tones = { blue: "bg-blue-500/10 text-blue-400", amber: "bg-amber-500/10 text-amber-400", red: "bg-red-500/10 text-red-400", emerald: "bg-emerald-500/10 text-emerald-400", purple: "bg-purple-500/10 text-purple-400", cyan: "bg-cyan-500/10 text-cyan-400" };
-  return <Card className="border-border/80 bg-card/90"><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl p-2.5 ${tones[tone]}`}><Icon className="h-5 w-5" /></div><div><p className="text-2xl font-bold">{value.toLocaleString("en-IN")}</p><p className="text-xs text-muted-foreground">{label}</p></div></CardContent></Card>;
+  return <Card className="border-border/80 bg-card/90"><CardContent className="flex items-center gap-3 p-4"><div className={`rounded-xl p-2.5 ${tones[tone]}`}><Icon className="h-5 w-5" /></div><div><p className="text-2xl font-bold">{typeof value === "number" ? value.toLocaleString("en-IN") : value}</p><p className="text-xs text-muted-foreground">{label}</p></div></CardContent></Card>;
 }
