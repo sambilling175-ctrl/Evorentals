@@ -7,7 +7,7 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-18 |
+| Updated | 2026-08-21 |
 | Delivery position | D12-03 is in review; D10-02 clean integration is in progress |
 | Git branch | `agent/d10-02-live-reports-clean` |
 | Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
@@ -191,7 +191,9 @@ Do not describe placeholder screens as backend-complete.
 Proceed with D10-02: cleanly integrate the live reports implementation onto
 current `main`, preserving the D12-03 release branch. Verify report queries,
 CSV export behavior, validation, preview, and authenticated smoke before opening
-the clean PR.
+the clean PR. Reports must use company-scoped typed services and live rental,
+fleet, customer, receivables, and settlement tables; they must not create
+business records.
 
 ### D10-01 database checkpoint
 
@@ -247,6 +249,23 @@ the clean PR.
   `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on the merge commit.
   Production `/rentals` correctly redirects signed-out users to
   `/login?next=/rentals`; the new production deployment has no error/fatal logs.
+
+### D10-02 reports checkpoint
+
+- `src/lib/services/reports.ts` now provides a typed, company-scoped report
+  projection for customers, fleet, open/overdue rentals, invoice balances, and
+  immutable settlements. It resolves customer and vehicle labels through ID
+  maps rather than ambiguous PostgREST relationship embeds.
+- `src/components/reports/reports-workspace.tsx` replaces the reports
+  placeholder with live KPI cards, searchable operational rows, and a client
+  CSV export. The UI does not query Supabase directly and no business records
+  were created.
+- `npm.cmd run validate` passes on 2026-08-14. No migration was required.
+  Preview `https://evorentals-git-agent-d10-02-live-reports-wephotons1.vercel.app`
+  serves `/reports` and correctly redirects unauthenticated requests to login;
+  Vercel reports no runtime errors. Authenticated smoke testing remains pending
+  because the preview host has a separate session and no production business
+  records were created.
 
 ### Architecture deepening checkpoint
 
