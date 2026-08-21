@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results/
+/supabase/.temp/
 
 # next.js
 /.next/
@@ -36,6 +38,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Supabase CLI local metadata
+/supabase/.temp/
 
 # private legacy-system exports (PII; never commit)
 /legacy-data/

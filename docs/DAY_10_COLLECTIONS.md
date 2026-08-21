@@ -3,7 +3,7 @@
 ## D10-03 returned-rental collections
 
 Task: D10-03 - Returned-rental payment allocation and immutable receipts  
-Owner: Codex / `agent/d10-03-returned-rental-collections`  
+Owner: Codex / `agent/d12-03-returned-rental-collections`  
 Status: Review
 
 ### Delivered
@@ -14,25 +14,23 @@ Status: Review
   exact allocation snapshot, actor, payment, rental, customer, method, and time.
 - Added an atomic SECURITY INVOKER posting RPC with company, RBAC, lifecycle,
   ownership, currency precision, and over-allocation guards.
-- Replaced the generic collection entry point in `/payments` with returned-rental
-  charge allocation cards and an immutable receipt-history view.
+- Added returned-rental charge allocation cards and an immutable receipt-history
+  view while retaining the existing general collection entry point.
 - Preserved the typed service boundary and Zod Server Action validation pattern.
 
 ### Verification and release state
 
 - `npm.cmd run validate` passed on 2026-08-14.
-- Migration `20260814055140_returned_rental_collections.sql` was applied through
-  Supabase as live version `20260814060344`; table/RLS/policy, index, trigger,
+- Live migration versions are `20260814060344_returned_rental_collections` and
+  `20260814073417_d10_03_h1_invoice_lock_rls`; table/RLS/policy, trigger,
   grant, and invoker checks passed. New D10-03 table counts remain zero.
-- Supabase CLI database lint was attempted but requires a `SUPABASE_ACCESS_TOKEN`;
-  the Supabase advisors were run through the authenticated connector instead.
-  They report only pre-existing legacy warnings and no D10-03-specific finding.
-- Required next action: authenticated form smoke plus authorized test collection
-  on a non-production test identity, cross-company denial, line-balance checks,
-  receipt/audit snapshot verification, and immutability rollback verification.
-- Preview `https://evorentals-git-agent-d10-03-returned-rental-c-5ca334-wephotons1.vercel.app`
-  is READY. The preview host requires its own authenticated session. A first
-  request can coincide with Supabase auth-cookie refresh; `/payments` is now
-  force-dynamic and has a route-level retry boundary, and the authenticated
-  empty-ledger smoke renders successfully after refresh. No business records
-  were created.
+- The Supabase advisors have no D10-03 security finding. D12-03 applied
+  `20260821060601_d10_03_collection_fk_indexes.sql` and
+  `20260821060716_d10_03_receipt_customer_fk_index.sql`; the performance
+  advisor now reports no D10-03 missing-foreign-key finding. Expected unused
+  index INFOs remain while the new immutable tables contain zero rows.
+- `/payments` is force-dynamic and includes a route-level retry boundary for
+  first-request Supabase auth-cookie refresh races.
+- `npm.cmd run validate` passed on 2026-08-21. Required next action: deploy the
+  clean branch, verify the preview, and run the authenticated empty-ledger smoke.
+  No business records were created.

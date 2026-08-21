@@ -175,18 +175,26 @@ Status: Complete and released
 
 ## D9-06 rental settlement
 
-- Status: Review.
-- Migration `20260814052728_rental_settlements.sql` adds the immutable
-  settlement snapshot and atomic returned-to-closed transition after the
-  D10-01 receivables ledger became available. Payment collection, refund
-  execution, and invoice posting remain separate ledger workflows.
-- The settlement RPC is SECURITY INVOKER with a fixed empty search path and
-  revalidates company scope, rental state, invoice balance, deposit balance,
-  and actor permissions before writing the immutable snapshot and closing the
-  rental atomically.
-- `npm.cmd run validate` passed on the D9-06 branch. Authenticated preview
-  smoke passed on 2026-08-14 for `/rentals` and `/payments`: zero-state metrics,
-  settlement controls, and empty ledger states rendered with no browser console
-  or current Vercel runtime errors. No business records were created.
-- Remaining: authorized mutation smoke with a non-production returned rental
-  and invoice, followed by cross-company and repeated-settlement denial checks.
+- Status: Complete and released through PR #12, merge `3d3bcc8`.
+- Migration `20260814052728_rental_settlements.sql` adds immutable,
+  company-scoped settlement snapshots, explicit authenticated grants and RLS,
+  and update/delete protection. Migration
+  `20260818170000_rental_settlement_fk_index.sql` covers the composite rental
+  foreign key identified by the performance advisor.
+- `settle_returned_rental(uuid)` is SECURITY INVOKER with an empty search path.
+  It locks the returned rental and its invoice, requires a return inspection,
+  derives allocations, outstanding amount, deposit balance, damage total,
+  amount due, and refund due from immutable ledger facts, inserts one snapshot,
+  and marks the rental completed atomically.
+- The browser submits only the rental ID through a Zod-validated server action;
+  financial totals are never accepted from the UI. Repeated, unauthorized,
+  cross-company, missing-invoice, and invalid-state settlement attempts are
+  rejected.
+- `npm.cmd run validate` passed. Live RLS, grants, trigger, invoker mode, fixed
+  search path, migration presence, and zero settlement rows were verified.
+  Security advisors have no settlement finding; only expected unused-index INFO
+  notices remain on the empty table.
+- The Vercel preview was READY and operator-authenticated. Production deployment
+  `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on merge `3d3bcc8`,
+  `/rentals` has the correct signed-out redirect, and the new deployment has no
+  runtime error/fatal logs.
