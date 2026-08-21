@@ -51,7 +51,7 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
 
 ## D11-03 checkpoint
 
-- Branch: `agent/d11-03-customer-import`.
+- Branch: `agent/d11-03-customer-import-next`.
 - `npm.cmd run legacy:customers:import` creates an ignored, PII-free import
   plan. It recomputes identity uniqueness, validates `+91` phone and email
   formats, reconciles exact counts, hashes the canonical eligible payload, and
@@ -76,6 +76,19 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
 - Live row counts remain zero import batches and zero mappings; the four
   pre-existing demo customers are unchanged. No legacy customer record or KYC
   binary has been written.
+
+### D11-03 current sprint checkpoint (2026-08-21)
+
+- Local staging reports 13,792 source rows, 13,760 eligible rows, and 32
+  quarantined rows. The generated plan is ignored and contains no customer
+  contact fields.
+- `npm.cmd run legacy:customers:import` passed locally with checksum
+  `6511d29d20dca127fa75f0324b43cc62046090ee7d64f2c5af6b8e438422728c` and
+  confirmation `IMPORT_13760_6511D29D20DC`.
+- `npm.cmd run validate` passed (typecheck, lint, and production build).
+- Remote dry-run is gated on an authenticated administrator JWT. The command
+  accepts the repository's publishable Supabase key, but currently stops with
+  the exact missing input `EVORENTALS_IMPORT_JWT`.
 
 The remaining D11-03 gate is an authenticated administrator remote dry-run and
 explicit apply. The CLI deliberately requires `EVORENTALS_IMPORT_JWT` and a

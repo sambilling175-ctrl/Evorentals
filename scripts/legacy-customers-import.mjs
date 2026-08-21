@@ -91,7 +91,11 @@ async function loadLocalPublicConfiguration() {
     if (error?.code === "ENOENT") return;
     throw error;
   }
-  for (const name of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"]) {
+  for (const name of [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  ]) {
     if (process.env[name]) continue;
     const line = contents.split(/\r?\n/).find((candidate) => candidate.startsWith(`${name}=`));
     if (!line) continue;
@@ -214,9 +218,17 @@ async function main() {
 
   if (options.remote) {
     await loadLocalPublicConfiguration();
+    const apiKey =
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ??
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+    if (!apiKey) {
+      throw new Error(
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required for remote import validation",
+      );
+    }
     const configuration = {
       url: readEnv("NEXT_PUBLIC_SUPABASE_URL"),
-      anonKey: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+      anonKey: apiKey,
       accessToken: readEnv("EVORENTALS_IMPORT_JWT"),
     };
     plan.remoteValidatedRows = await validateRemote(configuration, rowChunks, metadata);
