@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { issueRentalInvoice, postPayment, refundDeposit } from "@/lib/services/receivables";
+import { issueRentalInvoice, postPayment, postReturnedRentalCollection, refundDeposit } from "@/lib/services/receivables";
 
 export interface ReceivableActionState { status: "idle" | "success" | "error"; message: string }
 export const initialReceivableActionState: ReceivableActionState = { status: "idle", message: "" };
@@ -24,6 +24,7 @@ const paymentSchema = z.object({
   notes: z.string().trim().max(2000).optional(),
 });
 const refundSchema = z.object({ rentalId: z.uuid(), amount: z.coerce.number().positive().finite(), method, reference: z.string().trim().max(200).optional(), refundedAt: localDateTime, reason: z.string().trim().min(3).max(1000) });
+const returnedCollectionSchema = z.object({ rentalId: z.uuid(), method, reference: z.string().trim().max(200).optional(), collectedAt: localDateTime, notes: z.string().trim().max(1000).optional() });
 
 function failure(error: unknown): ReceivableActionState { return { status: "error", message: error instanceof Error ? error.message : "Unable to update collections" }; }
 
@@ -37,6 +38,19 @@ export async function postPaymentAction(_: ReceivableActionState, formData: Form
   const parsed = paymentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Check payment details" };
   try { const result = await postPayment({ ...parsed.data, collectedAt: timestamp(parsed.data.collectedAt) }); revalidatePath("/payments"); return { status: "success", message: `${result.number} posted · ₹${parsed.data.amount.toLocaleString("en-IN")}` }; } catch (error) { return failure(error); }
+}
+
+export async function postReturnedRentalCollectionAction(_: ReceivableActionState, formData: FormData): Promise<ReceivableActionState> {
+  const parsed = returnedCollectionSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Check collection details" };
+  const allocations = [...formData.entries()].filter(([key, value]) => key.startsWith("lineAllocation:") && String(value).trim() !== "").map(([key, value]) => ({ invoiceLineId: key.slice("lineAllocation:".length), amount: value }));
+  const parsedAllocations = z.array(z.object({ invoiceLineId: z.uuid(), amount: z.coerce.number().positive().finite().multipleOf(0.01) })).min(1, "Allocate the payment to at least one charge").safeParse(allocations);
+  if (!parsedAllocations.success) return { status: "error", message: parsedAllocations.error.issues[0]?.message ?? "Check payment allocations" };
+  try {
+    const result = await postReturnedRentalCollection({ ...parsed.data, collectedAt: timestamp(parsed.data.collectedAt), allocations: parsedAllocations.data });
+    revalidatePath("/payments"); revalidatePath("/rentals"); revalidatePath("/");
+    return { status: "success", message: `${result.receiptNumber} issued · ₹${result.amount.toLocaleString("en-IN")}` };
+  } catch (error) { return failure(error); }
 }
 
 export async function refundDepositAction(_: ReceivableActionState, formData: FormData): Promise<ReceivableActionState> {

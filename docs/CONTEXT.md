@@ -7,9 +7,9 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-18 |
-| Delivery position | D12-02 complete; D10-01 and D9-06 are released; D12-03 is next |
-| Git branch | `agent/d12-02-release-checkpoint` |
+| Updated | 2026-08-21 |
+| Delivery position | D12-02 complete; D10-01 and D9-06 are released; D12-03 integration is in progress |
+| Git branch | `agent/d12-03-returned-rental-collections` |
 | Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -247,6 +247,22 @@ only acceptance evidence still match the live schema before opening a clean PR.
   `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on the merge commit.
   Production `/rentals` correctly redirects signed-out users to
   `/login?next=/rentals`; the new production deployment has no error/fatal logs.
+
+### D10-03 returned-rental collections checkpoint
+
+- Migration `20260814060344_returned_rental_collections.sql` adds immutable,
+  company-scoped payment-line allocations, receipts, and receipt audit events
+  with explicit RLS, grants, indexes, and immutable-history triggers.
+- `post_returned_rental_collection` is a SECURITY INVOKER RPC that revalidates
+  the actor, company, Payments permission, returned rental, invoice, charge
+  ownership, and remaining balances. It atomically posts the payment and exact
+  rental/damage allocations and issues the receipt/audit snapshot.
+- `/payments` exposes typed returned-rental charge cards, Zod-validated server
+  actions, allocation inputs, and immutable receipt history. UI code does not
+  query Supabase directly and does not accept a trusted payment total.
+- Live migration history records `20260814060344_returned_rental_collections`
+  and `20260814073417_d10_03_h1_invoice_lock_rls`; the repository integration
+  must use those exact versions. No production business records were created.
 
 ### Architecture deepening checkpoint
 
