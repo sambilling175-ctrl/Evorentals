@@ -8,8 +8,8 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-18 |
-| Delivery position | D12-02 complete; D10-01 and D9-06 are released; D12-03 is next |
-| Git branch | `agent/d12-02-release-checkpoint` |
+| Delivery position | D12-03 is in review; D10-02 clean integration is in progress |
+| Git branch | `agent/d10-02-live-reports-clean` |
 | Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -188,10 +188,10 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Proceed with D12-03: review and integrate the D10-03 returned-rental collections
-branch onto current `main`. Verify that its two applied migrations, receipt and
-allocation commands, invoice-lock RLS policies, validation, preview, and rollback-
-only acceptance evidence still match the live schema before opening a clean PR.
+Proceed with D10-02: cleanly integrate the live reports implementation onto
+current `main`, preserving the D12-03 release branch. Verify report queries,
+CSV export behavior, validation, preview, and authenticated smoke before opening
+the clean PR.
 
 ### D10-01 database checkpoint
 
