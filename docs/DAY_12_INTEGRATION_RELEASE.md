@@ -134,6 +134,24 @@ draft PR #24.
   and existing bike RLS/grant checks passed. Initial job-card count remains
   zero; no production business records were created. D13-07 is next.
 
+### D13-07 checkpoint - service dashboard metrics
+
+Status: Review on `agent/d13-07-service-dashboard`, commit `b2f795e`, stacked
+on D13-06 draft PR #25; draft PR #26 is open.
+
+- The typed service projection now derives stage counts, average turnaround,
+  overdue active jobs, and ready-for-deployment counts from live service
+  requests/job cards and vehicle status. Overdue thresholds are explicit:
+  urgent/high one day, medium two days, and low three days from request age.
+- The service workspace adds responsive pipeline, turnaround, overdue, and
+  readiness panels. UI code remains Supabase-free and no migration or business
+  records were created.
+- `npm.cmd run validate` passed. Live Supabase verification found zero
+  non-deleted service job cards; security/performance advisors were rerun and
+  show only pre-existing project-wide findings. The READY preview is
+  `https://evorentals-f0z8dyh44-wephotons1.vercel.app` with successful Vercel
+  checks and no preview runtime error logs. D13-08 is next.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

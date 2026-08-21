@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-06 service-to-fleet availability synchronization implemented and awaiting review, stacked on D13-05 draft PR #24 and D13-04 draft PR #23; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-06-service-fleet-availability` |
-| Last verified application commit | pending - D13-06 fleet synchronization trigger and rollback-only test; D13-05 dashboard count-query hardening remains in the stacked base |
+| Delivery position | D13-07 service dashboard metrics implemented on a branch stacked on D13-06 draft PR #25; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-07-service-dashboard` |
+| Last verified application commit | `b2f795e` - D13-07 service dashboard metrics; READY preview `https://evorentals-f0z8dyh44-wephotons1.vercel.app`; no runtime error logs |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 assignment objects are applied and verified; D13-06 migration `20260821165156_d13_06_service_fleet_availability` is applied and verified; no service business records created |
-| Last quality gate | D13-05 live rollback-only SQL verification, local `check:supabase` (42 migrations, 4 SQL tests), and prior `npm.cmd run validate` passed on 2026-08-21; advisors show only pre-existing project-wide findings |
+| Last quality gate | D13-07 live zero-row verification, local `check:supabase` (43 migrations, 5 SQL tests), `npm.cmd run validate`, successful Vercel checks, and empty preview runtime error logs on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -188,11 +188,12 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Choose the next email/auth hardening task only after a stable SMTP provider and
-test mailbox are available. D4-04 needs a mailbox for recovery and protected-route
-Playwright coverage; D4-06 needs the provider decision and domain/template setup.
-D6-03 remains blocked behind D4-06 and a protected server secret. No production
-business records are required for these tasks.
+D13-07 service dashboard metrics are implemented on
+`agent/d13-07-service-dashboard` and await preview/review. The next service
+checkpoint is D13-08: RLS/history/advisor verification and rollback-only SQL
+tests. Email/auth work remains parked until D4-04 has a stable test mailbox and
+D4-06 has an SMTP provider decision. No production business records are
+required for these tasks.
 
 ### D10-01 database checkpoint
 
@@ -515,6 +516,23 @@ obtain a complete export or implement a resumable batched extractor first.
   authenticated UPDATE grants; D14 QC/rework may later refine the final
   release disposition.
 
+### 2026-08-21 - D13-07 service dashboard metrics
+
+- Added typed, company-scoped service dashboard projections for all six job-card
+  stages, average turnaround from job-card creation to completion, overdue
+  active jobs, and completed jobs whose vehicle is actually available for
+  deployment.
+- Overdue age uses the documented operational SLA of urgent/high one day,
+  medium two days, and low three days from the request timestamp (falling back
+  to job-card creation when needed). The overdue list is sorted by age and the
+  UI shows the first five records without creating or mutating data.
+- The service workspace now presents a responsive pipeline, turnaround,
+  overdue, and readiness dashboard while continuing to use typed services and
+  server actions; no migration or business records were created. `validate`
+  passed and live service-job-card count remains zero. The READY preview is
+  `https://evorentals-f0z8dyh44-wephotons1.vercel.app`; Vercel checks passed and
+  preview runtime error logs are empty.
+
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
 | 1 | 2026-07-27 | UI shell and mock operations pages | Repository history |
@@ -530,7 +548,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 | 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks), D12-05 reconciliation passed, and D12-06 CI hardening completed | `DAY_12_INTEGRATION_RELEASE.md` |
-| 13 | 2026-08-21 | D13-03 vehicle intake inspection claimed; implementation in progress on a stacked feature branch; dashboard count-query preview hardening added | `DAY_12_INTEGRATION_RELEASE.md` |
+| 13 | 2026-08-21 | D13-07 service dashboard metrics implemented on a stacked feature branch; D13-06 fleet sync remains in review | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 
