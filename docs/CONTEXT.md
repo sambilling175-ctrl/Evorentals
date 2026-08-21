@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D4-05 RLS isolation is in review |
-| Git branch | `agent/d4-05-rls-isolation` |
-| Last verified application commit | `7385362` - Refresh D4-05 branch onto current main |
+| Delivery position | D4-05 RLS isolation is merged; SMTP-dependent auth tasks remain blocked |
+| Git branch | `main` |
+| Last verified application commit | `c279387` - Merge PR #11 two-company RLS isolation test |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -188,11 +188,11 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Review and integrate D4-05 PR #11 after its refreshed branch passes Vercel and
-the repository quality gate. The transaction-only two-company RLS test already
-passed against the live schema with zero temporary rows remaining. Do not create
-production business records. D4-04 and D4-06 remain dependent on SMTP/test-mailbox
-decisions.
+Choose the next email/auth hardening task only after a stable SMTP provider and
+test mailbox are available. D4-04 needs a mailbox for recovery and protected-route
+Playwright coverage; D4-06 needs the provider decision and domain/template setup.
+D6-03 remains blocked behind D4-06 and a protected server secret. No production
+business records are required for these tasks.
 
 ### D10-01 database checkpoint
 
@@ -342,6 +342,8 @@ decisions.
 - `npm.cmd run validate` passes after the merge repair. No migration or production
   data change was created. Security/performance advisor output contains only
   pre-existing legacy warnings and no D4-05 object finding.
+- PR #11 was promoted and merged into `main` as `c279387`; the final PR diff
+  contains only the RLS test and continuity-document updates.
 
 ### Architecture deepening checkpoint
 

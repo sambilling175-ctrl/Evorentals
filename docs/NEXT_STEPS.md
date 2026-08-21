@@ -18,9 +18,9 @@
 | D4-01 | P0 | Connect logout and real authenticated profile identity | Completed | Codex / `main` | Day 3 auth | Navigation, auth |
 | D4-02 | P0 | Add customer editing with validation and timeline event | Completed | Codex / `main` | Customer service | Customers |
 | D4-03 | P0 | Add signed KYC document view/download | Completed | Codex / `main` | Private storage | Customers, storage |
-| D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Ready | Unassigned | Stable SMTP/test mailbox | Auth, tests |
-| D4-05 | P1 | Add two-company RLS isolation integration test | Review | Codex / `agent/d4-05-rls-isolation`; refreshed onto current `main`; live transaction-only test passed; rollback query returned zero temporary rows; `npm.cmd run validate` passed; no migration or production records | Existing authenticated actor; temporary second company | Supabase, tests |
-| D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Ready | Unassigned | SMTP provider decision | Supabase Auth |
+| D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Blocked | Requires stable SMTP/test mailbox; no implementation should fabricate email delivery | Stable SMTP/test mailbox | Auth, tests |
+| D4-05 | P1 | Add two-company RLS isolation integration test | Completed | Codex; PR #11 merged as `c279387`; live transaction-only test passed; rollback query returned zero temporary rows; `npm.cmd run validate` passed; no migration or production records | Existing authenticated actor; temporary second company | Supabase, tests |
+| D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Blocked | Requires SMTP provider decision and verified sending domain | SMTP provider decision | Supabase Auth |
 | D5-01 | P1 | Align customer page with supplied design references | Completed | Codex / `main`; app commit `109f3b0`; validate passed; production Ready; no migration | Day 4 customers | UI |
 | D5-02 | P1 | Rebuild dashboard sections using reusable live-data contracts | Completed | Codex / `main`; app commit `4e3af21`; validate/Supabase query passed; production Ready; no migration | Metrics services | Dashboard |
 | D5-03 | P2 | Complete navigation actions, theme control, and mobile behavior | Completed | Codex / `main`; app commit `bd0bbe6`; validate passed; production Ready; no migration | D4-01 | Navigation |
