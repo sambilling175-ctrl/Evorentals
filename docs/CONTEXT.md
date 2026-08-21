@@ -311,12 +311,14 @@ blocker and leave D10-02 in Review.
   CSV export. The UI does not query Supabase directly and no business records
   were created.
 - `npm.cmd run validate` passes on 2026-08-21. No migration was required.
+  The clean integration refresh is commit `e496583` on
+  `agent/d10-02-live-reports-clean`; it includes merged D12-03 changes.
   Draft PR #15 is `https://github.com/sambilling175-ctrl/Evorentals/pull/15`.
-  Preview `https://evorentals-4t8oloulh-wephotons1.vercel.app/reports` is READY
-  for commit `c4a0a78`; unauthenticated requests correctly redirect to login and
-  Vercel reports no runtime errors. Authenticated smoke testing remains pending
-  because the preview host has a separate session and no production business
-  records were created.
+  Preview `https://evorentals-git-agent-d10-02-live-reports-clean-wephotons1.vercel.app/reports`
+  is READY; unauthenticated requests correctly redirect to login and Vercel
+  reports no runtime errors. Authenticated smoke testing remains pending because
+  the preview host has a separate session and no production business records
+  were created.
 
 ### Architecture deepening checkpoint
 
