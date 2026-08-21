@@ -65,13 +65,32 @@ function mapCustomer(row: Record<string, unknown>): CustomerSummary {
 
 export async function listCustomers(): Promise<CustomerSummary[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const pageSize = 1000;
+  const select = "id,customer_number,full_name,email,phone,kyc_status,status,created_at";
+  const firstPage = await supabase
     .from("customers")
-    .select("id,customer_number,full_name,email,phone,kyc_status,status,created_at")
+    .select(select, { count: "exact" })
     .is("deleted_at", null)
-    .order("created_at", { ascending: false });
-  if (error) throw new Error(`Unable to load customers: ${error.message}`);
-  return (data ?? []).map((row) => mapCustomer(row));
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(0, pageSize - 1);
+  if (firstPage.error) throw new Error(`Unable to load customers: ${firstPage.error.message}`);
+
+  const total = firstPage.count ?? firstPage.data?.length ?? 0;
+  const rows = [...(firstPage.data ?? [])];
+  for (let from = pageSize; from < total; from += pageSize) {
+    const page = await supabase
+      .from("customers")
+      .select(select)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(from, Math.min(from + pageSize - 1, total - 1));
+    if (page.error) throw new Error(`Unable to load customers: ${page.error.message}`);
+    rows.push(...(page.data ?? []));
+  }
+
+  return rows.map((row) => mapCustomer(row));
 }
 
 export async function getCustomer(id: string): Promise<CustomerDetail | null> {
