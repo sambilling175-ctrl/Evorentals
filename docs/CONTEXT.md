@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-02 complete; D10-01 and D9-06 are released; D12-03 integration is in progress |
-| Git branch | `agent/d12-03-returned-rental-collections` |
-| Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
+| Delivery position | D12-03 is merged; D10-02 reports remains in review |
+| Git branch | `main` |
+| Last verified application commit | `8dceed3` - Merge PR #14 returned-rental collections |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -188,10 +188,11 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Proceed with D12-03: review and integrate the D10-03 returned-rental collections
-branch onto current `main`. Verify that its two applied migrations, receipt and
-allocation commands, invoice-lock RLS policies, validation, preview, and rollback-
-only acceptance evidence still match the live schema before opening a clean PR.
+Authenticate the D10-02 preview at
+`https://evorentals-4t8oloulh-wephotons1.vercel.app/reports`, run the empty-ledger
+reports smoke test, then review PR #15 before merging. Do not create business
+records for this acceptance pass. If the preview cannot be authenticated, record
+that exact blocker and leave D10-02 in Review.
 
 ### D10-01 database checkpoint
 
@@ -284,6 +285,19 @@ only acceptance evidence still match the live schema before opening a clean PR.
   advisors found no D10-03 security or unindexed-foreign-key notices; the
   remaining D10-03 notices are expected unused-index INFOs while row counts are
   zero. `npm.cmd run validate` passed on 2026-08-21.
+
+### D12-03 integration checkpoint
+
+- PR #14 (`agent/d12-03-returned-rental-collections`) was promoted from draft
+  and merged into `main` as `8dceed3` on 2026-08-21.
+- The merge includes the immutable returned-rental collection workflow, H1
+  invoice-lock RLS, payment auth-refresh retry boundary, and the two D10-03
+  foreign-key index hardening migrations.
+- PR checks passed and Vercel reported a READY preview. No production business
+  records were created. `npm.cmd run validate` passed on the clean integration
+  branch before merge.
+- D10-03 remains the delivered feature behind this release; D10-02 is the next
+  acceptance gate.
 
 ### Architecture deepening checkpoint
 
