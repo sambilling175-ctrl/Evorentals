@@ -39,7 +39,11 @@ export interface DashboardOverview {
 export async function getDashboardOverview(): Promise<DashboardOverview> {
   const supabase = await createClient();
   const countQuery = (status?: KycStatus) => {
-    let query = supabase.from("customers").select("id", { count: "exact", head: true }).is("deleted_at", null);
+    // Use a bounded GET instead of a HEAD request. PostgREST can reject an
+    // otherwise valid session for the unfiltered HEAD variant while the same
+    // table is readable through normal GET requests. The exact count is still
+    // returned in the Content-Range header, but only one row is transferred.
+    let query = supabase.from("customers").select("id", { count: "exact" }).is("deleted_at", null).limit(1);
     if (status) query = query.eq("kyc_status", status);
     return query;
   };
