@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-03 is merged; D10-02 clean integration is in review |
-| Git branch | `agent/d10-02-live-reports-clean` |
-| Last verified application commit | `8dceed3` - Merge PR #14 returned-rental collections |
+| Delivery position | D10-02 is merged; next P1 is D4-05 RLS isolation |
+| Git branch | `main` |
+| Last verified application commit | `b53a961` - Merge PR #15 live operational reports |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -188,12 +188,11 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Authenticate the D10-02 preview and run the reports smoke test, then review PR
-#15 before merging. The preview is READY and unauthenticated `/reports` correctly
-redirects to login. Reports must use company-scoped typed services and live
-rental, fleet, customer, receivables, and settlement tables; they must not create
-business records. If the preview cannot be authenticated, record that exact
-blocker and leave D10-02 in Review.
+Start D4-05 from updated `main`: cleanly rebase or replace the stale PR #11
+branch, verify the transaction-only two-company RLS test against the live schema,
+and preserve zero-row rollback evidence. The test requires one existing
+authenticated actor and a temporary second company; it must not create production
+business records. D4-04 and D4-06 remain dependent on SMTP/test-mailbox decisions.
 
 ### D10-01 database checkpoint
 
@@ -313,12 +312,12 @@ blocker and leave D10-02 in Review.
 - `npm.cmd run validate` passes on 2026-08-21. No migration was required.
   The clean integration refresh is commit `e496583` on
   `agent/d10-02-live-reports-clean`; it includes merged D12-03 changes.
-  Draft PR #15 is `https://github.com/sambilling175-ctrl/Evorentals/pull/15`.
-  Preview `https://evorentals-git-agent-d10-02-live-reports-clean-wephotons1.vercel.app/reports`
-  is READY; unauthenticated requests correctly redirect to login and Vercel
-  reports no runtime errors. Authenticated smoke testing remains pending because
-  the preview host has a separate session and no production business records
-  were created.
+  PR #15 (`https://github.com/sambilling175-ctrl/Evorentals/pull/15`) merged into
+  `main` as `b53a961`. Preview
+  `https://evorentals-git-agent-d10-02-live-reports-clean-wephotons1.vercel.app/reports`
+  was authenticated by the operator and loaded the empty operational state;
+  Vercel reported no runtime errors and no production business records were
+  created.
 
 ### Architecture deepening checkpoint
 
