@@ -441,6 +441,20 @@ obtain a complete export or implement a resumable batched extractor first.
   `https://evorentals-qno1gweaz-wephotons1.vercel.app`. Do not merge before
   the stacked D13-02 and D13-01 reviews.
 
+### 2026-08-21 - Dashboard preview runtime hardening
+
+- The D13-03 preview `https://evorentals-nw7bqhtlt-wephotons1.vercel.app` was
+  READY at build time but rendered the generic 500 page for an authenticated
+  dashboard request. Vercel runtime logs and Supabase API logs showed one
+  `customers?kyc_status=pending` request returning HTTP 401 while the other
+  dashboard queries returned 200; this was surfaced as `Unable to load
+  dashboard` because the service failed the entire page on one query error.
+- `src/lib/services/dashboard.ts` now retries auth-related PostgREST failures
+  once after refreshing the user session, logs the structured query error, and
+  keeps the dashboard in a degraded state if the transient 401 persists.
+  Structural database errors still fail loudly. Local `npm.cmd run validate`
+  passed; the fix is pushed on the D13-03 branch for a fresh Vercel preview.
+
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
 | 1 | 2026-07-27 | UI shell and mock operations pages | Repository history |
