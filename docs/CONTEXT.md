@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-03 vehicle intake inspection in review, stacked on D13-02 draft PR #21 and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-03-vehicle-intake-inspection` |
-| Last verified application commit | `10a735d` - D13-03 vehicle intake inspection; local validation and live schema checks passed |
+| Last verified application commit | `b9e1c11` - dashboard auth-query retry and degraded fallback; local validation passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
