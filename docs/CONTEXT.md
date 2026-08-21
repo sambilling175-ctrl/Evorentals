@@ -474,6 +474,8 @@ obtain a complete export or implement a resumable batched extractor first.
   job card, with Zod-validated server actions for internal or external routing.
   Migration application, rollback-only SQL verification, security/performance
   advisors, `check:supabase`, typecheck, lint, and production build passed.
+  Draft PR #23 is open and the Vercel preview is READY at
+  `https://evorentals-h3jg9mvnl-wephotons1.vercel.app`.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
