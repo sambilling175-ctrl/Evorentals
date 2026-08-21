@@ -102,6 +102,23 @@ PR #21 (draft PR #22).
   artifact checks, and all 11 Playwright routes. The Vercel preview is READY at
   `https://evorentals-qno1gweaz-wephotons1.vercel.app`.
 
+### D13-05 checkpoint - service pipeline verification
+
+Status: Review on `agent/d13-05-service-pipeline-verification`, stacked on
+D13-04 draft PR #23.
+
+- The controlled pipeline is already database-enforced by D13-02:
+  `requested -> inspection -> in_service -> waiting_parts -> qc -> completed`.
+  D13-03 requires an immutable vehicle intake inspection before `inspection`,
+  while D13-04 supplies the append-only assignment dependency.
+- Added `supabase/tests/d13-05-service-pipeline.sql`, a rollback-only contract
+  check for the status constraint, invoker transition RPC with fixed empty
+  search path and row locking, both transition guards, and the assignment
+  table. Live execution passed with zero job-card or event records.
+- No migration or application schema change was needed. D13-06 is the next
+  implementation task and will handle fleet availability transitions when
+  service starts or finishes.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

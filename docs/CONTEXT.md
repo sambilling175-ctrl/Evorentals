@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-04 service job-card assignment implemented and awaiting preview/review, stacked on D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-04-service-job-card-assignments` |
-| Last verified application commit | `2444d8d` - append-only service job-card assignments plus bounded auth-refresh retry for fresh-login token skew; local validation passed |
+| Delivery position | D13-05 service pipeline contract verified and awaiting review, stacked on D13-04 draft PR #23, D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-05-service-pipeline-verification` |
+| Last verified application commit | `78714f4` - D13-04 assignment workflow plus bounded auth-refresh retry; D13-05 adds rollback-only pipeline contract verification with no application migration |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 `20260821160000_d13_04_service_job_card_assignments` is applied and verified; no service business records created |
-| Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
+| Last quality gate | D13-05 live rollback-only SQL verification, local `check:supabase` (42 migrations, 4 SQL tests), and prior `npm.cmd run validate` passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -480,6 +480,20 @@ obtain a complete export or implement a resumable batched extractor first.
   query after a successful password login. `src/lib/services/auth.ts` now
   refreshes the session once and retries the profile query when the error is
   token-related; persistent profile/database failures still fail normally.
+
+### 2026-08-21 - D13-05 service pipeline verification
+
+- The requested pipeline `requested -> inspection -> in_service ->
+  waiting_parts -> qc -> completed` was already implemented by D13-02's
+  invoker transition RPC and immutable event trigger. D13-03 adds the intake
+  gate before `inspection`, and D13-04 provides the assignment dependency.
+- Added `supabase/tests/d13-05-service-pipeline.sql`, a rollback-only catalog
+  contract test that verifies the complete status constraint, invoker/fixed
+  search-path transition RPC with row locking, intake and transition guards,
+  and the D13-04 assignment table. It creates no records.
+- Live Supabase execution passed and confirmed zero service job cards/events.
+  No migration or application schema change was needed; D13-06 is the next
+  database-changing task for fleet availability transitions.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
