@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-03 vehicle intake inspection in review, stacked on D13-02 draft PR #21 and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-03-vehicle-intake-inspection` |
-| Last verified application commit | `b9e1c11` - dashboard auth-query retry and degraded fallback; local validation passed |
+| Delivery position | D13-04 service job-card assignment implemented and awaiting preview/review, stacked on D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-04-service-job-card-assignments` |
+| Last verified application commit | `48c4bc0` - append-only service job-card assignments for employees or external garages; local validation passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection` are applied and verified; no service business records created |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 `20260821160000_d13_04_service_job_card_assignments` is applied and verified; no service business records created |
 | Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
@@ -459,6 +459,21 @@ obtain a complete export or implement a resumable batched extractor first.
   one-row `GET` requests with exact counts, avoiding the failing `HEAD` path.
   Local `npm.cmd run validate` passed; the fix is commit `cc89d1e` and the
   READY preview is `https://evorentals-3adi0a5t6-wephotons1.vercel.app`.
+
+### 2026-08-21 - D13-04 service job-card assignment
+
+- D13-04 adds `service_job_card_assignments` as an append-only, company-scoped
+  history table. A signed-in employee can assign an active internal employee or
+  record an external-garage snapshot without creating a vendor master record.
+  Reassignment inserts a new row; prior assignment history is immutable.
+- The invoker RPC `public.assign_service_job_card` and insert trigger enforce
+  active employee identity, service permissions, same-company job cards and
+  targets, non-completed job cards, valid target shape, and bounded notes. RLS,
+  grants, indexes, and a rollback-only SQL artifact are included.
+- The service workspace now loads active employees and the latest assignment per
+  job card, with Zod-validated server actions for internal or external routing.
+  Migration application, rollback-only SQL verification, security/performance
+  advisors, `check:supabase`, typecheck, lint, and production build passed.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
