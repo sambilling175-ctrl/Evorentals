@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D10-02 is merged; next P1 is D4-05 RLS isolation |
-| Git branch | `main` |
-| Last verified application commit | `b53a961` - Merge PR #15 live operational reports |
+| Delivery position | D4-05 RLS isolation is in review |
+| Git branch | `agent/d4-05-rls-isolation` |
+| Last verified application commit | `7385362` - Refresh D4-05 branch onto current main |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -188,11 +188,11 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Start D4-05 from updated `main`: cleanly rebase or replace the stale PR #11
-branch, verify the transaction-only two-company RLS test against the live schema,
-and preserve zero-row rollback evidence. The test requires one existing
-authenticated actor and a temporary second company; it must not create production
-business records. D4-04 and D4-06 remain dependent on SMTP/test-mailbox decisions.
+Review and integrate D4-05 PR #11 after its refreshed branch passes Vercel and
+the repository quality gate. The transaction-only two-company RLS test already
+passed against the live schema with zero temporary rows remaining. Do not create
+production business records. D4-04 and D4-06 remain dependent on SMTP/test-mailbox
+decisions.
 
 ### D10-01 database checkpoint
 
@@ -326,6 +326,22 @@ business records. D4-04 and D4-06 remain dependent on SMTP/test-mailbox decision
   was authenticated by the operator and loaded the empty operational state;
   Vercel reported no runtime errors and no production business records were
   created.
+
+### D4-05 RLS isolation checkpoint
+
+- The existing PR #11 branch was refreshed onto current `main` using a backup
+  ref `backup/d4-05-before-main-merge`; stale overlapping application changes
+  were resolved in favor of `main` while retaining the test-only change.
+- `supabase/tests/rls_isolation.sql` runs in one transaction, reuses the first
+  existing profiled actor, creates a temporary second company, verifies scoped
+  customer/bike/rental visibility and cross-company insert denial, then rolls
+  back every write.
+- The live Supabase execution returned success. A follow-up query found zero
+  `rls-test-b-*` companies, `RLS-*` customers/bikes, and current-date `RLS`
+  rentals. The live schema has RLS enabled on all three tables and 10 policies.
+- `npm.cmd run validate` passes after the merge repair. No migration or production
+  data change was created. Security/performance advisor output contains only
+  pre-existing legacy warnings and no D4-05 object finding.
 
 ### Architecture deepening checkpoint
 
