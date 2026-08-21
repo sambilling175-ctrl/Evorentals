@@ -90,6 +90,18 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
   accepts the repository's publishable Supabase key, but currently stops with
   the exact missing input `EVORENTALS_IMPORT_JWT`.
 
+### D11-03 remote dry-run verification (2026-08-21)
+
+- Authenticated administrator dry-run completed successfully through all 69
+  chunks: `remoteValidatedRows = 13760`.
+- The deterministic checksum remains
+  `6511d29d20dca127fa75f0324b43cc62046090ee7d64f2c5af6b8e438422728c` and the
+  required confirmation is `IMPORT_13760_6511D29D20DC`.
+- `applied = false`; live import-batch and mapping counts remain zero. No
+  customer rows, KYC binaries, or source-system records were changed.
+- Remaining gate: review the PII-free plan and explicitly approve the checksum
+  before running `--apply`.
+
 The remaining D11-03 gate is an authenticated administrator remote dry-run and
 explicit apply. The CLI deliberately requires `EVORENTALS_IMPORT_JWT` and a
 checksum-derived `EVORENTALS_IMPORT_CONFIRM`; it never accepts or prints a
