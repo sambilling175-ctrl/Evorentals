@@ -8,7 +8,7 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-03 is in review; D10-02 clean integration is in progress |
+| Delivery position | D12-03 is in review; D10-02 clean integration is in review |
 | Git branch | `agent/d10-02-live-reports-clean` |
 | Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
@@ -188,11 +188,10 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Proceed with D10-02: cleanly integrate the live reports implementation onto
-current `main`, preserving the D12-03 release branch. Verify report queries,
-CSV export behavior, validation, preview, and authenticated smoke before opening
-the clean PR. Reports must use company-scoped typed services and live rental,
-fleet, customer, receivables, and settlement tables; they must not create
+Authenticate the D10-02 preview and run the reports smoke test, then review PR
+#15 before merging. The preview is READY and unauthenticated `/reports` correctly
+redirects to login. Reports must use company-scoped typed services and live
+rental, fleet, customer, receivables, and settlement tables; they must not create
 business records.
 
 ### D10-01 database checkpoint
@@ -260,9 +259,10 @@ business records.
   placeholder with live KPI cards, searchable operational rows, and a client
   CSV export. The UI does not query Supabase directly and no business records
   were created.
-- `npm.cmd run validate` passes on 2026-08-14. No migration was required.
-  Preview `https://evorentals-git-agent-d10-02-live-reports-wephotons1.vercel.app`
-  serves `/reports` and correctly redirects unauthenticated requests to login;
+- `npm.cmd run validate` passes on 2026-08-21. No migration was required.
+  Draft PR #15 is `https://github.com/sambilling175-ctrl/Evorentals/pull/15`.
+  Preview `https://evorentals-4t8oloulh-wephotons1.vercel.app/reports` is READY
+  for commit `c4a0a78`; unauthenticated requests correctly redirect to login and
   Vercel reports no runtime errors. Authenticated smoke testing remains pending
   because the preview host has a separate session and no production business
   records were created.
