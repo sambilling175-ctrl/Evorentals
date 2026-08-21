@@ -307,6 +307,20 @@ business records are required for these tasks.
 - D10-03 remains the delivered feature behind this release; D10-02 is the next
   acceptance gate.
 
+### D12-03 current-main re-review
+
+- `agent/d10-03-returned-rental-collections` is already an ancestor of current
+  `main` through merge `8dceed3`; the audit branch adds no duplicate migration.
+- Live migration history, RLS policies, invoker/search-path configuration, and
+  FK indexes match the repository. Receipt, receipt-event, and line-allocation
+  counts are zero.
+- `supabase/tests/returned_rental_collections.sql` passed as a rollback-only
+  authenticated acceptance test: ₹100 rental plus ₹50 damage was preserved in
+  the receipt snapshot, mismatch allocation was rejected atomically, and a
+  receipt update was rejected at the RLS boundary.
+- No D10-03 security or missing-FK advisor finding remains. Empty-table unused
+  index INFOs are expected until lifecycle collections exist.
+
 ### D10-02 reports checkpoint
 
 - `src/lib/services/reports.ts` now provides a typed, company-scoped report
