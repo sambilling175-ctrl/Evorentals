@@ -33,6 +33,57 @@ Service requests, job cards, intake inspection, employee/garage assignment,
 controlled service pipeline, fleet availability transitions, dashboard metrics,
 RLS, immutable history, advisors, and rollback-only SQL tests.
 
+### D13-01 checkpoint - service request intake
+
+Status: Review on `agent/d13-01-service-requests` (draft PR #20).
+
+- Live schema verification found only the legacy `maintenance_records` table;
+  it has no `company_id`, so it is not reused for the new workflow.
+- Migration `20260821141140_d13_01_service_requests` adds company-scoped
+  `service_reasons` and `service_requests`, RLS, explicit grants, indexes, and
+  the invoker-mode `create_service_request` RPC with an empty search path.
+- Eight controlled service-reason lookups were seeded for the existing company;
+  no service requests or other business records were created.
+- The service page now loads through `src/lib/services/service.ts`, validates
+  requests with a Zod server action, and provides an accessible request form
+  plus live recent-request state. D13-02 will add job cards and status flow.
+- Security/performance advisors were run after migration. Findings are
+  pre-existing project-wide lints; no D13-01 object finding was reported.
+- GitHub CI passed typecheck/lint/build, Supabase artifact checks, and the
+  11-route Playwright suite. The Vercel preview check is green/READY. Do not
+  merge until product review accepts the request-intake workflow.
+
+### D13-02 checkpoint - service job cards
+
+Status: Review on `agent/d13-02-service-job-cards` (draft PR #21, stacked on draft PR #20).
+
+- This task is stacked on D13-01 because the request/reason migration remains
+  in draft PR #20 pending product review; D13-02 will not merge independently.
+- Scope is limited to job-card creation from service requests and controlled
+  `requested -> inspection -> in_service -> waiting_parts -> qc -> completed`
+  transitions. No parts, vendor, QC-detail, or fleet-release workflow is being
+  invented ahead of its planned sprint item.
+- Live migrations `20260821143147_d13_02_service_job_cards`,
+  `20260821143345_d13_02_service_job_card_fk_indexes`,
+  `20260821144218_d13_02_service_job_card_actor_guard`,
+  `20260821144303_d13_02_service_job_card_index_cleanup`, and
+  `20260821144335_d13_02_service_job_card_fk_index_restore` add
+  company-scoped job cards, immutable transition events, explicit grants, FK
+  indexes, actor authorization, and invoker-mode create/transition RPCs with
+  fixed empty search paths.
+- The service page uses typed service methods and Zod server actions for job
+  card creation and transitions. No job-card or other business records were
+  created. The performance advisor reports no D13-02 unindexed-FK findings;
+  its remaining D13-02 messages are expected unused-index INFO notices while
+  the tables are empty. Security advisor reported no D13-02 finding.
+- Local `npm.cmd run validate`, `npm.cmd run check:supabase`, `git diff
+  --check`, and the 11-route Playwright suite passed. The Playwright process
+  was stopped after all 11 tests reported `ok` because the Windows webserver
+  cleanup did not exit.
+- GitHub Actions run `32493896245` passed typecheck/lint/build, migration/SQL
+  artifact checks, and all 11 Playwright routes. The Vercel preview deployment
+  is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

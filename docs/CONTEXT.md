@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-06 CI hardening completed; D12-04 route coverage merged as `baac955`; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d12-06-ci-hardening` |
-| Last verified application commit | `645e518` - D12-06 CI verification and continuity update |
+| Delivery position | D13-02 service job-card transitions in review, stacked on D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-02-service-job-cards` |
+| Last verified application commit | `ecfcd22` - D13-02 controlled job-card workflow; local validation and live schema checks passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
-| Last quality gate | GitHub Actions run `32489569334` passed; local `npm.cmd run validate`, `check:supabase`, and Playwright route suite passed on 2026-08-21 |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore` are applied and verified; no service business records created |
+| Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -388,6 +388,41 @@ obtain a complete export or implement a resumable batched extractor first.
 - No database migration or production business data change is involved.
 
 ## Progress log
+
+### 2026-08-21 - D13-01 service request intake
+
+- Live schema verification found only legacy `maintenance_records` without
+  `company_id`; new service tables were added rather than reusing it.
+- `service_reasons` and `service_requests` are company-scoped with RLS,
+  explicit grants, indexes, and the invoker-mode `create_service_request`
+  function using an empty search path.
+- The service route now uses typed server services and a Zod server action;
+  it has no mock business records. Eight controlled reasons are seeded and
+  live request count remains zero.
+- Validation passed: `npm.cmd run validate`, `npm.cmd run check:supabase`,
+  and 11 unauthenticated Playwright route checks. D13-02 is the next task:
+  service job cards and controlled status transitions.
+- Draft PR #20 CI passed quality, migration, and Playwright jobs; its Vercel
+  preview check is green/READY. Merge remains a product-review decision.
+
+### 2026-08-21 - D13-02 service job cards
+
+- Claimed `agent/d13-02-service-job-cards` as the sole migration owner.
+- The branch is intentionally stacked on D13-01 review because job cards
+  depend on its live company-scoped service request/reason schema.
+- Added company-scoped service job cards with database-enforced transitions,
+  immutable event history, explicit authenticated grants, FK indexes, and
+  invoker-mode create/transition RPCs using fixed empty search paths.
+- Live migrations `20260821143147`, `20260821143345`, `20260821144218`,
+  `20260821144303`, and `20260821144335` applied successfully; job-card and
+  event counts remain zero. Advisors report no D13-02 security or unindexed-FK
+  findings (only expected unused-index INFO notices on empty tables).
+  `npm.cmd run validate`, `npm.cmd run check:supabase`, and all 11
+  Playwright route checks passed locally. Draft PR #21 is open and clean;
+  GitHub Actions run `32493896245` passed all three jobs, and the Vercel
+  preview is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
+  Do not merge before D13-01 PR #20 is accepted and the product review is
+  complete.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |

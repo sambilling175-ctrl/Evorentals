@@ -7,6 +7,7 @@ const protectedRoutes = [
   "/rentals",
   "/payments",
   "/reports",
+  "/service",
   "/settings",
 ];
 
