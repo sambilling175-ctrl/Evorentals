@@ -452,8 +452,13 @@ obtain a complete export or implement a resumable batched extractor first.
 - `src/lib/services/dashboard.ts` now retries auth-related PostgREST failures
   once after refreshing the user session, logs the structured query error, and
   keeps the dashboard in a degraded state if the transient 401 persists.
-  Structural database errors still fail loudly. Local `npm.cmd run validate`
-  passed; the fix is pushed on the D13-03 branch for a fresh Vercel preview.
+  Structural database errors still fail loudly. A second authenticated check
+  on the refreshed preview showed that the fragile unfiltered customer `HEAD`
+  count could still return HTTP 401 even while `/auth/v1/user` and normal
+  customer `GET` requests returned 200. The count queries now use bounded
+  one-row `GET` requests with exact counts, avoiding the failing `HEAD` path.
+  Local `npm.cmd run validate` passed; the fix is commit `cc89d1e` and the
+  READY preview is `https://evorentals-3adi0a5t6-wephotons1.vercel.app`.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
@@ -470,7 +475,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 | 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks), D12-05 reconciliation passed, and D12-06 CI hardening completed | `DAY_12_INTEGRATION_RELEASE.md` |
-| 13 | 2026-08-21 | D13-03 vehicle intake inspection claimed; implementation in progress on a stacked feature branch | `DAY_12_INTEGRATION_RELEASE.md` |
+| 13 | 2026-08-21 | D13-03 vehicle intake inspection claimed; implementation in progress on a stacked feature branch; dashboard count-query preview hardening added | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 
