@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-01 service request intake in Review via draft PR #20; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-01-service-requests` |
-| Last verified application commit | `aad034c` - D13-01 service request review handoff |
+| Delivery position | D13-02 service job-card transitions in review, stacked on D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-02-service-job-cards` |
+| Last verified application commit | D13-02 implementation commit pending push; local validation and live schema checks passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 `20260821141140_d13_01_service_requests` is applied and verified; it added company-scoped service request/reason tables and seeded 8 controlled reasons; no request records created |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore` are applied and verified; no service business records created |
 | Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
@@ -404,6 +404,22 @@ obtain a complete export or implement a resumable batched extractor first.
   service job cards and controlled status transitions.
 - Draft PR #20 CI passed quality, migration, and Playwright jobs; its Vercel
   preview check is green/READY. Merge remains a product-review decision.
+
+### 2026-08-21 - D13-02 service job cards
+
+- Claimed `agent/d13-02-service-job-cards` as the sole migration owner.
+- The branch is intentionally stacked on D13-01 review because job cards
+  depend on its live company-scoped service request/reason schema.
+- Added company-scoped service job cards with database-enforced transitions,
+  immutable event history, explicit authenticated grants, FK indexes, and
+  invoker-mode create/transition RPCs using fixed empty search paths.
+- Live migrations `20260821143147`, `20260821143345`, `20260821144218`,
+  `20260821144303`, and `20260821144335` applied successfully; job-card and
+  event counts remain zero. Advisors report no D13-02 security or unindexed-FK
+  findings (only expected unused-index INFO notices on empty tables).
+  `npm.cmd run validate`, `npm.cmd run check:supabase`, and all 11
+  Playwright route checks passed locally. Next action is push the branch and
+  open the draft review PR; do not merge before the preview is READY.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
