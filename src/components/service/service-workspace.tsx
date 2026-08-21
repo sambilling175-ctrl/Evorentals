@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ClipboardList, Plus, ShieldAlert, Wrench } from "lucide-react";
-import { createServiceJobCardAction, initialServiceJobCardActionState, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
-import type { ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
+import { createServiceJobCardAction, initialServiceJobCardActionState, recordServiceIntakeInspectionAction, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
+import type { ServiceIntakeInspection, ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/feedback/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const dateFormatter = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" });
@@ -79,7 +80,52 @@ const NEXT_STATUSES: Record<ServiceJobCardStatus, ServiceJobCardStatus[]> = {
 function JobCardRow({ card, canManage }: { card: ServiceJobCard; canManage: boolean }) {
   const [state, action] = useActionState(transitionServiceJobCardAction.bind(null, card.id), initialServiceJobCardActionState);
   const nextStatuses = NEXT_STATUSES[card.status];
-  return <div className="rounded-xl border border-border/70 bg-muted/10 p-4"><div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div><p className="font-semibold">{card.number}</p><p className="text-sm text-muted-foreground">{card.vehicle} · {card.reason}</p></div><StatusBadge status={card.status} /></div><p className="mt-2 text-xs text-muted-foreground">Updated {dateFormatter.format(new Date(card.updatedAt))}</p>{canManage && nextStatuses.length > 0 && <form action={action} className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_auto]"><SelectField name="toStatus" label="Next stage" options={nextStatuses.map((status) => ({ value: status, label: status.replaceAll("_", " ") }))} /><div className="space-y-2"><Label htmlFor={`notes-${card.id}`}>Transition note</Label><Textarea id={`notes-${card.id}`} name="notes" maxLength={1000} rows={2} placeholder="Optional handoff note…" /></div><div className="self-end"><JobCardSubmitButton /></div></form>}{state.message && <p role="status" className={state.status === "error" ? "mt-2 text-xs text-destructive" : "mt-2 text-xs text-emerald-500"}>{state.message}</p>}</div>;
+  const intakeRequired = !card.intakeInspection && (card.status === "requested" || card.status === "inspection");
+  return <div className="rounded-xl border border-border/70 bg-muted/10 p-4">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div><p className="font-semibold">{card.number}</p><p className="text-sm text-muted-foreground">{card.vehicle} · {card.reason}</p></div>
+      <StatusBadge status={card.status} />
+    </div>
+    <p className="mt-2 text-xs text-muted-foreground">Updated {dateFormatter.format(new Date(card.updatedAt))}</p>
+    {canManage && intakeRequired && <IntakeForm card={card} />}
+    {card.intakeInspection && <IntakeSummary inspection={card.intakeInspection} />}
+    {canManage && nextStatuses.length > 0 && !intakeRequired && <form action={action} className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_auto]"><SelectField name="toStatus" label="Next stage" options={nextStatuses.map((status) => ({ value: status, label: status.replaceAll("_", " ") }))} /><div className="space-y-2"><Label htmlFor={`notes-${card.id}`}>Transition note</Label><Textarea id={`notes-${card.id}`} name="notes" maxLength={1000} rows={2} placeholder="Optional handoff note…" /></div><div className="self-end"><JobCardSubmitButton /></div></form>}
+    {state.message && <p role="status" className={state.status === "error" ? "mt-2 text-xs text-destructive" : "mt-2 text-xs text-emerald-500"}>{state.message}</p>}
+  </div>;
+}
+
+const INTAKE_CHECKLIST = {
+  battery: true,
+  charger: true,
+  keys: true,
+  visual: true,
+};
+
+function IntakeForm({ card }: { card: ServiceJobCard }) {
+  const [state, action] = useActionState(recordServiceIntakeInspectionAction, initialServiceJobCardActionState);
+  const [checklist, setChecklist] = useState(INTAKE_CHECKLIST);
+  const odometerId = useId();
+  const batteryId = useId();
+  const notesId = useId();
+  const evidenceId = useId();
+  return <form action={action} className="mt-4 space-y-3 rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-3">
+    <input type="hidden" name="jobCardId" value={card.id} />
+    <input type="hidden" name="checklist" value={JSON.stringify(checklist)} readOnly />
+    <div><p className="font-semibold">Vehicle intake inspection</p><p className="text-xs text-muted-foreground">Capture a non-stale vehicle reading before the job card enters inspection.</p></div>
+    <div className="grid gap-2 sm:grid-cols-3">
+      <div className="space-y-2"><Label htmlFor={odometerId}>Intake odometer (km)</Label><Input id={odometerId} name="odometer" type="number" min={card.currentOdometer} defaultValue={card.currentOdometer} required /></div>
+      <div className="space-y-2"><Label htmlFor={batteryId}>Battery level (%)</Label><Input id={batteryId} name="batteryLevel" type="number" min={0} max={100} defaultValue={card.currentBatteryLevel} required /></div>
+      <SelectField name="condition" label="Condition" options={[{ value: "excellent", label: "Excellent" }, { value: "good", label: "Good" }, { value: "fair", label: "Fair" }, { value: "damaged", label: "Damaged" }]} />
+    </div>
+    <fieldset className="space-y-2"><legend className="text-sm font-medium">Intake checklist</legend><div className="grid gap-2 sm:grid-cols-2">{Object.entries({ battery: "Battery and charger", charger: "Charger present", keys: "Keys and accessories", visual: "Visual condition checked" }).map(([name, label]) => <label key={name} className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={checklist[name as keyof typeof checklist]} onChange={(event) => setChecklist((current) => ({ ...current, [name]: event.target.checked }))} />{label}</label>)}</div></fieldset>
+    <div className="space-y-2"><Label htmlFor={notesId}>Notes</Label><Textarea id={notesId} name="notes" maxLength={2000} placeholder="Record intake findings or exceptions" /></div>
+    <div className="space-y-2"><Label htmlFor={evidenceId}>Evidence metadata (JSON array)</Label><Input id={evidenceId} name="evidenceMetadata" defaultValue="[]" placeholder={'[{"kind":"photo","reference":"intake-001"}]'} /></div>
+    <div className="flex flex-wrap items-center gap-2"><Button type="submit">Record intake</Button>{state.message && <span role="status" className={state.status === "error" ? "text-xs text-destructive" : "text-xs text-emerald-500"}>{state.message}</span>}</div>
+  </form>;
+}
+
+function IntakeSummary({ inspection }: { inspection: ServiceIntakeInspection }) {
+  return <div className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-muted-foreground"><p className="font-semibold text-emerald-400">Intake recorded</p><p className="mt-1">{inspection.odometer.toLocaleString("en-IN")} km · {inspection.batteryLevel}% battery · {inspection.condition}</p><p className="mt-1">{dateFormatter.format(new Date(inspection.inspectedAt))}</p>{inspection.notes && <p className="mt-1">{inspection.notes}</p>}</div>;
 }
 
 function JobCardSubmitButton() {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createServiceJobCard, createServiceRequest, transitionServiceJobCard, type ServiceJobCardStatus } from "@/lib/services/service";
+import { createServiceJobCard, createServiceRequest, recordServiceIntakeInspection, transitionServiceJobCard, type ServiceJobCardStatus } from "@/lib/services/service";
 
 export interface ServiceRequestActionState {
   status: "idle" | "success" | "error";
@@ -75,5 +75,58 @@ export async function transitionServiceJobCardAction(
     return { status: "success", message: `${result.jobCardNumber} moved to ${result.status.replaceAll("_", " ")}` };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "Unable to transition job card" };
+  }
+}
+
+const intakeChecklistSchema = z.string().trim().transform((value, context) => {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || Object.values(parsed).some((item) => typeof item !== "boolean")) {
+      context.addIssue({ code: "custom", message: "Checklist must be a JSON object of boolean checks" });
+      return z.NEVER;
+    }
+    return parsed as Record<string, boolean>;
+  } catch {
+    context.addIssue({ code: "custom", message: "Checklist must be valid JSON" });
+    return z.NEVER;
+  }
+});
+
+const evidenceMetadataSchema = z.string().trim().transform((value, context) => {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed) || parsed.some((item) => !item || typeof item !== "object" || Array.isArray(item))) {
+      context.addIssue({ code: "custom", message: "Evidence metadata must be a JSON array of objects" });
+      return z.NEVER;
+    }
+    return parsed as Record<string, unknown>[];
+  } catch {
+    context.addIssue({ code: "custom", message: "Evidence metadata must be valid JSON" });
+    return z.NEVER;
+  }
+});
+
+const intakeSchema = z.object({
+  jobCardId: z.uuid("Select a job card"),
+  odometer: z.coerce.number().int().min(0, "Odometer cannot be negative").max(99_999_999),
+  batteryLevel: z.coerce.number().int().min(0).max(100),
+  condition: z.enum(["excellent", "good", "fair", "damaged"]),
+  checklist: intakeChecklistSchema,
+  notes: z.string().trim().max(2000, "Intake notes cannot exceed 2000 characters").optional(),
+  evidenceMetadata: evidenceMetadataSchema,
+});
+
+export async function recordServiceIntakeInspectionAction(
+  _state: ServiceJobCardActionState,
+  formData: FormData,
+): Promise<ServiceJobCardActionState> {
+  const parsed = intakeSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the intake inspection details" };
+  try {
+    const result = await recordServiceIntakeInspection(parsed.data);
+    revalidatePath("/service");
+    return { status: "success", message: `${result.jobCardNumber} intake recorded; stage is ${result.status.replaceAll("_", " ")}` };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "Unable to record vehicle intake inspection" };
   }
 }

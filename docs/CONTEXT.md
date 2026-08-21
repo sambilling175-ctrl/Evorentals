@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-02 service job-card transitions in review, stacked on D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-02-service-job-cards` |
+| Delivery position | D13-03 vehicle intake inspection in review, stacked on D13-02 draft PR #21 and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-03-vehicle-intake-inspection` |
 | Last verified application commit | `ecfcd22` - D13-02 controlled job-card workflow; local validation and live schema checks passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore` are applied and verified; no service business records created |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection` are applied and verified; no service business records created |
 | Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
@@ -424,6 +424,21 @@ obtain a complete export or implement a resumable batched extractor first.
   Do not merge before D13-01 PR #20 is accepted and the product review is
   complete.
 
+### 2026-08-21 - D13-03 vehicle intake inspection
+
+- Claimed `agent/d13-03-vehicle-intake-inspection` as the sole migration owner,
+  stacked on the D13-02 review branch.
+- Scope is one immutable intake inspection per job card, non-stale odometer and
+  battery capture, and a controlled move into the job-card `inspection` stage.
+  Parts, vendors, QC detail, and fleet release remain later Sprint 13/14 work.
+- Live migrations `20260821145735` and `20260821145849` are applied; the new
+  intake table is RLS-protected with explicit grants, invoker RPCs, immutable
+  history, and FK indexes. Intake count remains zero. Security/performance
+  advisors report no D13-03 finding other than expected unused-index INFOs on
+  the empty table. Local validate, Supabase artifact checks, and 11 Playwright
+  route checks passed. The next action is push the branch and open its draft
+  review PR; do not merge before the stacked D13-02 and D13-01 reviews.
+
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
 | 1 | 2026-07-27 | UI shell and mock operations pages | Repository history |
@@ -439,6 +454,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 | 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks), D12-05 reconciliation passed, and D12-06 CI hardening completed | `DAY_12_INTEGRATION_RELEASE.md` |
+| 13 | 2026-08-21 | D13-03 vehicle intake inspection claimed; implementation in progress on a stacked feature branch | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 

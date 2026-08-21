@@ -84,6 +84,21 @@ Status: Review on `agent/d13-02-service-job-cards` (draft PR #21, stacked on dra
   artifact checks, and all 11 Playwright routes. The Vercel preview deployment
   is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
 
+### D13-03 checkpoint - vehicle intake inspection
+
+Status: Review on `agent/d13-03-vehicle-intake-inspection`, stacked on draft
+PR #21.
+
+- Scope is one immutable intake inspection per job card, non-stale odometer and
+  battery capture, and a controlled move into the job-card `inspection` stage.
+- Parts, vendors, QC detail, and fleet release are explicitly out of scope for
+  this task.
+- Migrations `20260821145735_d13_03_vehicle_intake_inspection` and
+  `20260821145849_d13_03_require_intake_before_inspection` are applied. The
+  table is company-scoped and immutable; the invoker RPC locks the job card and
+  bike, rejects stale odometers, reconciles telemetry, and gates the
+  requested-to-inspection transition. No intake records were created.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

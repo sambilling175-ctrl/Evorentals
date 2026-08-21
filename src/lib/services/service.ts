@@ -46,10 +46,24 @@ export interface ServiceJobCard {
   vehicle: string;
   reason: string;
   status: ServiceJobCardStatus;
+  intakeInspection: ServiceIntakeInspection | null;
+  currentOdometer: number;
+  currentBatteryLevel: number;
   notes: string;
   startedAt: string;
   completedAt: string;
   updatedAt: string;
+}
+
+export interface ServiceIntakeInspection {
+  id: string;
+  inspectedAt: string;
+  odometer: number;
+  batteryLevel: number;
+  condition: "excellent" | "good" | "fair" | "damaged";
+  checklist: Record<string, boolean>;
+  notes: string;
+  evidenceMetadata: Record<string, unknown>[];
 }
 
 export interface ServiceWorkspaceData {
@@ -109,7 +123,7 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
     throw new Error("You do not have permission to view service operations");
   }
 
-  const [reasonsResult, requestsResult, vehiclesResult, jobCardsResult] = await Promise.all([
+  const [reasonsResult, requestsResult, vehiclesResult, jobCardsResult, intakeResult] = await Promise.all([
     a.supabase.from("service_reasons")
       .select("id,code,name,description,category,sort_order")
       .eq("company_id", a.profile.company_id)
@@ -135,9 +149,14 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       .is("deleted_at", null)
       .order("updated_at", { ascending: false })
       .limit(200),
+    a.supabase.from("service_intake_inspections")
+      .select("id,job_card_id,inspected_at,odometer,battery_level,condition,checklist,notes,evidence_metadata")
+      .eq("company_id", a.profile.company_id)
+      .order("inspected_at", { ascending: false })
+      .limit(200),
   ]);
 
-  const error = reasonsResult.error ?? requestsResult.error ?? vehiclesResult.error ?? jobCardsResult.error;
+  const error = reasonsResult.error ?? requestsResult.error ?? vehiclesResult.error ?? jobCardsResult.error ?? intakeResult.error;
   if (error) throw new Error(`Unable to load service operations: ${error.message}`);
 
   const reasons = ((reasonsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => ({
@@ -167,6 +186,20 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
     };
   });
   const requestById = new Map(requests.map((request) => [request.id, request]));
+  const intakeByJobCard = new Map<string, ServiceIntakeInspection>();
+  for (const row of (intakeResult.data ?? []) as unknown as Record<string, unknown>[]) {
+    const checklist = row.checklist && typeof row.checklist === "object" && !Array.isArray(row.checklist)
+      ? Object.fromEntries(Object.entries(row.checklist).filter(([, value]) => typeof value === "boolean")) as Record<string, boolean>
+      : {};
+    const evidenceMetadata = Array.isArray(row.evidence_metadata)
+      ? row.evidence_metadata.filter((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value))
+      : [];
+    intakeByJobCard.set(String(row.job_card_id), {
+      id: String(row.id), inspectedAt: String(row.inspected_at), odometer: numberValue(row.odometer),
+      batteryLevel: numberValue(row.battery_level), condition: String(row.condition) as ServiceIntakeInspection["condition"],
+      checklist, notes: String(row.notes ?? ""), evidenceMetadata,
+    });
+  }
   const jobCards = ((jobCardsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => {
     const request = requestById.get(String(row.service_request_id));
     const vehicle = vehicleById.get(String(row.bike_id));
@@ -174,6 +207,9 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       id: String(row.id), number: String(row.job_card_number), requestId: String(row.service_request_id),
       vehicle: request?.vehicle ?? (vehicle ? `${String(vehicle.serial_number)} · ${String(vehicle.model)}` : "Unknown vehicle"),
       reason: request?.reason ?? "Service request", status: String(row.status) as ServiceJobCardStatus,
+      intakeInspection: intakeByJobCard.get(String(row.id)) ?? null,
+      currentOdometer: numberValue(vehicle?.current_odometer),
+      currentBatteryLevel: numberValue(vehicle?.battery_level),
       notes: String(row.notes ?? ""), startedAt: String(row.started_at ?? ""),
       completedAt: String(row.completed_at ?? ""), updatedAt: String(row.updated_at),
     };
@@ -219,6 +255,40 @@ export async function transitionServiceJobCard(input: { jobCardId: string; toSta
   const result = Array.isArray(data) ? data[0] : data;
   if (!result) throw new Error("Service job card transition did not return a result");
   return { jobCardNumber: String(result.job_card_number), status: String(result.status) as ServiceJobCardStatus };
+}
+
+export interface RecordServiceIntakeInspectionInput {
+  jobCardId: string;
+  odometer: number;
+  batteryLevel: number;
+  condition: "excellent" | "good" | "fair" | "damaged";
+  checklist: Record<string, boolean>;
+  notes?: string;
+  evidenceMetadata: Record<string, unknown>[];
+}
+
+export async function recordServiceIntakeInspection(input: RecordServiceIntakeInspectionInput) {
+  const a = await actor();
+  if (!allowed(a.profile.role, a.permissions, ["Edit", "Manage"])) {
+    throw new Error("You do not have permission to record vehicle intake inspections");
+  }
+  const { data, error } = await a.supabase.rpc("record_service_intake_inspection", {
+    p_job_card_id: input.jobCardId,
+    p_odometer: input.odometer,
+    p_battery_level: input.batteryLevel,
+    p_condition: input.condition,
+    p_checklist: input.checklist,
+    p_notes: input.notes?.trim() || null,
+    p_evidence_metadata: input.evidenceMetadata,
+  });
+  if (error) throw new Error(error.message);
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result) throw new Error("Vehicle intake inspection was not recorded");
+  return {
+    inspectionId: String(result.inspection_id),
+    jobCardNumber: String(result.job_card_number),
+    status: String(result.status) as ServiceJobCardStatus,
+  };
 }
 
 export interface CreateServiceRequestInput {
