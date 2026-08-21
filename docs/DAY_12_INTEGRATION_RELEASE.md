@@ -136,8 +136,8 @@ draft PR #24.
 
 ### D13-07 checkpoint - service dashboard metrics
 
-Status: Review on `agent/d13-07-service-dashboard`, stacked on D13-06 draft
-PR #25.
+Status: Review on `agent/d13-07-service-dashboard`, commit `b2f795e`, stacked
+on D13-06 draft PR #25; draft PR #26 is open.
 
 - The typed service projection now derives stage counts, average turnaround,
   overdue active jobs, and ready-for-deployment counts from live service
@@ -148,7 +148,9 @@ PR #25.
   records were created.
 - `npm.cmd run validate` passed. Live Supabase verification found zero
   non-deleted service job cards; security/performance advisors were rerun and
-  show only pre-existing project-wide findings. D13-08 is next.
+  show only pre-existing project-wide findings. The READY preview is
+  `https://evorentals-f0z8dyh44-wephotons1.vercel.app` with successful Vercel
+  checks and no preview runtime error logs. D13-08 is next.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 

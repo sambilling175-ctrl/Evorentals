@@ -9,14 +9,14 @@
 | --- | --- |
 | Updated | 2026-08-21 |
 | Delivery position | D13-07 service dashboard metrics implemented on a branch stacked on D13-06 draft PR #25; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-06-service-fleet-availability` |
-| Last verified application commit | pending - D13-07 service dashboard metrics; D13-06 fleet synchronization remains in the stacked base |
+| Git branch | `agent/d13-07-service-dashboard` |
+| Last verified application commit | `b2f795e` - D13-07 service dashboard metrics; READY preview `https://evorentals-f0z8dyh44-wephotons1.vercel.app`; no runtime error logs |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 assignment objects are applied and verified; D13-06 migration `20260821165156_d13_06_service_fleet_availability` is applied and verified; no service business records created |
-| Last quality gate | D13-05 live rollback-only SQL verification, local `check:supabase` (42 migrations, 4 SQL tests), and prior `npm.cmd run validate` passed on 2026-08-21; advisors show only pre-existing project-wide findings |
+| Last quality gate | D13-07 live zero-row verification, local `check:supabase` (43 migrations, 5 SQL tests), `npm.cmd run validate`, successful Vercel checks, and empty preview runtime error logs on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -529,7 +529,9 @@ obtain a complete export or implement a resumable batched extractor first.
 - The service workspace now presents a responsive pipeline, turnaround,
   overdue, and readiness dashboard while continuing to use typed services and
   server actions; no migration or business records were created. `validate`
-  passed and live service-job-card count remains zero.
+  passed and live service-job-card count remains zero. The READY preview is
+  `https://evorentals-f0z8dyh44-wephotons1.vercel.app`; Vercel checks passed and
+  preview runtime error logs are empty.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
