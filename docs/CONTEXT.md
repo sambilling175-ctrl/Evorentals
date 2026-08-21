@@ -8,8 +8,8 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-03 is merged; D10-02 reports remains in review |
-| Git branch | `main` |
+| Delivery position | D12-03 is merged; D10-02 clean integration is in review |
+| Git branch | `agent/d10-02-live-reports-clean` |
 | Last verified application commit | `8dceed3` - Merge PR #14 returned-rental collections |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
@@ -188,11 +188,12 @@ Do not describe placeholder screens as backend-complete.
 
 ## Immediate next action
 
-Authenticate the D10-02 preview at
-`https://evorentals-4t8oloulh-wephotons1.vercel.app/reports`, run the empty-ledger
-reports smoke test, then review PR #15 before merging. Do not create business
-records for this acceptance pass. If the preview cannot be authenticated, record
-that exact blocker and leave D10-02 in Review.
+Authenticate the D10-02 preview and run the reports smoke test, then review PR
+#15 before merging. The preview is READY and unauthenticated `/reports` correctly
+redirects to login. Reports must use company-scoped typed services and live
+rental, fleet, customer, receivables, and settlement tables; they must not create
+business records. If the preview cannot be authenticated, record that exact
+blocker and leave D10-02 in Review.
 
 ### D10-01 database checkpoint
 
@@ -298,6 +299,26 @@ that exact blocker and leave D10-02 in Review.
   branch before merge.
 - D10-03 remains the delivered feature behind this release; D10-02 is the next
   acceptance gate.
+
+### D10-02 reports checkpoint
+
+- `src/lib/services/reports.ts` now provides a typed, company-scoped report
+  projection for customers, fleet, open/overdue rentals, invoice balances, and
+  immutable settlements. It resolves customer and vehicle labels through ID
+  maps rather than ambiguous PostgREST relationship embeds.
+- `src/components/reports/reports-workspace.tsx` replaces the reports
+  placeholder with live KPI cards, searchable operational rows, and a client
+  CSV export. The UI does not query Supabase directly and no business records
+  were created.
+- `npm.cmd run validate` passes on 2026-08-21. No migration was required.
+  The clean integration refresh is commit `e496583` on
+  `agent/d10-02-live-reports-clean`; it includes merged D12-03 changes.
+  Draft PR #15 is `https://github.com/sambilling175-ctrl/Evorentals/pull/15`.
+  Preview `https://evorentals-git-agent-d10-02-live-reports-clean-wephotons1.vercel.app/reports`
+  is READY; unauthenticated requests correctly redirect to login and Vercel
+  reports no runtime errors. Authenticated smoke testing remains pending because
+  the preview host has a separate session and no production business records
+  were created.
 
 ### Architecture deepening checkpoint
 
