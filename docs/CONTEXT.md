@@ -418,8 +418,11 @@ obtain a complete export or implement a resumable batched extractor first.
   event counts remain zero. Advisors report no D13-02 security or unindexed-FK
   findings (only expected unused-index INFO notices on empty tables).
   `npm.cmd run validate`, `npm.cmd run check:supabase`, and all 11
-  Playwright route checks passed locally. Next action is push the branch and
-  open the draft review PR; do not merge before the preview is READY.
+  Playwright route checks passed locally. Draft PR #21 is open and clean;
+  GitHub Actions run `32493896245` passed all three jobs, and the Vercel
+  preview is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
+  Do not merge before D13-01 PR #20 is accepted and the product review is
+  complete.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |

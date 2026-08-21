@@ -55,7 +55,7 @@ Status: Review on `agent/d13-01-service-requests` (draft PR #20).
 
 ### D13-02 checkpoint - service job cards
 
-Status: Review on `agent/d13-02-service-job-cards` (stacked on draft PR #20).
+Status: Review on `agent/d13-02-service-job-cards` (draft PR #21, stacked on draft PR #20).
 
 - This task is stacked on D13-01 because the request/reason migration remains
   in draft PR #20 pending product review; D13-02 will not merge independently.
@@ -80,6 +80,9 @@ Status: Review on `agent/d13-02-service-job-cards` (stacked on draft PR #20).
   --check`, and the 11-route Playwright suite passed. The Playwright process
   was stopped after all 11 tests reported `ok` because the Windows webserver
   cleanup did not exit.
+- GitHub Actions run `32493896245` passed typecheck/lint/build, migration/SQL
+  artifact checks, and all 11 Playwright routes. The Vercel preview deployment
+  is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
