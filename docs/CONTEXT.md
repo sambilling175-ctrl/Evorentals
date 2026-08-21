@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D4-05 RLS isolation is merged; SMTP-dependent auth tasks remain blocked |
-| Git branch | `main` |
-| Last verified application commit | `c279387` - Merge PR #11 two-company RLS isolation test |
+| Delivery position | D11-03 customer metadata import completed and verified; 32 conflict rows remain quarantined |
+| Git branch | `agent/d11-03-customer-import-next` |
+| Last verified application commit | `44059f0` - Record D11-03 remote dry-run |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | `20260821060601_d10_03_collection_fk_indexes.sql` and `20260821060716_d10_03_receipt_customer_fk_index.sql` (applied and verified) |
+| Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
 | Last quality gate | `npm.cmd run validate` passed on 2026-08-21 |
 
 ## Product
@@ -402,6 +402,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
+| 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 
 ## Handoff rule
 

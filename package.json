@@ -9,7 +9,9 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run typecheck && npm run lint && npm run build"
+    "validate": "npm run typecheck && npm run lint && npm run build",
+    "legacy:customers:stage": "node scripts/legacy-customers-stage.mjs",
+    "legacy:customers:import": "node scripts/legacy-customers-import.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -41,7 +41,11 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 - `legacy-data/` is Git-ignored because it contains private customer data.
 - `legacy-data/customers.raw.json` currently contains a 2,000-row partial raw
   snapshot and must not be treated or imported as the full customer dataset.
-- No legacy records have been written to Supabase.
+- The complete customer CSV is now present locally at
+  `legacy-data/customers.csv` (13,792 rows) and is Git-ignored.
+- The D11-03 customer metadata import is complete: 13,760 eligible rows were
+  imported into the company-scoped customer tables. The 32 quarantined rows,
+  KYC binaries, and source-system records were not changed.
 - No source records were modified.
 
 ## Migration rules
@@ -64,7 +68,7 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 
 ## Next action
 
-Request a complete database export from the legacy host/provider if available.
-Otherwise build a resumable, read-only extractor around the discovered
-server-side DataTables endpoints, with encrypted local staging, checkpoints,
-rate limiting, and per-dataset manifests.
+Run the D11-03 local, PII-free reconciliation plan against the complete CSV,
+then perform an authenticated administrator remote dry-run of all chunks. The
+plan must be reviewed before any explicit checksum-confirmed apply; the partial
+raw snapshot remains permanently excluded.
