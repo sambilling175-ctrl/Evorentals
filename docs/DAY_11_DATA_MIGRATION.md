@@ -45,7 +45,7 @@ blank in the legacy system itself; they are not a CSV rendering omission. Those
 records must remain quarantined or receive an explicitly approved placeholder
 policy. Duplicate email/mobile groups are also retained as separate legacy IDs
 until the business confirms whether they represent shared contact details or
-duplicate accounts. D11-01 is now in `Review`; ADR-019 resolves D11-02 and its
+duplicate accounts. D11-01 is now `Completed` through merged PR #16; ADR-019 resolves D11-02 and its
 conservative rule also quarantines the two unparseable phones. The reconciled
 D11-03 totals are 13,760 eligible and 32 quarantined rows.
 
@@ -85,9 +85,9 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
   `6511d29d20dca127fa75f0324b43cc62046090ee7d64f2c5af6b8e438422728c` and
   confirmation `IMPORT_13760_6511D29D20DC`.
 - `npm.cmd run validate` passed (typecheck, lint, and production build).
-- Remote dry-run is gated on an authenticated administrator JWT. The command
-  accepts the repository's publishable Supabase key, but currently stops with
-  the exact missing input `EVORENTALS_IMPORT_JWT`.
+- The authenticated remote dry-run and checksum-confirmed apply are complete;
+  the repository's publishable Supabase key and a short-lived administrator JWT
+  were used without storing either secret.
 
 ### D11-03 remote dry-run verification (2026-08-21)
 

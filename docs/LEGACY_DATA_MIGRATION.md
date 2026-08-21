@@ -68,7 +68,8 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
 
 ## Next action
 
-Run the D11-03 local, PII-free reconciliation plan against the complete CSV,
-then perform an authenticated administrator remote dry-run of all chunks. The
-plan must be reviewed before any explicit checksum-confirmed apply; the partial
-raw snapshot remains permanently excluded.
+D11 customer metadata migration is complete. No additional legacy dataset is
+approved in the active queue. If KYC/document assets are prioritized, define a
+new D11-04 task covering source object extraction, private-storage mapping,
+checksums, and reconciliation before implementation; otherwise keep legacy
+migration paused. The partial raw snapshot remains permanently excluded.
