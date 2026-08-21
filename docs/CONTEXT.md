@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D11-03 customer metadata import completed and verified; 32 conflict rows remain quarantined |
-| Git branch | `agent/d11-03-customer-import-next` |
-| Last verified application commit | `a99ea5d` - Merge PR #16 D11 customer migration |
+| Delivery position | D12-04 non-email Playwright route coverage completed; D12-06 CI hardening is next; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d12-04-non-email-playwright` |
+| Last verified application commit | `0f1fdce` - D12-04 non-email Playwright route coverage |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -403,7 +403,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
-| 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-05 production reconciliation passed; D12-06 CI is next | `DAY_12_INTEGRATION_RELEASE.md` |
+| 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks) and D12-05 reconciliation passed; D12-06 CI is next | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 

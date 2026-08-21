@@ -7,9 +7,9 @@
 | D12-01 | Completed | D9-06 rental settlement was integrated and released through PR #12 (`3d3bcc8`). Live settlement schema, RLS, grants, rollback-only smoke, and authenticated preview checks passed. |
 | D12-02 | Completed | D10-01 receivables ledger was integrated and released through PR #10 (`f361396`). Live migrations, advisors, rollback-only command smoke, and production deployment checks passed. |
 | D12-03 | Completed | D10-03 returned-rental collections were integrated through PR #14 (`8dceed3`), including H1 RLS and FK-index hardening. No business records remain from tests. |
-| D12-04 | In progress | D4-05 RLS isolation is merged through PR #11 (`c279387`). Non-email Playwright route coverage remains to be added; real-email recovery remains parked behind D4-04 SMTP. |
+| D12-04 | Completed | D4-05 RLS isolation is merged through PR #11 (`c279387`). Added `playwright.config.ts` and `tests/e2e/auth-routes.spec.ts`; all 10 non-email route/auth boundary checks pass without submitting credentials or creating records. Real-email recovery remains parked behind D4-04 SMTP. |
 | D12-05 | Completed | Read-only production reconciliation passed on 2026-08-21. See `supabase/tests/production_reconciliation.sql`. All mismatch counters were zero. |
-| D12-06 | Ready | Add CI checks for validation, Playwright route tests, migration checks, and SQL tests. This is the next implementation task after D12-05. |
+| D12-06 | Ready | Add CI checks for validation, the D12-04 Playwright route suite, migration checks, and SQL tests. |
 
 ## D12-05 reconciliation result
 
