@@ -119,6 +119,21 @@ D13-04 draft PR #23.
   implementation task and will handle fleet availability transitions when
   service starts or finishes.
 
+### D13-06 checkpoint - service fleet availability
+
+Status: Review on `agent/d13-06-service-fleet-availability`, stacked on D13-05
+draft PR #24.
+
+- Migration `20260821165156_d13_06_service_fleet_availability` adds an
+  invoker, fixed-search-path `AFTER UPDATE OF status` trigger on job cards.
+  A transition into `in_service` locks the company-scoped bike, rejects
+  retired vehicles and active/overdue rentals, and sets base status to
+  `maintenance`. Completion releases non-retired vehicles to `available` and
+  preserves retired status, all in the same transaction as the job transition.
+- Live migration application, catalog verification, rollback-only SQL test,
+  and existing bike RLS/grant checks passed. Initial job-card count remains
+  zero; no production business records were created. D13-07 is next.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,
