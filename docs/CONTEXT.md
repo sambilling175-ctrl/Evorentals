@@ -403,6 +403,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
+| 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-05 production reconciliation passed; D12-06 CI is next | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 
