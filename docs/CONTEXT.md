@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-03 vehicle intake inspection in review, stacked on D13-02 draft PR #21 and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-03-vehicle-intake-inspection` |
-| Last verified application commit | `ecfcd22` - D13-02 controlled job-card workflow; local validation and live schema checks passed |
+| Last verified application commit | `10a735d` - D13-03 vehicle intake inspection; local validation and live schema checks passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -436,8 +436,10 @@ obtain a complete export or implement a resumable batched extractor first.
   history, and FK indexes. Intake count remains zero. Security/performance
   advisors report no D13-03 finding other than expected unused-index INFOs on
   the empty table. Local validate, Supabase artifact checks, and 11 Playwright
-  route checks passed. The next action is push the branch and open its draft
-  review PR; do not merge before the stacked D13-02 and D13-01 reviews.
+  route checks passed. Draft PR #22 is open and clean; GitHub Actions run
+  `32495814388` passed all three jobs, and the Vercel preview is READY at
+  `https://evorentals-p5r9f9j5m-wephotons1.vercel.app`. Do not merge before
+  the stacked D13-02 and D13-01 reviews.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
