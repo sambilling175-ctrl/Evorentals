@@ -238,3 +238,21 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: A future complete baseline can add semantic local migration
   tests, but until then CI remains safe and reproducible without pretending the
   legacy schema can be rebuilt from this repository.
+
+## ADR-021 - Separate tenant-scoped service request foundation
+
+- Date: 2026-08-21
+- Status: Accepted
+- Context: The live database contains a legacy `maintenance_records` table
+  without `company_id`, controlled reasons, or the lifecycle fields required
+  by the service roadmap. Reusing it would weaken tenant isolation and make
+  later job-card transitions ambiguous.
+- Decision: Add new company-scoped `service_reasons` and `service_requests`
+  tables. Requests are created only through the invoker-mode
+  `create_service_request` RPC, which validates the active actor, role
+  permission, vehicle/reason ownership, optional customer/rental ownership,
+  and the initial requested state. Seeded reason rows are configuration
+  lookups, not production business records.
+- Consequence: The legacy table remains available for future historical
+  mapping, while D13-02 can extend the new request status model into job cards
+  without rewriting or importing legacy maintenance data.
