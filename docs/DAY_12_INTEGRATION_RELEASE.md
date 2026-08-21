@@ -152,6 +152,32 @@ on D13-06 draft PR #25; draft PR #26 is open.
   `https://evorentals-f0z8dyh44-wephotons1.vercel.app` with successful Vercel
   checks and no preview runtime error logs. D13-08 is next.
 
+### D13-08 checkpoint - service security and rollback contracts
+
+Status: Review on `agent/d13-08-service-security-tests`.
+
+- The D13-08 changes are published in draft PR #27. The Vercel branch preview
+  `https://evorentals-git-agent-d13-08-service-security-tests-wephotons1.vercel.app` is READY and has no
+  preview runtime error logs.
+- Added `supabase/tests/d13-08-service-security.sql`, a rollback-only catalog
+  contract covering company-scoped RLS policies, anonymous table access,
+  immutable-history and transition triggers, invoker routines with an empty
+  search path, dashboard source columns, and supporting indexes. It creates no
+  service or other business records.
+- Local `npm.cmd run check:supabase` passed with 44 migrations and 6 SQL tests;
+  `npm.cmd run validate` and `git diff --check` also passed.
+- Live verification initially found grant drift on
+  `public.transition_service_job_card(uuid,text,text)`. Migration
+  `20260822060115_d13_08_service_security_hardening` now restores
+  authenticated-only execution for all five service RPCs. The full rollback
+  contract passes live with zero service records; no business records were
+  created.
+- Supabase security/performance advisors were rerun; findings remain
+  project-wide legacy warnings (mutable search paths/SECURITY DEFINER exposure,
+  leaked-password protection disabled, unindexed legacy foreign keys, and
+  multiple permissive policies), not a clean D13-08 pass.
+- Next action: review PR #27, then start D14-01 (vendor and garage directory).
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,
