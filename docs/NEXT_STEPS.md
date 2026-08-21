@@ -19,7 +19,7 @@
 | D4-02 | P0 | Add customer editing with validation and timeline event | Completed | Codex / `main` | Customer service | Customers |
 | D4-03 | P0 | Add signed KYC document view/download | Completed | Codex / `main` | Private storage | Customers, storage |
 | D4-04 | P1 | Add auth recovery and protected-route Playwright coverage | Ready | Unassigned | Stable SMTP/test mailbox | Auth, tests |
-| D4-05 | P1 | Add two-company RLS isolation integration test | Ready | Existing draft PR #11 is stale/dirty; start from updated `main` and preserve transaction-only test evidence | Existing authenticated actor; temporary second company | Supabase, tests |
+| D4-05 | P1 | Add two-company RLS isolation integration test | Review | Codex / `agent/d4-05-rls-isolation`; refreshed onto current `main`; live transaction-only test passed; rollback query returned zero temporary rows; `npm.cmd run validate` passed; no migration or production records | Existing authenticated actor; temporary second company | Supabase, tests |
 | D4-06 | P1 | Configure production custom SMTP and branded Auth templates | Ready | Unassigned | SMTP provider decision | Supabase Auth |
 | D5-01 | P1 | Align customer page with supplied design references | Completed | Codex / `main`; app commit `109f3b0`; validate passed; production Ready; no migration | Day 4 customers | UI |
 | D5-02 | P1 | Rebuild dashboard sections using reusable live-data contracts | Completed | Codex / `main`; app commit `4e3af21`; validate/Supabase query passed; production Ready; no migration | Metrics services | Dashboard |
