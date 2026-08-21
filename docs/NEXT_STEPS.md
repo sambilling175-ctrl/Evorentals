@@ -39,7 +39,7 @@
 | D10-01 | P0 | Establish company-scoped receivables ledger for invoices, payments, allocations, deposits, refunds, and dues | Completed | Codex; PR #10 merged as `f361396`; Vercel production deployment succeeded; migrations, advisors, rollback-only command smoke, authenticated preview, and live zero-row verification passed | D9-05, payment settings | Collections, Finance |
 | D10-02 | P1 | Replace reports placeholder with live operational summaries and CSV export | Review | Codex / `agent/d10-02-live-reports`; implementation and authenticated preview previously verified; clean integration still required | D9-06, D10-01 | Reports, dashboard |
 | D10-03 | P0 | Record returned-rental collections with damage allocations and immutable receipt history | Review | Codex / `agent/d10-03-h1-rpc-rls-locks`; migrations `20260814060344` and `20260814073417` applied; rollback-only acceptance and authenticated preview previously passed; clean integration still required | D9-05, D10-01 | Collections, settlement |
-| D12-03 | P0 | Review and integrate D10-03 returned-rental collections | Ready | Unassigned; start from updated `main` and preserve the verified D10-03 migration/RLS boundary | D9-06, D10-01 | Collections, release |
+| D12-03 | P0 | Review and integrate D10-03 returned-rental collections | In progress | Codex / `agent/d12-03-returned-rental-collections`; clean-release review in progress | D9-06, D10-01 | Collections, release |
 | AUTH-H2 | P0 | Make implicit password recovery resilient when Supabase falls back to the login Site URL | Completed | Codex; merge `c7a4956`; validate passed; production READY and fallback smoke-tested; no migration | Day 3 auth | Auth |
 
 ## Planned module sequence
