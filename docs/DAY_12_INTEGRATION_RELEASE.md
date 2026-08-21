@@ -35,7 +35,7 @@ RLS, immutable history, advisors, and rollback-only SQL tests.
 
 ### D13-01 checkpoint - service request intake
 
-Status: In progress on `agent/d13-01-service-requests`.
+Status: Review on `agent/d13-01-service-requests` (draft PR #20).
 
 - Live schema verification found only the legacy `maintenance_records` table;
   it has no `company_id`, so it is not reused for the new workflow.
@@ -49,6 +49,9 @@ Status: In progress on `agent/d13-01-service-requests`.
   plus live recent-request state. D13-02 will add job cards and status flow.
 - Security/performance advisors were run after migration. Findings are
   pre-existing project-wide lints; no D13-01 object finding was reported.
+- GitHub CI passed typecheck/lint/build, Supabase artifact checks, and the
+  11-route Playwright suite. The Vercel preview check is green/READY. Do not
+  merge until product review accepts the request-intake workflow.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 

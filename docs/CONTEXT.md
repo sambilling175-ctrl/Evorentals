@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-01 service request intake implemented; 32 D11-03 conflict rows remain quarantined |
+| Delivery position | D13-01 service request intake in Review via draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-01-service-requests` |
-| Last verified application commit | `5a4ba45` - D13-01 service request intake and migration-version alignment |
+| Last verified application commit | Pending final D13-01 continuity commit |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -402,6 +402,8 @@ obtain a complete export or implement a resumable batched extractor first.
 - Validation passed: `npm.cmd run validate`, `npm.cmd run check:supabase`,
   and 11 unauthenticated Playwright route checks. D13-02 is the next task:
   service job cards and controlled status transitions.
+- Draft PR #20 CI passed quality, migration, and Playwright jobs; its Vercel
+  preview check is green/READY. Merge remains a product-review decision.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
