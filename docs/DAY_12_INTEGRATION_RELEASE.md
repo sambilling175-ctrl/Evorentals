@@ -33,6 +33,23 @@ Service requests, job cards, intake inspection, employee/garage assignment,
 controlled service pipeline, fleet availability transitions, dashboard metrics,
 RLS, immutable history, advisors, and rollback-only SQL tests.
 
+### D13-01 checkpoint - service request intake
+
+Status: In progress on `agent/d13-01-service-requests`.
+
+- Live schema verification found only the legacy `maintenance_records` table;
+  it has no `company_id`, so it is not reused for the new workflow.
+- Migration `20260821141140_d13_01_service_requests` adds company-scoped
+  `service_reasons` and `service_requests`, RLS, explicit grants, indexes, and
+  the invoker-mode `create_service_request` RPC with an empty search path.
+- Eight controlled service-reason lookups were seeded for the existing company;
+  no service requests or other business records were created.
+- The service page now loads through `src/lib/services/service.ts`, validates
+  requests with a Zod server action, and provides an accessible request form
+  plus live recent-request state. D13-02 will add job cards and status flow.
+- Security/performance advisors were run after migration. Findings are
+  pre-existing project-wide lints; no D13-01 object finding was reported.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-06 CI hardening completed; D12-04 route coverage merged as `baac955`; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d12-06-ci-hardening` |
-| Last verified application commit | `645e518` - D12-06 CI verification and continuity update |
+| Delivery position | D13-01 service request intake implemented; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-01-service-requests` |
+| Last verified application commit | Pending D13-01 feature commit |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
-| Last quality gate | GitHub Actions run `32489569334` passed; local `npm.cmd run validate`, `check:supabase`, and Playwright route suite passed on 2026-08-21 |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests` is applied and verified; it added company-scoped service request/reason tables and seeded 8 controlled reasons; no request records created |
+| Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -388,6 +388,20 @@ obtain a complete export or implement a resumable batched extractor first.
 - No database migration or production business data change is involved.
 
 ## Progress log
+
+### 2026-08-21 - D13-01 service request intake
+
+- Live schema verification found only legacy `maintenance_records` without
+  `company_id`; new service tables were added rather than reusing it.
+- `service_reasons` and `service_requests` are company-scoped with RLS,
+  explicit grants, indexes, and the invoker-mode `create_service_request`
+  function using an empty search path.
+- The service route now uses typed server services and a Zod server action;
+  it has no mock business records. Eight controlled reasons are seeded and
+  live request count remains zero.
+- Validation passed: `npm.cmd run validate`, `npm.cmd run check:supabase`,
+  and 11 unauthenticated Playwright route checks. D13-02 is the next task:
+  service job cards and controlled status transitions.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
