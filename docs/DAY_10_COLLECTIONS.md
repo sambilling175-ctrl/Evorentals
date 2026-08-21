@@ -24,10 +24,13 @@ Status: Review
 - Live migration versions are `20260814060344_returned_rental_collections` and
   `20260814073417_d10_03_h1_invoice_lock_rls`; table/RLS/policy, trigger,
   grant, and invoker checks passed. New D10-03 table counts remain zero.
-- The Supabase advisors have no D10-03 security finding. Performance review
-  identified missing foreign-key coverage, which the D12-03 hardening migration
-  will address before release.
+- The Supabase advisors have no D10-03 security finding. D12-03 applied
+  `20260821060601_d10_03_collection_fk_indexes.sql` and
+  `20260821060716_d10_03_receipt_customer_fk_index.sql`; the performance
+  advisor now reports no D10-03 missing-foreign-key finding. Expected unused
+  index INFOs remain while the new immutable tables contain zero rows.
 - `/payments` is force-dynamic and includes a route-level retry boundary for
   first-request Supabase auth-cookie refresh races.
-- Required next action: run the current release validation, hardening migration
-  verification, and preview smoke. No business records were created.
+- `npm.cmd run validate` passed on 2026-08-21. Required next action: deploy the
+  clean branch, verify the preview, and run the authenticated empty-ledger smoke.
+  No business records were created.

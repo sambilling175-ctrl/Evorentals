@@ -15,8 +15,8 @@
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260818170000_rental_settlement_fk_index.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-18 |
+| Latest migrations | `20260821060601_d10_03_collection_fk_indexes.sql` and `20260821060716_d10_03_receipt_customer_fk_index.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-21 |
 
 ## Product
 
@@ -183,7 +183,7 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260818170000`.
+- Continue migration numbering after `20260821060716`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
@@ -279,6 +279,11 @@ only acceptance evidence still match the live schema before opening a clean PR.
 - `/payments` is force-dynamic and has a route-level retry state to avoid a
   first-request Supabase auth-cookie refresh race. No business records were
   created.
+- D12-03 added the two live index-only hardening migrations above after the
+  performance advisor identified missing foreign-key coverage. Re-running the
+  advisors found no D10-03 security or unindexed-foreign-key notices; the
+  remaining D10-03 notices are expected unused-index INFOs while row counts are
+  zero. `npm.cmd run validate` passed on 2026-08-21.
 
 ### Architecture deepening checkpoint
 
