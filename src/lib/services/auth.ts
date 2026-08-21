@@ -14,12 +14,19 @@ export async function getCurrentUserProfile(): Promise<CurrentUserProfile | null
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) return null;
 
-  const { data: profile, error: profileError } = await supabase
+  const loadProfile = () => supabase
     .from("profiles")
     .select("id,email,full_name,role,designation,avatar_url")
     .eq("id", user.id)
     .is("deleted_at", null)
     .maybeSingle();
+  let { data: profile, error: profileError } = await loadProfile();
+  if (profileError && /jwt|token/i.test(profileError.message)) {
+    // A newly issued Supabase token can briefly be ahead of the PostgREST
+    // verifier clock. Refresh once before surfacing a real profile failure.
+    const { error: refreshError } = await supabase.auth.refreshSession();
+    if (!refreshError) ({ data: profile, error: profileError } = await loadProfile());
+  }
 
   if (profileError) throw new Error(`Unable to load user profile: ${profileError.message}`);
 
