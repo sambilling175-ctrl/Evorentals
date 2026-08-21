@@ -3,8 +3,8 @@
 import { useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ClipboardList, Plus, ShieldAlert, Wrench } from "lucide-react";
-import { createServiceJobCardAction, initialServiceJobCardActionState, recordServiceIntakeInspectionAction, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
-import type { ServiceIntakeInspection, ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
+import { assignServiceJobCardAction, createServiceJobCardAction, initialServiceJobCardActionState, recordServiceIntakeInspectionAction, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
+import type { ServiceEmployee, ServiceIntakeInspection, ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/feedback/status-badge";
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ function JobCardCreateForm({ serviceRequestId }: { serviceRequestId: string }) {
 
 function JobCardBoard({ data }: { data: ServiceWorkspaceData }) {
   return <Card className="border-border/80 bg-card/90"><CardHeader><CardTitle>Job-card pipeline</CardTitle><CardDescription>Every transition is validated and appended to immutable job-card history. Fleet status is unchanged until D13-06.</CardDescription></CardHeader><CardContent className="space-y-3">
-    {data.jobCards.map((card) => <JobCardRow key={card.id} card={card} canManage={data.canCreate} />)}
+    {data.jobCards.map((card) => <JobCardRow key={card.id} card={card} canManage={data.canCreate} employees={data.employees} />)}
     {data.jobCards.length === 0 && <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Create a job card from a service request to begin the pipeline.</div>}
   </CardContent></Card>;
 }
@@ -77,7 +77,7 @@ const NEXT_STATUSES: Record<ServiceJobCardStatus, ServiceJobCardStatus[]> = {
   waiting_parts: ["in_service", "qc"], qc: ["in_service", "completed"], completed: [],
 };
 
-function JobCardRow({ card, canManage }: { card: ServiceJobCard; canManage: boolean }) {
+function JobCardRow({ card, canManage, employees }: { card: ServiceJobCard; canManage: boolean; employees: ServiceEmployee[] }) {
   const [state, action] = useActionState(transitionServiceJobCardAction.bind(null, card.id), initialServiceJobCardActionState);
   const nextStatuses = NEXT_STATUSES[card.status];
   const intakeRequired = !card.intakeInspection && (card.status === "requested" || card.status === "inspection");
@@ -89,9 +89,35 @@ function JobCardRow({ card, canManage }: { card: ServiceJobCard; canManage: bool
     <p className="mt-2 text-xs text-muted-foreground">Updated {dateFormatter.format(new Date(card.updatedAt))}</p>
     {canManage && intakeRequired && <IntakeForm card={card} />}
     {card.intakeInspection && <IntakeSummary inspection={card.intakeInspection} />}
+    {card.assignment && <AssignmentSummary card={card} />}
+    {canManage && card.status !== "completed" && <AssignmentForm card={card} employees={employees} />}
     {canManage && nextStatuses.length > 0 && !intakeRequired && <form action={action} className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_auto]"><SelectField name="toStatus" label="Next stage" options={nextStatuses.map((status) => ({ value: status, label: status.replaceAll("_", " ") }))} /><div className="space-y-2"><Label htmlFor={`notes-${card.id}`}>Transition note</Label><Textarea id={`notes-${card.id}`} name="notes" maxLength={1000} rows={2} placeholder="Optional handoff note…" /></div><div className="self-end"><JobCardSubmitButton /></div></form>}
     {state.message && <p role="status" className={state.status === "error" ? "mt-2 text-xs text-destructive" : "mt-2 text-xs text-emerald-500"}>{state.message}</p>}
   </div>;
+}
+
+function AssignmentSummary({ card }: { card: ServiceJobCard }) {
+  const assignment = card.assignment;
+  if (!assignment) return null;
+  const target = assignment.assignmentType === "internal_employee"
+    ? assignment.employeeName ?? "Internal employee"
+    : assignment.externalGarageName ?? "External garage";
+  const detail = assignment.assignmentType === "internal_employee"
+    ? "Internal employee"
+    : [assignment.externalGarageContact, assignment.externalGaragePhone].filter(Boolean).join(" · ");
+  return <div className="mt-4 rounded-lg border border-violet-500/30 bg-violet-500/5 p-3 text-xs text-muted-foreground"><p className="font-semibold text-violet-300">Current assignment</p><p className="mt-1 text-sm text-foreground">{target}</p><p>{detail || "External garage"} · {dateFormatter.format(new Date(assignment.assignedAt))}</p>{assignment.notes && <p className="mt-1">{assignment.notes}</p>}</div>;
+}
+
+function AssignmentForm({ card, employees }: { card: ServiceJobCard; employees: ServiceEmployee[] }) {
+  const [state, action] = useActionState(assignServiceJobCardAction.bind(null, card.id), initialServiceJobCardActionState);
+  const [assignmentType, setAssignmentType] = useState<"internal_employee" | "external_garage">(card.assignment?.assignmentType ?? "internal_employee");
+  const employeeId = useId();
+  const garageNameId = useId();
+  const contactId = useId();
+  const phoneId = useId();
+  const addressId = useId();
+  const notesId = useId();
+  return <form action={action} className="mt-4 space-y-3 rounded-lg border border-violet-500/30 bg-violet-500/5 p-3"><div><p className="font-semibold">Assign job card</p><p className="text-xs text-muted-foreground">Assignments are append-only; reassigning creates a new immutable history row.</p></div><div className="grid gap-2 sm:grid-cols-2"><SelectField name="assignmentType" label="Assigned to" value={assignmentType} onChange={(value) => setAssignmentType(value as "internal_employee" | "external_garage")} options={[{ value: "internal_employee", label: "Internal employee" }, { value: "external_garage", label: "External garage" }]} />{assignmentType === "internal_employee" ? <div className="space-y-2"><Label htmlFor={employeeId}>Employee</Label><select id={employeeId} name="employeeId" required={assignmentType === "internal_employee"} defaultValue={card.assignment?.employeeId ?? ""} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><option value="">Select active employee</option>{employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name} · {employee.designation}</option>)}</select></div> : <div className="space-y-2"><Label htmlFor={garageNameId}>Garage name</Label><Input id={garageNameId} name="externalGarageName" required={assignmentType === "external_garage"} maxLength={200} placeholder="Garage or service partner" /></div>}</div>{assignmentType === "external_garage" && <div className="grid gap-2 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor={contactId}>Contact person</Label><Input id={contactId} name="externalGarageContact" maxLength={200} placeholder="Optional contact name" /></div><div className="space-y-2"><Label htmlFor={phoneId}>Phone</Label><Input id={phoneId} name="externalGaragePhone" maxLength={40} placeholder="Optional phone number" /></div><div className="space-y-2 sm:col-span-2"><Label htmlFor={addressId}>Address</Label><Input id={addressId} name="externalGarageAddress" maxLength={500} placeholder="Optional address" /></div></div>}<div className="space-y-2"><Label htmlFor={notesId}>Assignment note</Label><Textarea id={notesId} name="notes" maxLength={1000} rows={2} placeholder="Optional handoff or scope note" /></div><div className="flex flex-wrap items-center gap-2"><Button type="submit">Save assignment</Button>{state.message && <span role="status" className={state.status === "error" ? "text-xs text-destructive" : "text-xs text-emerald-500"}>{state.message}</span>}</div></form>;
 }
 
 const INTAKE_CHECKLIST = {
@@ -133,9 +159,9 @@ function JobCardSubmitButton() {
   return <Button type="submit" size="sm" disabled={pending}>{pending ? "Saving…" : "Move stage"}</Button>;
 }
 
-function SelectField({ name, label, options }: { name: string; label: string; options: { value: string; label: string }[] }) {
+function SelectField({ name, label, options, value, onChange }: { name: string; label: string; options: { value: string; label: string }[]; value?: string; onChange?: (value: string) => void }) {
   const id = useId();
-  return <div className="space-y-2"><Label htmlFor={id}>{label}</Label><select id={id} name={name} required className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>;
+  return <div className="space-y-2"><Label htmlFor={id}>{label}</Label><select id={id} name={name} required value={value} onChange={onChange ? (event) => onChange(event.target.value) : undefined} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>;
 }
 
 function SubmitButton() {

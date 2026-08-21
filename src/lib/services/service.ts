@@ -53,6 +53,26 @@ export interface ServiceJobCard {
   startedAt: string;
   completedAt: string;
   updatedAt: string;
+  assignment: ServiceJobCardAssignment | null;
+}
+
+export interface ServiceEmployee {
+  id: string;
+  name: string;
+  designation: string;
+}
+
+export interface ServiceJobCardAssignment {
+  id: string;
+  assignmentType: "internal_employee" | "external_garage";
+  employeeId: string | null;
+  employeeName: string | null;
+  externalGarageName: string | null;
+  externalGarageContact: string | null;
+  externalGaragePhone: string | null;
+  externalGarageAddress: string | null;
+  notes: string;
+  assignedAt: string;
 }
 
 export interface ServiceIntakeInspection {
@@ -69,6 +89,7 @@ export interface ServiceIntakeInspection {
 export interface ServiceWorkspaceData {
   reasons: ServiceReason[];
   vehicles: ServiceVehicle[];
+  employees: ServiceEmployee[];
   requests: ServiceRequest[];
   jobCards: ServiceJobCard[];
   canCreate: boolean;
@@ -123,7 +144,7 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
     throw new Error("You do not have permission to view service operations");
   }
 
-  const [reasonsResult, requestsResult, vehiclesResult, jobCardsResult, intakeResult] = await Promise.all([
+  const [reasonsResult, requestsResult, vehiclesResult, employeesResult, jobCardsResult, intakeResult, assignmentsResult] = await Promise.all([
     a.supabase.from("service_reasons")
       .select("id,code,name,description,category,sort_order")
       .eq("company_id", a.profile.company_id)
@@ -143,6 +164,12 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       .neq("status", "retired")
       .is("deleted_at", null)
       .order("serial_number"),
+    a.supabase.from("profiles")
+      .select("id,full_name,email,designation")
+      .eq("company_id", a.profile.company_id)
+      .eq("status", "active")
+      .is("deleted_at", null)
+      .order("full_name"),
     a.supabase.from("service_job_cards")
       .select("id,job_card_number,service_request_id,bike_id,status,notes,started_at,completed_at,updated_at")
       .eq("company_id", a.profile.company_id)
@@ -154,9 +181,14 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       .eq("company_id", a.profile.company_id)
       .order("inspected_at", { ascending: false })
       .limit(200),
+    a.supabase.from("service_job_card_assignments")
+      .select("id,job_card_id,assignment_type,employee_id,external_garage_name,external_garage_contact,external_garage_phone,external_garage_address,notes,assigned_at")
+      .eq("company_id", a.profile.company_id)
+      .order("assigned_at", { ascending: false })
+      .limit(500),
   ]);
 
-  const error = reasonsResult.error ?? requestsResult.error ?? vehiclesResult.error ?? jobCardsResult.error ?? intakeResult.error;
+  const error = reasonsResult.error ?? requestsResult.error ?? vehiclesResult.error ?? employeesResult.error ?? jobCardsResult.error ?? intakeResult.error ?? assignmentsResult.error;
   if (error) throw new Error(`Unable to load service operations: ${error.message}`);
 
   const reasons = ((reasonsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => ({
@@ -174,6 +206,12 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
     currentOdometer: numberValue(vehicle.current_odometer),
     batteryLevel: numberValue(vehicle.battery_level),
   }));
+  const employees = ((employeesResult.data ?? []) as unknown as Record<string, unknown>[]).map((employee) => ({
+    id: String(employee.id),
+    name: String(employee.full_name ?? employee.email ?? "Employee"),
+    designation: String(employee.designation ?? "Staff"),
+  }));
+  const employeeById = new Map(employees.map((employee) => [employee.id, employee]));
   const requests = ((requestsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => {
     const reason = reasonById.get(String(row.reason_id));
     const vehicle = vehicleById.get(String(row.bike_id));
@@ -200,6 +238,24 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       checklist, notes: String(row.notes ?? ""), evidenceMetadata,
     });
   }
+  const assignmentByJobCard = new Map<string, ServiceJobCardAssignment>();
+  for (const row of (assignmentsResult.data ?? []) as unknown as Record<string, unknown>[]) {
+    const jobCardId = String(row.job_card_id);
+    if (assignmentByJobCard.has(jobCardId)) continue;
+    const employeeId = row.employee_id ? String(row.employee_id) : null;
+    assignmentByJobCard.set(jobCardId, {
+      id: String(row.id),
+      assignmentType: String(row.assignment_type) as ServiceJobCardAssignment["assignmentType"],
+      employeeId,
+      employeeName: employeeId ? employeeById.get(employeeId)?.name ?? "Employee" : null,
+      externalGarageName: row.external_garage_name ? String(row.external_garage_name) : null,
+      externalGarageContact: row.external_garage_contact ? String(row.external_garage_contact) : null,
+      externalGaragePhone: row.external_garage_phone ? String(row.external_garage_phone) : null,
+      externalGarageAddress: row.external_garage_address ? String(row.external_garage_address) : null,
+      notes: String(row.notes ?? ""),
+      assignedAt: String(row.assigned_at),
+    });
+  }
   const jobCards = ((jobCardsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => {
     const request = requestById.get(String(row.service_request_id));
     const vehicle = vehicleById.get(String(row.bike_id));
@@ -212,11 +268,12 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       currentBatteryLevel: numberValue(vehicle?.battery_level),
       notes: String(row.notes ?? ""), startedAt: String(row.started_at ?? ""),
       completedAt: String(row.completed_at ?? ""), updatedAt: String(row.updated_at),
+      assignment: assignmentByJobCard.get(String(row.id)) ?? null,
     };
   });
 
   return {
-    reasons, vehicles, requests, jobCards,
+    reasons, vehicles, employees, requests, jobCards,
     canCreate: allowed(a.profile.role, a.permissions, ["Create", "Edit", "Manage"]),
     totals: {
       requests: requests.length,
@@ -227,6 +284,38 @@ export async function getServiceWorkspace(): Promise<ServiceWorkspaceData> {
       activeJobs: jobCards.filter((card) => card.status !== "completed").length,
     },
   };
+}
+
+export interface AssignServiceJobCardInput {
+  jobCardId: string;
+  assignmentType: "internal_employee" | "external_garage";
+  employeeId?: string;
+  externalGarageName?: string;
+  externalGarageContact?: string;
+  externalGaragePhone?: string;
+  externalGarageAddress?: string;
+  notes?: string;
+}
+
+export async function assignServiceJobCard(input: AssignServiceJobCardInput) {
+  const a = await actor();
+  if (!allowed(a.profile.role, a.permissions, ["Create", "Edit", "Manage"])) {
+    throw new Error("You do not have permission to assign service job cards");
+  }
+  const { data, error } = await a.supabase.rpc("assign_service_job_card", {
+    p_job_card_id: input.jobCardId,
+    p_assignment_type: input.assignmentType,
+    p_employee_id: input.employeeId ?? null,
+    p_external_garage_name: input.externalGarageName?.trim() || null,
+    p_external_garage_contact: input.externalGarageContact?.trim() || null,
+    p_external_garage_phone: input.externalGaragePhone?.trim() || null,
+    p_external_garage_address: input.externalGarageAddress?.trim() || null,
+    p_notes: input.notes?.trim() || null,
+  });
+  if (error) throw new Error(error.message);
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result) throw new Error("Service job-card assignment was not recorded");
+  return { assignmentId: String(result.assignment_id), jobCardId: String(result.job_card_id) };
 }
 
 export async function createServiceJobCard(serviceRequestId: string) {

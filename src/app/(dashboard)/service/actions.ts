@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { createServiceJobCard, createServiceRequest, recordServiceIntakeInspection, transitionServiceJobCard, type ServiceJobCardStatus } from "@/lib/services/service";
+import { assignServiceJobCard, createServiceJobCard, createServiceRequest, recordServiceIntakeInspection, transitionServiceJobCard, type ServiceJobCardStatus } from "@/lib/services/service";
 
 export interface ServiceRequestActionState {
   status: "idle" | "success" | "error";
@@ -17,6 +17,38 @@ export interface ServiceJobCardActionState {
 }
 
 export const initialServiceJobCardActionState: ServiceJobCardActionState = { status: "idle", message: "" };
+
+const assignmentSchema = z.object({
+  assignmentType: z.enum(["internal_employee", "external_garage"]),
+  employeeId: z.preprocess((value) => value === "" ? undefined : value, z.uuid().optional()),
+  externalGarageName: z.string().trim().max(200).optional(),
+  externalGarageContact: z.string().trim().max(200).optional(),
+  externalGaragePhone: z.string().trim().max(40).optional(),
+  externalGarageAddress: z.string().trim().max(500).optional(),
+  notes: z.string().trim().max(1000, "Assignment notes cannot exceed 1000 characters").optional(),
+});
+
+export async function assignServiceJobCardAction(
+  jobCardId: string,
+  _state: ServiceJobCardActionState,
+  formData: FormData,
+): Promise<ServiceJobCardActionState> {
+  const parsed = assignmentSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the assignment details" };
+  if (parsed.data.assignmentType === "internal_employee" && !parsed.data.employeeId) {
+    return { status: "error", message: "Select an active employee" };
+  }
+  if (parsed.data.assignmentType === "external_garage" && !parsed.data.externalGarageName) {
+    return { status: "error", message: "Enter the external garage name" };
+  }
+  try {
+    await assignServiceJobCard({ jobCardId, ...parsed.data });
+    revalidatePath("/service");
+    return { status: "success", message: "Assignment recorded" };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "Unable to assign service job card" };
+  }
+}
 
 const requestSchema = z.object({
   bikeId: z.uuid("Select a vehicle"),
