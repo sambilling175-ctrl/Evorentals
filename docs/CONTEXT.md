@@ -8,14 +8,14 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-05 service pipeline contract verified and awaiting review, stacked on D13-04 draft PR #23, D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-05-service-pipeline-verification` |
-| Last verified application commit | pending - D13-05 pipeline verification plus dashboard count-query hardening after authenticated preview 500; prior application baseline `78714f4` |
+| Delivery position | D13-06 service-to-fleet availability synchronization implemented and awaiting review, stacked on D13-05 draft PR #24 and D13-04 draft PR #23; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-06-service-fleet-availability` |
+| Last verified application commit | pending - D13-06 fleet synchronization trigger and rollback-only test; D13-05 dashboard count-query hardening remains in the stacked base |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 `20260821160000_d13_04_service_job_card_assignments` is applied and verified; no service business records created |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 assignment objects are applied and verified; D13-06 migration `20260821165156_d13_06_service_fleet_availability` is applied and verified; no service business records created |
 | Last quality gate | D13-05 live rollback-only SQL verification, local `check:supabase` (42 migrations, 4 SQL tests), and prior `npm.cmd run validate` passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
@@ -499,6 +499,21 @@ obtain a complete export or implement a resumable batched extractor first.
   after login. The API logs showed the matching bounded `GET` queries succeeded.
   Dashboard bike and active-rental counts now use bounded exact-count `GET`
   queries like the customer counts, avoiding the transient HEAD failure.
+
+### 2026-08-21 - D13-06 service fleet availability
+
+- D13-06 adds an invoker, fixed-search-path `AFTER UPDATE OF status` trigger on
+  service job cards. Entering `in_service` locks the same-company bike,
+  rejects retired vehicles and active/overdue rentals, and updates the base
+  fleet status to `maintenance` atomically. Completing service releases a
+  non-retired bike to `available` while preserving retired status.
+- Live migration `20260821165156_d13_06_service_fleet_availability` is applied.
+  Catalog verification confirms the trigger, invoker function, fixed search
+  path, bike status constraint, and zero job-card records. The rollback-only
+  SQL test passed without creating business records.
+- Fleet status updates remain company-scoped through existing bike RLS and
+  authenticated UPDATE grants; D14 QC/rework may later refine the final
+  release disposition.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
