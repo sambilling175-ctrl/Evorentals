@@ -247,6 +247,10 @@ only acceptance evidence still match the live schema before opening a clean PR.
   `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on the merge commit.
   Production `/rentals` correctly redirects signed-out users to
   `/login?next=/rentals`; the new production deployment has no error/fatal logs.
+- D10-03-H1 adds authenticated company-scoped UPDATE policies and UPDATE
+  grants for `receivable_invoices` and `receivable_invoice_lines`. Existing
+  immutable-history triggers remain in place; the policies exist only so
+  SECURITY INVOKER RPCs can lock rows with `FOR UPDATE`.
 
 ### D10-03 returned-rental collections checkpoint
 
@@ -261,8 +265,17 @@ only acceptance evidence still match the live schema before opening a clean PR.
   actions, allocation inputs, and immutable receipt history. UI code does not
   query Supabase directly and does not accept a trusted payment total.
 - Live migration history records `20260814060344_returned_rental_collections`
-  and `20260814073417_d10_03_h1_invoice_lock_rls`; the repository integration
-  must use those exact versions. No production business records were created.
+  and `20260814073417_d10_03_h1_invoice_lock_rls`; these exact repository
+  versions are present on the clean integration branch.
+- The H1 migration adds only company-scoped authenticated UPDATE policies and
+  grants for `receivable_invoices` and `receivable_invoice_lines`; their
+  immutable-history triggers remain active so SECURITY INVOKER RPCs can lock
+  those rows with `FOR UPDATE`.
+- Isolated temporary-company acceptance previously covered stale-odometer
+  rejection and atomicity, cross-company denial, valid return inspection and
+  damage snapshot, invoice snapshot, allocation mismatch rejection, payment
+  and receipt history, paid settlement closure, and repeated-settlement
+  rejection. All test writes were rolled back.
 
 ### Architecture deepening checkpoint
 
