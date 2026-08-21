@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-06 CI hardening completed; D12-04 route coverage merged as `baac955`; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d12-06-ci-hardening` |
-| Last verified application commit | `645e518` - D12-06 CI verification and continuity update |
+| Delivery position | D13-03 vehicle intake inspection in review, stacked on D13-02 draft PR #21 and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-03-vehicle-intake-inspection` |
+| Last verified application commit | `b9e1c11` - dashboard auth-query retry and degraded fallback; local validation passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
-| Last quality gate | GitHub Actions run `32489569334` passed; local `npm.cmd run validate`, `check:supabase`, and Playwright route suite passed on 2026-08-21 |
+| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection` are applied and verified; no service business records created |
+| Last quality gate | Local `npm.cmd run validate`, `check:supabase`, and 11-route Playwright suite passed on 2026-08-21; advisors show only pre-existing project-wide findings |
 
 ## Product
 
@@ -389,6 +389,77 @@ obtain a complete export or implement a resumable batched extractor first.
 
 ## Progress log
 
+### 2026-08-21 - D13-01 service request intake
+
+- Live schema verification found only legacy `maintenance_records` without
+  `company_id`; new service tables were added rather than reusing it.
+- `service_reasons` and `service_requests` are company-scoped with RLS,
+  explicit grants, indexes, and the invoker-mode `create_service_request`
+  function using an empty search path.
+- The service route now uses typed server services and a Zod server action;
+  it has no mock business records. Eight controlled reasons are seeded and
+  live request count remains zero.
+- Validation passed: `npm.cmd run validate`, `npm.cmd run check:supabase`,
+  and 11 unauthenticated Playwright route checks. D13-02 is the next task:
+  service job cards and controlled status transitions.
+- Draft PR #20 CI passed quality, migration, and Playwright jobs; its Vercel
+  preview check is green/READY. Merge remains a product-review decision.
+
+### 2026-08-21 - D13-02 service job cards
+
+- Claimed `agent/d13-02-service-job-cards` as the sole migration owner.
+- The branch is intentionally stacked on D13-01 review because job cards
+  depend on its live company-scoped service request/reason schema.
+- Added company-scoped service job cards with database-enforced transitions,
+  immutable event history, explicit authenticated grants, FK indexes, and
+  invoker-mode create/transition RPCs using fixed empty search paths.
+- Live migrations `20260821143147`, `20260821143345`, `20260821144218`,
+  `20260821144303`, and `20260821144335` applied successfully; job-card and
+  event counts remain zero. Advisors report no D13-02 security or unindexed-FK
+  findings (only expected unused-index INFO notices on empty tables).
+  `npm.cmd run validate`, `npm.cmd run check:supabase`, and all 11
+  Playwright route checks passed locally. Draft PR #21 is open and clean;
+  GitHub Actions run `32493896245` passed all three jobs, and the Vercel
+  preview is READY at `https://evorentals-baf1lh1p3-wephotons1.vercel.app`.
+  Do not merge before D13-01 PR #20 is accepted and the product review is
+  complete.
+
+### 2026-08-21 - D13-03 vehicle intake inspection
+
+- Claimed `agent/d13-03-vehicle-intake-inspection` as the sole migration owner,
+  stacked on the D13-02 review branch.
+- Scope is one immutable intake inspection per job card, non-stale odometer and
+  battery capture, and a controlled move into the job-card `inspection` stage.
+  Parts, vendors, QC detail, and fleet release remain later Sprint 13/14 work.
+- Live migrations `20260821145735` and `20260821145849` are applied; the new
+  intake table is RLS-protected with explicit grants, invoker RPCs, immutable
+  history, and FK indexes. Intake count remains zero. Security/performance
+  advisors report no D13-03 finding other than expected unused-index INFOs on
+  the empty table. Local validate, Supabase artifact checks, and 11 Playwright
+  route checks passed. Draft PR #22 is open and clean; GitHub Actions run
+  `32496034939` passed all three jobs, and the Vercel preview is READY at
+  `https://evorentals-qno1gweaz-wephotons1.vercel.app`. Do not merge before
+  the stacked D13-02 and D13-01 reviews.
+
+### 2026-08-21 - Dashboard preview runtime hardening
+
+- The D13-03 preview `https://evorentals-nw7bqhtlt-wephotons1.vercel.app` was
+  READY at build time but rendered the generic 500 page for an authenticated
+  dashboard request. Vercel runtime logs and Supabase API logs showed one
+  `customers?kyc_status=pending` request returning HTTP 401 while the other
+  dashboard queries returned 200; this was surfaced as `Unable to load
+  dashboard` because the service failed the entire page on one query error.
+- `src/lib/services/dashboard.ts` now retries auth-related PostgREST failures
+  once after refreshing the user session, logs the structured query error, and
+  keeps the dashboard in a degraded state if the transient 401 persists.
+  Structural database errors still fail loudly. A second authenticated check
+  on the refreshed preview showed that the fragile unfiltered customer `HEAD`
+  count could still return HTTP 401 even while `/auth/v1/user` and normal
+  customer `GET` requests returned 200. The count queries now use bounded
+  one-row `GET` requests with exact counts, avoiding the failing `HEAD` path.
+  Local `npm.cmd run validate` passed; the fix is commit `cc89d1e` and the
+  READY preview is `https://evorentals-3adi0a5t6-wephotons1.vercel.app`.
+
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
 | 1 | 2026-07-27 | UI shell and mock operations pages | Repository history |
@@ -404,6 +475,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 | 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks), D12-05 reconciliation passed, and D12-06 CI hardening completed | `DAY_12_INTEGRATION_RELEASE.md` |
+| 13 | 2026-08-21 | D13-03 vehicle intake inspection claimed; implementation in progress on a stacked feature branch; dashboard count-query preview hardening added | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 

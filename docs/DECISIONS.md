@@ -238,3 +238,39 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: A future complete baseline can add semantic local migration
   tests, but until then CI remains safe and reproducible without pretending the
   legacy schema can be rebuilt from this repository.
+
+## ADR-021 - Separate tenant-scoped service request foundation
+
+- Date: 2026-08-21
+- Status: Accepted
+- Context: The live database contains a legacy `maintenance_records` table
+  without `company_id`, controlled reasons, or the lifecycle fields required
+  by the service roadmap. Reusing it would weaken tenant isolation and make
+  later job-card transitions ambiguous.
+- Decision: Add new company-scoped `service_reasons` and `service_requests`
+  tables. Requests are created only through the invoker-mode
+  `create_service_request` RPC, which validates the active actor, role
+  permission, vehicle/reason ownership, optional customer/rental ownership,
+  and the initial requested state. Seeded reason rows are configuration
+  lookups, not production business records.
+- Consequence: The legacy table remains available for future historical
+  mapping, while D13-02 can extend the new request status model into job cards
+  without rewriting or importing legacy maintenance data.
+
+## ADR-022 - Immutable service vehicle intake gate
+
+- Date: 2026-08-21
+- Status: Accepted
+- Context: Service job cards need a reliable vehicle baseline before work starts,
+  while the fleet release and service-cost workflows are intentionally later
+  milestones. Directly editing a bike's telemetry would bypass the service
+  workflow and allow stale readings.
+- Decision: Record one immutable, company-scoped `service_intake_inspections`
+  row per job card through the invoker-mode
+  `record_service_intake_inspection` RPC. The RPC locks the job card and bike,
+  rejects an odometer below the live bike reading, records battery/condition/
+  checklist/evidence metadata, updates bike telemetry atomically, and moves a
+  requested job card into `inspection`. A database trigger prevents any other
+  requested-to-inspection transition without the intake row.
+- Consequence: Intake history cannot be edited or deleted, repeated intake is
+  rejected, and fleet availability/status remains unchanged until D13-06.

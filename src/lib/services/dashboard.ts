@@ -39,27 +39,33 @@ export interface DashboardOverview {
 export async function getDashboardOverview(): Promise<DashboardOverview> {
   const supabase = await createClient();
   const countQuery = (status?: KycStatus) => {
-    let query = supabase.from("customers").select("id", { count: "exact", head: true }).is("deleted_at", null);
+    // Use a bounded GET instead of a HEAD request. PostgREST can reject an
+    // otherwise valid session for the unfiltered HEAD variant while the same
+    // table is readable through normal GET requests. The exact count is still
+    // returned in the Content-Range header, but only one row is transferred.
+    let query = supabase.from("customers").select("id", { count: "exact" }).is("deleted_at", null).limit(1);
     if (status) query = query.eq("kyc_status", status);
     return query;
   };
 
   const [totalResult, verifiedResult, pendingResult, rejectedResult, expiredResult, fleetResult, availableResult, activeRentalsResult, customersResult, activityResult] = await Promise.all([
-    countQuery(),
-    countQuery("verified"),
-    countQuery("pending"),
-    countQuery("rejected"),
-    countQuery("expired"),
-    supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null),
-    supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "available"),
-    supabase.from("rentals").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "active"),
-    supabase.from("customers").select("id,customer_number,full_name,phone,kyc_status,created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(6),
-    supabase.from("customer_timeline_events").select("id,event_type,summary,occurred_at").order("occurred_at", { ascending: false }).limit(6),
+    queryWithAuthRetry(supabase, "customers_total", () => countQuery()),
+    queryWithAuthRetry(supabase, "customers_verified", () => countQuery("verified")),
+    queryWithAuthRetry(supabase, "customers_pending", () => countQuery("pending")),
+    queryWithAuthRetry(supabase, "customers_rejected", () => countQuery("rejected")),
+    queryWithAuthRetry(supabase, "customers_expired", () => countQuery("expired")),
+    queryWithAuthRetry(supabase, "bikes_total", () => supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null)),
+    queryWithAuthRetry(supabase, "bikes_available", () => supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "available")),
+    queryWithAuthRetry(supabase, "rentals_active", () => supabase.from("rentals").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "active")),
+    queryWithAuthRetry(supabase, "customers_recent", () => supabase.from("customers").select("id,customer_number,full_name,phone,kyc_status,created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(6)),
+    queryWithAuthRetry(supabase, "customer_timeline_recent", () => supabase.from("customer_timeline_events").select("id,event_type,summary,occurred_at").order("occurred_at", { ascending: false }).limit(6)),
   ]);
 
   const results = [totalResult, verifiedResult, pendingResult, rejectedResult, expiredResult, fleetResult, availableResult, activeRentalsResult, customersResult, activityResult];
   const failed = results.find((result) => result.error);
-  if (failed?.error) throw new Error(`Unable to load dashboard: ${failed.error.message}`);
+  if (failed?.error && !isAuthError(failed.error)) {
+    throw new Error(`Unable to load dashboard: ${formatQueryError(failed.error)}`);
+  }
 
   const total = totalResult.count ?? 0;
   const kyc = {
@@ -97,4 +103,35 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
 
 function percent(value: number, total: number) {
   return total === 0 ? "No records yet" : `${Math.round((value / total) * 100)}% of customer base`;
+}
+
+type DashboardQueryResult = {
+  error: { code?: string | null; message?: string | null; details?: string | null; hint?: string | null; status?: number | null } | null;
+};
+
+async function queryWithAuthRetry<T extends DashboardQueryResult>(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  label: string,
+  query: () => PromiseLike<T>,
+): Promise<T> {
+  const first = await query();
+  if (!first.error || !isAuthError(first.error)) return first;
+
+  console.warn("[dashboard] retrying auth-failed query", { label, error: first.error });
+  await supabase.auth.getUser();
+  const retry = await query();
+  if (retry.error) {
+    console.error("[dashboard] query unavailable after auth retry", { label, error: retry.error });
+  }
+  return retry;
+}
+
+function isAuthError(error: DashboardQueryResult["error"]) {
+  if (!error) return false;
+  const message = `${error.message ?? ""} ${error.details ?? ""}`.toLowerCase();
+  return error.status === 401 || error.code === "PGRST301" || message.includes("jwt") || message.includes("token");
+}
+
+function formatQueryError(error: NonNullable<DashboardQueryResult["error"]>) {
+  return [error.message, error.code, error.details, error.hint].filter(Boolean).join(" | ") || "unknown database error";
 }
