@@ -276,6 +276,9 @@ only acceptance evidence still match the live schema before opening a clean PR.
   damage snapshot, invoice snapshot, allocation mismatch rejection, payment
   and receipt history, paid settlement closure, and repeated-settlement
   rejection. All test writes were rolled back.
+- `/payments` is force-dynamic and has a route-level retry state to avoid a
+  first-request Supabase auth-cookie refresh race. No business records were
+  created.
 
 ### Architecture deepening checkpoint
 
