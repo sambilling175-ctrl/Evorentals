@@ -26,11 +26,36 @@ export interface ReceivablePayment {
   collectedAt: string;
 }
 
+export interface ReturnedRentalCollection {
+  rentalId: string;
+  rentalNumber: string;
+  customer: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  balance: number;
+  lines: Array<{ id: string; type: string; description: string; amount: number; allocated: number; balance: number }>;
+}
+
+export interface ReceivableReceipt {
+  id: string;
+  number: string;
+  paymentNumber: string;
+  rental: string;
+  customer: string;
+  amount: number;
+  method: string;
+  issuedAt: string;
+  allocations: Array<{ lineType: string; description: string; amount: number }>;
+}
+
 export interface ReceivablesWorkspaceData {
   invoices: ReceivableInvoice[];
   payments: ReceivablePayment[];
   customers: ReceivableOption[];
   returnedRentals: ReceivableOption[];
+  invoiceableRentals: ReceivableOption[];
+  collectionRentals: ReturnedRentalCollection[];
+  receipts: ReceivableReceipt[];
   canManage: boolean;
   totals: { invoiced: number; collected: number; outstanding: number; overdue: number; refunds: number };
 }
@@ -79,7 +104,7 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
   const { supabase, profile, permissions } = await getActor();
   if (!allowed(profile.role, permissions, ["View", "Create", "Edit", "Manage"])) throw new Error("You do not have permission to view collections");
 
-  const [balancesResult, paymentsResult, allPaymentsResult, refundsResult, customersResult, rentalsResult] = await Promise.all([
+  const [balancesResult, paymentsResult, allPaymentsResult, refundsResult, customersResult, rentalsResult, receiptsResult] = await Promise.all([
     supabase.from("receivable_invoice_balances")
       .select("invoice_id,customer_id,rental_id,invoice_number,issued_at,due_at,total_amount,allocated_amount,balance_due")
       .eq("company_id", profile.company_id).order("issued_at", { ascending: false }),
@@ -90,21 +115,32 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
     supabase.from("receivable_refunds").select("amount").eq("company_id", profile.company_id),
     supabase.from("customers").select("id,full_name,customer_number,status,deleted_at").eq("company_id", profile.company_id).order("full_name"),
     supabase.from("rentals").select("id,rental_number,customer_id").eq("company_id", profile.company_id).eq("status", "returned").is("deleted_at", null).order("created_at", { ascending: false }),
+    supabase.from("receivable_receipts").select("id,payment_id,rental_id,customer_id,receipt_number,issued_at,amount,method,allocation_snapshot").eq("company_id", profile.company_id).order("issued_at", { ascending: false }).limit(20),
   ]);
-  const error = balancesResult.error ?? paymentsResult.error ?? allPaymentsResult.error ?? refundsResult.error ?? customersResult.error ?? rentalsResult.error;
+  const error = balancesResult.error ?? paymentsResult.error ?? allPaymentsResult.error ?? refundsResult.error ?? customersResult.error ?? rentalsResult.error ?? receiptsResult.error;
   if (error) throw new Error(`Unable to load collections: ${error.message}`);
 
   const balanceRows = (balancesResult.data ?? []) as unknown as Record<string, unknown>[];
   const customerIds = [...new Set(balanceRows.map((row) => String(row.customer_id)))];
   const rentalIds = [...new Set(balanceRows.map((row) => String(row.rental_id)))];
-  const [invoiceCustomersResult, invoiceRentalsResult] = await Promise.all([
+  const invoiceIds = balanceRows.map((row) => String(row.invoice_id));
+  const receiptPaymentIds = (receiptsResult.data ?? []).map((row) => row.payment_id);
+  const [invoiceCustomersResult, invoiceRentalsResult, linesResult, lineAllocationsResult, receiptPaymentsResult] = await Promise.all([
     customerIds.length ? supabase.from("customers").select("id,full_name").eq("company_id", profile.company_id).in("id", customerIds) : Promise.resolve({ data: [], error: null }),
     rentalIds.length ? supabase.from("rentals").select("id,rental_number").eq("company_id", profile.company_id).in("id", rentalIds) : Promise.resolve({ data: [], error: null }),
+    invoiceIds.length ? supabase.from("receivable_invoice_lines").select("id,invoice_id,line_type,description,line_amount,created_at").eq("company_id", profile.company_id).in("invoice_id", invoiceIds).order("created_at") : Promise.resolve({ data: [], error: null }),
+    invoiceIds.length ? supabase.from("receivable_payment_line_allocations").select("invoice_line_id,amount").eq("company_id", profile.company_id).in("invoice_id", invoiceIds) : Promise.resolve({ data: [], error: null }),
+    receiptPaymentIds.length ? supabase.from("receivable_payments").select("id,payment_number").eq("company_id", profile.company_id).in("id", receiptPaymentIds) : Promise.resolve({ data: [], error: null }),
   ]);
-  if (invoiceCustomersResult.error || invoiceRentalsResult.error) throw new Error(`Unable to load collection references: ${invoiceCustomersResult.error?.message ?? invoiceRentalsResult.error?.message}`);
+  const referenceError = invoiceCustomersResult.error ?? invoiceRentalsResult.error ?? linesResult.error ?? lineAllocationsResult.error ?? receiptPaymentsResult.error;
+  if (referenceError) throw new Error(`Unable to load collection references: ${referenceError.message}`);
   const customerNames = new Map((invoiceCustomersResult.data ?? []).map((row) => [row.id, row.full_name]));
   for (const row of customersResult.data ?? []) customerNames.set(row.id, row.full_name);
   const rentalNumbers = new Map((invoiceRentalsResult.data ?? []).map((row) => [row.id, row.rental_number]));
+  for (const row of rentalsResult.data ?? []) rentalNumbers.set(row.id, row.rental_number);
+  const paymentNumbers = new Map((receiptPaymentsResult.data ?? []).map((row) => [row.id, row.payment_number]));
+  const allocatedByLine = new Map<string, number>();
+  for (const row of lineAllocationsResult.data ?? []) allocatedByLine.set(row.invoice_line_id, (allocatedByLine.get(row.invoice_line_id) ?? 0) + amount(row.amount));
 
   const now = Date.now();
   const invoices = balanceRows.map((row) => {
@@ -119,10 +155,28 @@ export async function getReceivablesWorkspace(): Promise<ReceivablesWorkspaceDat
   const payments = ((paymentsResult.data ?? []) as unknown as Record<string, unknown>[]).map((row) => {
     return { id: String(row.id), number: String(row.payment_number), customer: customerNames.get(String(row.customer_id)) ?? "Unknown", amount: amount(row.amount), method: String(row.method), collectedAt: String(row.collected_at) };
   });
+  const linesByInvoice = new Map<string, ReturnedRentalCollection["lines"]>();
+  for (const row of linesResult.data ?? []) {
+    const allocated = allocatedByLine.get(row.id) ?? 0;
+    const line = { id: row.id, type: row.line_type, description: row.description, amount: amount(row.line_amount), allocated, balance: Math.max(0, amount(row.line_amount) - allocated) };
+    linesByInvoice.set(row.invoice_id, [...(linesByInvoice.get(row.invoice_id) ?? []), line]);
+  }
+  const returnedIds = new Set((rentalsResult.data ?? []).map((row) => row.id));
+  const invoicedRentalIds = new Set(balanceRows.map((row) => String(row.rental_id)));
+  const collectionRentals = balanceRows.filter((row) => returnedIds.has(String(row.rental_id)) && amount(row.balance_due) > 0).map((row) => ({
+    rentalId: String(row.rental_id), rentalNumber: rentalNumbers.get(String(row.rental_id)) ?? "Unknown", customer: customerNames.get(String(row.customer_id)) ?? "Unknown",
+    invoiceId: String(row.invoice_id), invoiceNumber: String(row.invoice_number), balance: amount(row.balance_due), lines: linesByInvoice.get(String(row.invoice_id)) ?? [],
+  }));
+  const receipts = (receiptsResult.data ?? []).map((row) => ({
+    id: row.id, number: row.receipt_number, paymentNumber: paymentNumbers.get(row.payment_id) ?? "Unknown", rental: rentalNumbers.get(row.rental_id) ?? "Unknown",
+    customer: customerNames.get(row.customer_id) ?? "Unknown", amount: amount(row.amount), method: row.method, issuedAt: row.issued_at,
+    allocations: Array.isArray(row.allocation_snapshot) ? row.allocation_snapshot.map((item) => { const value = item as Record<string, unknown>; return { lineType: String(value.lineType), description: String(value.description), amount: amount(value.amount) }; }) : [],
+  }));
   return {
-    invoices, payments,
+    invoices, payments, collectionRentals, receipts,
     customers: (customersResult.data ?? []).filter((row) => row.status === "active" && row.deleted_at === null).map((row) => ({ id: row.id, label: `${row.full_name} · ${row.customer_number}` })),
     returnedRentals: (rentalsResult.data ?? []).map((row) => ({ id: row.id, label: `${row.rental_number} · ${customerNames.get(row.customer_id) ?? "Unknown"}` })),
+    invoiceableRentals: (rentalsResult.data ?? []).filter((row) => !invoicedRentalIds.has(row.id)).map((row) => ({ id: row.id, label: `${row.rental_number} · ${customerNames.get(row.customer_id) ?? "Unknown"}` })),
     canManage: allowed(profile.role, permissions, ["Create", "Edit", "Manage"]),
     totals: {
       invoiced: invoices.reduce((sum, row) => sum + row.total, 0),
@@ -153,6 +207,19 @@ export async function postPayment(input: { customerId: string; amount: number; m
   if (error) throw new Error(error.message);
   const result = rpcResult(data, "Payment was not posted");
   return { number: String(result.payment_number), allocated: amount(result.allocated_amount) };
+}
+
+export async function postReturnedRentalCollection(input: { rentalId: string; method: string; reference?: string; collectedAt: string; allocations: Array<{ invoiceLineId: string; amount: number }>; notes?: string }) {
+  const actor = await getActor();
+  requireManage(actor, ["Create", "Edit", "Manage"]);
+  const paymentAmount = input.allocations.reduce((sum, allocation) => sum + allocation.amount, 0);
+  const { data, error } = await actor.supabase.rpc("post_returned_rental_collection", {
+    p_rental_id: input.rentalId, p_amount: paymentAmount, p_method: input.method, p_reference: input.reference || null,
+    p_collected_at: input.collectedAt, p_line_allocations: input.allocations, p_notes: input.notes || null,
+  });
+  if (error) throw new Error(error.message);
+  const result = rpcResult(data, "Returned-rental collection was not posted");
+  return { paymentNumber: String(result.payment_number), receiptNumber: String(result.receipt_number), amount: amount(result.allocated_amount) };
 }
 
 export async function refundDeposit(input: { rentalId: string; amount: number; method: string; reference?: string; refundedAt: string; reason: string }) {

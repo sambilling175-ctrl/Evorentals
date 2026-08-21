@@ -192,3 +192,18 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   rental contract total until a future settlement workflow allocates them.
   A unique rental inspection and immutable-history triggers reject repeats or
   edits, while company-scoped RLS protects both new tables.
+
+## ADR-018 - Line-level returned-rental collection receipts
+
+- Date: 2026-08-14
+- Status: Accepted
+- Decision: Returned-rental payments are posted through one invoker-mode RPC
+  that locks the rental and invoice, requires allocations to immutable invoice
+  lines, and atomically records the payment, invoice allocation, line
+  allocations, receipt, and receipt audit event. The server derives the payment
+  total from validated allocation inputs; the database revalidates tenant,
+  permission, rental state, ownership, and remaining balances.
+- Consequence: A receipt permanently identifies how much settled the rental line
+  and each damage charge. Receipt and allocation rows cannot be edited or
+  deleted; corrections require a future explicit reversal workflow. Settlement
+  continues to derive totals from the authoritative invoice allocation ledger.

@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-03 is in review; D10-02 clean integration is in review |
+| Delivery position | D12-03 is merged; D10-02 clean integration is in review |
 | Git branch | `agent/d10-02-live-reports-clean` |
-| Last verified application commit | `3d3bcc8` - Merge PR #12 atomic rental settlement |
+| Last verified application commit | `8dceed3` - Merge PR #14 returned-rental collections |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migration | `20260818170000_rental_settlement_fk_index.sql` (applied and verified) |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-18 |
+| Latest migrations | `20260821060601_d10_03_collection_fk_indexes.sql` and `20260821060716_d10_03_receipt_customer_fk_index.sql` (applied and verified) |
+| Last quality gate | `npm.cmd run validate` passed on 2026-08-21 |
 
 ## Product
 
@@ -183,7 +183,7 @@ Do not describe placeholder screens as backend-complete.
   complete baseline migration.
 - Product database documents outside the app may describe an aspirational schema.
 - Verify live columns, constraints, enum values, and RLS before new migrations.
-- Continue migration numbering after `20260818170000`.
+- Continue migration numbering after `20260821060716`.
 - Only one active task may own a new migration sequence.
 
 ## Immediate next action
@@ -192,7 +192,8 @@ Authenticate the D10-02 preview and run the reports smoke test, then review PR
 #15 before merging. The preview is READY and unauthenticated `/reports` correctly
 redirects to login. Reports must use company-scoped typed services and live
 rental, fleet, customer, receivables, and settlement tables; they must not create
-business records.
+business records. If the preview cannot be authenticated, record that exact
+blocker and leave D10-02 in Review.
 
 ### D10-01 database checkpoint
 
@@ -248,6 +249,56 @@ business records.
   `evorentals-3hu0csdp3-wephotons1.vercel.app` is READY on the merge commit.
   Production `/rentals` correctly redirects signed-out users to
   `/login?next=/rentals`; the new production deployment has no error/fatal logs.
+- D10-03-H1 adds authenticated company-scoped UPDATE policies and UPDATE
+  grants for `receivable_invoices` and `receivable_invoice_lines`. Existing
+  immutable-history triggers remain in place; the policies exist only so
+  SECURITY INVOKER RPCs can lock rows with `FOR UPDATE`.
+
+### D10-03 returned-rental collections checkpoint
+
+- Migration `20260814060344_returned_rental_collections.sql` adds immutable,
+  company-scoped payment-line allocations, receipts, and receipt audit events
+  with explicit RLS, grants, indexes, and immutable-history triggers.
+- `post_returned_rental_collection` is a SECURITY INVOKER RPC that revalidates
+  the actor, company, Payments permission, returned rental, invoice, charge
+  ownership, and remaining balances. It atomically posts the payment and exact
+  rental/damage allocations and issues the receipt/audit snapshot.
+- `/payments` exposes typed returned-rental charge cards, Zod-validated server
+  actions, allocation inputs, and immutable receipt history. UI code does not
+  query Supabase directly and does not accept a trusted payment total.
+- Live migration history records `20260814060344_returned_rental_collections`
+  and `20260814073417_d10_03_h1_invoice_lock_rls`; these exact repository
+  versions are present on the clean integration branch.
+- The H1 migration adds only company-scoped authenticated UPDATE policies and
+  grants for `receivable_invoices` and `receivable_invoice_lines`; their
+  immutable-history triggers remain active so SECURITY INVOKER RPCs can lock
+  those rows with `FOR UPDATE`.
+- Isolated temporary-company acceptance previously covered stale-odometer
+  rejection and atomicity, cross-company denial, valid return inspection and
+  damage snapshot, invoice snapshot, allocation mismatch rejection, payment
+  and receipt history, paid settlement closure, and repeated-settlement
+  rejection. All test writes were rolled back.
+- `/payments` is force-dynamic and has a route-level retry state to avoid a
+  first-request Supabase auth-cookie refresh race. No business records were
+  created.
+- D12-03 added the two live index-only hardening migrations above after the
+  performance advisor identified missing foreign-key coverage. Re-running the
+  advisors found no D10-03 security or unindexed-foreign-key notices; the
+  remaining D10-03 notices are expected unused-index INFOs while row counts are
+  zero. `npm.cmd run validate` passed on 2026-08-21.
+
+### D12-03 integration checkpoint
+
+- PR #14 (`agent/d12-03-returned-rental-collections`) was promoted from draft
+  and merged into `main` as `8dceed3` on 2026-08-21.
+- The merge includes the immutable returned-rental collection workflow, H1
+  invoice-lock RLS, payment auth-refresh retry boundary, and the two D10-03
+  foreign-key index hardening migrations.
+- PR checks passed and Vercel reported a READY preview. No production business
+  records were created. `npm.cmd run validate` passed on the clean integration
+  branch before merge.
+- D10-03 remains the delivered feature behind this release; D10-02 is the next
+  acceptance gate.
 
 ### D10-02 reports checkpoint
 
