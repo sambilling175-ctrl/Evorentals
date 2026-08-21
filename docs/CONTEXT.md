@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-04 service job-card assignment implemented and awaiting preview/review, stacked on D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-04-service-job-card-assignments` |
-| Last verified application commit | `48c4bc0` - append-only service job-card assignments for employees or external garages; local validation passed |
+| Last verified application commit | `2444d8d` - append-only service job-card assignments plus bounded auth-refresh retry for fresh-login token skew; local validation passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -476,6 +476,10 @@ obtain a complete export or implement a resumable batched extractor first.
   advisors, `check:supabase`, typecheck, lint, and production build passed.
   Draft PR #23 is open and the Vercel preview is READY at
   `https://evorentals-h3jg9mvnl-wephotons1.vercel.app`.
+- A preview login also exposed one transient `JWT issued at future` profile
+  query after a successful password login. `src/lib/services/auth.ts` now
+  refreshes the session once and retries the profile query when the error is
+  token-related; persistent profile/database failures still fail normally.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
