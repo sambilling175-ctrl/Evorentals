@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D11-03 customer metadata import completed and verified; 32 conflict rows remain quarantined |
 | Git branch | `agent/d11-03-customer-import-next` |
-| Last verified application commit | `44059f0` - Record D11-03 remote dry-run |
+| Last verified application commit | `a99ea5d` - Merge PR #16 D11 customer migration |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
