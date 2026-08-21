@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-01 service request intake in Review via draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-01-service-requests` |
-| Last verified application commit | Pending final D13-01 continuity commit |
+| Last verified application commit | `aad034c` - D13-01 service request review handoff |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
