@@ -73,9 +73,8 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
 - Supabase security advisors report no D11-03 finding. Performance advisors
   report only expected unused-index INFO notices because the tables are empty;
   both actor foreign keys have covering indexes.
-- Live row counts remain zero import batches and zero mappings; the four
-  pre-existing demo customers are unchanged. No legacy customer record or KYC
-  binary has been written.
+- Before apply, live row counts were zero import batches and zero mappings; the
+  four pre-existing demo customers were unchanged. No KYC binary was in scope.
 
 ### D11-03 current sprint checkpoint (2026-08-21)
 
@@ -99,10 +98,13 @@ D11-03 totals are 13,760 eligible and 32 quarantined rows.
   required confirmation is `IMPORT_13760_6511D29D20DC`.
 - `applied = false`; live import-batch and mapping counts remain zero. No
   customer rows, KYC binaries, or source-system records were changed.
-- Remaining gate: review the PII-free plan and explicitly approve the checksum
-  before running `--apply`.
+- The checksum-confirmed apply then completed successfully. Supabase reports one
+  completed batch with `imported_row_count = 13760`, 13,760 immutable legacy
+  mappings, and zero mapping orphans. The total customer count is 13,764,
+  including the four pre-existing demo customers. No quarantined row or KYC
+  binary was imported.
 
-The remaining D11-03 gate is an authenticated administrator remote dry-run and
-explicit apply. The CLI deliberately requires `EVORENTALS_IMPORT_JWT` and a
-checksum-derived `EVORENTALS_IMPORT_CONFIRM`; it never accepts or prints a
-privileged service-role key.
+The D11-03 authenticated dry-run and checksum-confirmed apply are complete.
+The CLI required `EVORENTALS_IMPORT_JWT` and
+`EVORENTALS_IMPORT_CONFIRM`; it never accepts or prints a privileged
+service-role key.

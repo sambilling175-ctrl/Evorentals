@@ -8,9 +8,9 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D11-03 remote dry-run passed for all eligible rows; checksum-confirmed apply remains gated |
+| Delivery position | D11-03 customer metadata import completed and verified; 32 conflict rows remain quarantined |
 | Git branch | `agent/d11-03-customer-import-next` |
-| Last verified application commit | `1a49156` - Load local public config for customer import |
+| Last verified application commit | `44059f0` - Record D11-03 remote dry-run |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -402,7 +402,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 9 | 2026-08-04 | Availability search and booking foundation (D9-01, released) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
-| 11 | 2026-08-21 | D11-03 local reconciliation and authenticated remote dry-run passed; 13,760 eligible rows validated, no rows written | `DAY_11_DATA_MIGRATION.md` |
+| 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
 
 ## Handoff rule
 

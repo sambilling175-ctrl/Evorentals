@@ -43,7 +43,9 @@ parcel delivery, referral/vendor charges, and sales/payment reports.
   snapshot and must not be treated or imported as the full customer dataset.
 - The complete customer CSV is now present locally at
   `legacy-data/customers.csv` (13,792 rows) and is Git-ignored.
-- No legacy records have been written to Supabase.
+- The D11-03 customer metadata import is complete: 13,760 eligible rows were
+  imported into the company-scoped customer tables. The 32 quarantined rows,
+  KYC binaries, and source-system records were not changed.
 - No source records were modified.
 
 ## Migration rules
