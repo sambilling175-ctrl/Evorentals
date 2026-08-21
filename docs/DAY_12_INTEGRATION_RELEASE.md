@@ -9,7 +9,7 @@
 | D12-03 | Completed | D10-03 returned-rental collections were integrated through PR #14 (`8dceed3`), including H1 RLS and FK-index hardening. No business records remain from tests. |
 | D12-04 | Completed | D4-05 RLS isolation is merged through PR #11 (`c279387`). Added `playwright.config.ts` and `tests/e2e/auth-routes.spec.ts`; all 10 non-email route/auth boundary checks pass without submitting credentials or creating records. Real-email recovery remains parked behind D4-04 SMTP. |
 | D12-05 | Completed | Read-only production reconciliation passed on 2026-08-21. See `supabase/tests/production_reconciliation.sql`. All mismatch counters were zero. |
-| D12-06 | Completed | Branch `agent/d12-06-ci-hardening`; `.github/workflows/ci.yml` adds validation, the D12-04 Playwright route suite, and Supabase artifact checks. Local gates passed: `check:supabase` (33 migrations, 2 SQL tests), Playwright (10 passed), and `npm.cmd run validate`; no records created. |
+| D12-06 | Completed | Branch `agent/d12-06-ci-hardening`; `.github/workflows/ci.yml` adds validation, the D12-04 Playwright route suite, and Supabase artifact checks. GitHub Actions run `32489569334` passed all jobs and Vercel preview; local gates also passed (`check:supabase`: 33 migrations/2 SQL tests, Playwright: 10 passed, `npm.cmd run validate`); no records created. |
 
 ## D12-05 reconciliation result
 

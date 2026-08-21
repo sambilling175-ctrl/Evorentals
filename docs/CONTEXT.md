@@ -10,13 +10,13 @@
 | Updated | 2026-08-21 |
 | Delivery position | D12-06 CI hardening completed; D12-04 route coverage merged as `baac955`; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d12-06-ci-hardening` |
-| Last verified application commit | `d313c8a` - D12-06 CI release hardening checks |
+| Last verified application commit | `645e518` - D12-06 CI verification and continuity update |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
-| Last quality gate | `npm.cmd run validate`, `npm.cmd run check:supabase`, and Playwright route suite passed on 2026-08-21 |
+| Last quality gate | GitHub Actions run `32489569334` passed; local `npm.cmd run validate`, `check:supabase`, and Playwright route suite passed on 2026-08-21 |
 
 ## Product
 
