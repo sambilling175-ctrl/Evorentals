@@ -221,3 +221,20 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   quarantined rows. Quarantined rows remain traceable and require a separately
   approved correction workflow; KYC binaries and source-system mutations are
   out of scope.
+
+## ADR-020 - CI checks without a synthetic Supabase baseline
+
+- Date: 2026-08-21
+- Status: Accepted
+- Context: The production database contains a legacy remote base schema that is
+  not represented by a complete rebuildable migration history. Running
+  `supabase start` and applying the repository migrations in CI would therefore
+  produce a false failure or require inventing a baseline.
+- Decision: CI runs deterministic migration and SQL artifact checks locally,
+  runs the existing rollback-only/read-only SQL files against Supabase during
+  release review, and does not create synthetic business records. The checks
+  reject duplicate/invalid migration versions, conflict markers, dangerous
+  migration tokens, SQL test commits, and non-rollback test writes.
+- Consequence: A future complete baseline can add semantic local migration
+  tests, but until then CI remains safe and reproducible without pretending the
+  legacy schema can be rebuilt from this repository.

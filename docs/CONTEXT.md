@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D12-04 non-email Playwright route coverage completed; D12-06 CI hardening is next; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d12-04-non-email-playwright` |
-| Last verified application commit | `0f1fdce` - D12-04 non-email Playwright route coverage |
+| Delivery position | D12-06 CI hardening completed; D12-04 route coverage merged as `baac955`; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d12-06-ci-hardening` |
+| Last verified application commit | `d313c8a` - D12-06 CI release hardening checks |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
 | Latest migrations | D11-03 import migrations `20260818081120`, `20260818083023`, `20260818083445` are applied and verified; latest release indexes remain `20260821060601` and `20260821060716` |
-| Last quality gate | `npm.cmd run validate` passed on 2026-08-21 |
+| Last quality gate | `npm.cmd run validate`, `npm.cmd run check:supabase`, and Playwright route suite passed on 2026-08-21 |
 
 ## Product
 
@@ -403,7 +403,7 @@ obtain a complete export or implement a resumable batched extractor first.
 | 9 | 2026-08-07 | Return inspection, immutable damage charges, and atomic return transition (D9-05, in review) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 10 | 2026-08-18 | Receivables ledger and atomic returned-rental settlement released (D10-01, D9-06, D12-02) | `DAY_09_BOOKING_FOUNDATION.md` |
 | 11 | 2026-08-21 | D11-03 local reconciliation, authenticated dry-run, and checksum-confirmed import completed; 13,760 rows imported and 32 quarantined | `DAY_11_DATA_MIGRATION.md` |
-| 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks) and D12-05 reconciliation passed; D12-06 CI is next | `DAY_12_INTEGRATION_RELEASE.md` |
+| 12 | 2026-08-21 | Integration/release hardening checkpoint: D12-04 route suite passed (10 checks), D12-05 reconciliation passed, and D12-06 CI hardening completed | `DAY_12_INTEGRATION_RELEASE.md` |
 
 ## Handoff rule
 

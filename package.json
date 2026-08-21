@@ -12,6 +12,7 @@
     "validate": "npm run typecheck && npm run lint && npm run build",
     "test:e2e": "playwright test",
     "test:e2e:routes": "playwright test tests/e2e/auth-routes.spec.ts",
+    "check:supabase": "node scripts/check-supabase-artifacts.mjs",
     "legacy:customers:stage": "node scripts/legacy-customers-stage.mjs",
     "legacy:customers:import": "node scripts/legacy-customers-import.mjs"
   },
