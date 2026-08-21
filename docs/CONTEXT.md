@@ -437,8 +437,8 @@ obtain a complete export or implement a resumable batched extractor first.
   advisors report no D13-03 finding other than expected unused-index INFOs on
   the empty table. Local validate, Supabase artifact checks, and 11 Playwright
   route checks passed. Draft PR #22 is open and clean; GitHub Actions run
-  `32495814388` passed all three jobs, and the Vercel preview is READY at
-  `https://evorentals-p5r9f9j5m-wephotons1.vercel.app`. Do not merge before
+  `32496034939` passed all three jobs, and the Vercel preview is READY at
+  `https://evorentals-qno1gweaz-wephotons1.vercel.app`. Do not merge before
   the stacked D13-02 and D13-01 reviews.
 
 | Day | Date | Delivered | Handoff |

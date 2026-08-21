@@ -98,9 +98,9 @@ PR #21 (draft PR #22).
   table is company-scoped and immutable; the invoker RPC locks the job card and
   bike, rejects stale odometers, reconciles telemetry, and gates the
   requested-to-inspection transition. No intake records were created.
-- GitHub Actions run `32495814388` passed typecheck/lint/build, migration/SQL
+- GitHub Actions run `32496034939` passed typecheck/lint/build, migration/SQL
   artifact checks, and all 11 Playwright routes. The Vercel preview is READY at
-  `https://evorentals-p5r9f9j5m-wephotons1.vercel.app`.
+  `https://evorentals-qno1gweaz-wephotons1.vercel.app`.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
