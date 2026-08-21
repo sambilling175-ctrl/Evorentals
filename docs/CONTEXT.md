@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-02 service job-card transitions in review, stacked on D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-02-service-job-cards` |
-| Last verified application commit | D13-02 implementation commit pending push; local validation and live schema checks passed |
+| Last verified application commit | `ecfcd22` - D13-02 controlled job-card workflow; local validation and live schema checks passed |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
