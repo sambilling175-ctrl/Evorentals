@@ -44,6 +44,10 @@ jobs:
     name: Non-email Playwright routes
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Route-boundary tests must never call a real Supabase project.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-test-publishable-key
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
