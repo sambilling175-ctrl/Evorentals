@@ -26,4 +26,20 @@ export function ReportsWorkspace({ data }: { data: ReportsOverview }) {
 
 function MetricCard({ metric }: { metric: ReportMetric }) { return <Card><CardContent className="p-4"><p className="text-2xl font-bold">{metric.format === "currency" ? money.format(metric.value) : metric.value.toLocaleString("en-IN")}</p><p className="mt-1 text-sm font-medium">{metric.label}</p><p className="mt-1 text-xs text-muted-foreground">{metric.helper}</p></CardContent></Card>; }
 function ReportTableRow({ row }: { row: ReportRow }) { return <tr className="hover:bg-muted/20"><td className="px-4 py-3 text-xs capitalize text-muted-foreground">{row.report}</td><td className="px-4 py-3 font-mono text-xs font-semibold text-primary">{row.reference}</td><td className="px-4 py-3 text-sm">{row.customer}</td><td className="px-4 py-3 text-xs text-muted-foreground">{row.vehicle}</td><td className="px-4 py-3"><StatusBadge status={row.status} /></td><td className="px-4 py-3 text-right text-sm font-semibold">{row.amount > 0 ? money.format(row.amount) : "—"}</td><td className="px-4 py-3 text-xs text-muted-foreground">{date(row.occurredAt)}</td></tr>; }
-function downloadCsv(rows: ReportRow[]) { const header = ["type", "reference", "customer", "vehicle_or_rental", "status", "amount", "occurred_at"]; const csv = [header, ...rows.map((row) => [row.report, row.reference, row.customer, row.vehicle, row.status, row.amount.toFixed(2), row.occurredAt])].map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n"); const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = `evo-rentals-report-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(url); }
+function downloadCsv(rows: ReportRow[]) {
+  const header = ["type", "reference", "customer", "vehicle_or_rental", "status", "amount", "occurred_at"];
+  const csv = [header, ...rows.map((row) => [row.report, row.reference, row.customer, row.vehicle, row.status, row.amount.toFixed(2), row.occurredAt])]
+    .map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
+    .join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `evo-rentals-report-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
+}
