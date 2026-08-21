@@ -10,7 +10,7 @@
 | Updated | 2026-08-21 |
 | Delivery position | D13-05 service pipeline contract verified and awaiting review, stacked on D13-04 draft PR #23, D13-03 draft PR #22, D13-02 draft PR #21, and D13-01 draft PR #20; 32 D11-03 conflict rows remain quarantined |
 | Git branch | `agent/d13-05-service-pipeline-verification` |
-| Last verified application commit | `78714f4` - D13-04 assignment workflow plus bounded auth-refresh retry; D13-05 adds rollback-only pipeline contract verification with no application migration |
+| Last verified application commit | pending - D13-05 pipeline verification plus dashboard count-query hardening after authenticated preview 500; prior application baseline `78714f4` |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
@@ -494,6 +494,11 @@ obtain a complete export or implement a resumable batched extractor first.
 - Live Supabase execution passed and confirmed zero service job cards/events.
   No migration or application schema change was needed; D13-06 is the next
   database-changing task for fleet availability transitions.
+- The first D13-05 preview authenticated successfully but the dashboard failed
+  because the `bikes_total` PostgREST `HEAD` count returned 401 immediately
+  after login. The API logs showed the matching bounded `GET` queries succeeded.
+  Dashboard bike and active-rental counts now use bounded exact-count `GET`
+  queries like the customer counts, avoiding the transient HEAD failure.
 
 | Day | Date | Delivered | Handoff |
 | --- | --- | --- | --- |
