@@ -54,9 +54,13 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
     queryWithAuthRetry(supabase, "customers_pending", () => countQuery("pending")),
     queryWithAuthRetry(supabase, "customers_rejected", () => countQuery("rejected")),
     queryWithAuthRetry(supabase, "customers_expired", () => countQuery("expired")),
-    queryWithAuthRetry(supabase, "bikes_total", () => supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null)),
-    queryWithAuthRetry(supabase, "bikes_available", () => supabase.from("bikes").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "available")),
-    queryWithAuthRetry(supabase, "rentals_active", () => supabase.from("rentals").select("id", { count: "exact", head: true }).is("deleted_at", null).eq("status", "active")),
+    // Use bounded GET counts for every dashboard KPI. The authenticated
+    // PostgREST HEAD variant can intermittently return 401 immediately after
+    // login even when the same table is readable through GET, which would
+    // otherwise turn one transient count into a full dashboard 500.
+    queryWithAuthRetry(supabase, "bikes_total", () => supabase.from("bikes").select("id", { count: "exact" }).is("deleted_at", null).limit(1)),
+    queryWithAuthRetry(supabase, "bikes_available", () => supabase.from("bikes").select("id", { count: "exact" }).is("deleted_at", null).eq("status", "available").limit(1)),
+    queryWithAuthRetry(supabase, "rentals_active", () => supabase.from("rentals").select("id", { count: "exact" }).is("deleted_at", null).eq("status", "active").limit(1)),
     queryWithAuthRetry(supabase, "customers_recent", () => supabase.from("customers").select("id,customer_number,full_name,phone,kyc_status,created_at").is("deleted_at", null).order("created_at", { ascending: false }).limit(6)),
     queryWithAuthRetry(supabase, "customer_timeline_recent", () => supabase.from("customer_timeline_events").select("id,event_type,summary,occurred_at").order("occurred_at", { ascending: false }).limit(6)),
   ]);
