@@ -221,7 +221,10 @@ review branch.
   `supabase/tests/d14-02-service-parts.sql` passed with zero rows. Local checks
   cover 47 migrations and 8 SQL tests; validation passed. Advisors report only
   expected unused-index INFO on empty new tables plus existing legacy lints.
-  No part or stock records were created.
+  No part or stock records were created. Draft PR #29 is open and its Vercel
+  preview `https://evorentals-git-agent-d14-02-service-parts-stock-wephotons1.vercel.app`
+  is READY with no runtime errors. Do not merge until the D14-01 base review
+  is accepted; D14-03 (reservations and job-card consumption) is next.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
