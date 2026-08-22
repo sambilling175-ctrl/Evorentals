@@ -194,7 +194,11 @@ Status: Review on `agent/d14-01-service-vendor-directory`.
   `supabase/tests/d14-01-service-vendors.sql` passed with zero rows. Local
   artifact checks cover 45 migrations and 7 SQL tests; validation and advisors
   passed, with advisors reporting only pre-existing project-wide legacy
-  findings. D14-02 (spare-parts catalogue) is next after review.
+  findings. Draft PR #28 is open and its Vercel preview
+  `https://evorentals-git-agent-d14-01-service-vendor-directory-wephotons1.vercel.app`
+  is READY with no runtime errors. D14-02 (spare-parts catalogue) is next
+  after review; do not merge this stacked branch until the D13-08 base review
+  is accepted.
 
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
