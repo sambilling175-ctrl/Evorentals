@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-22 |
-| Delivery position | D14-01 vendor and garage directory is implemented on a draft feature branch; D13-08 remains in review; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d14-01-service-vendor-directory` |
-| Last verified application commit | `351cddd` - D14-01 vendor directory UI/service/actions, migration, SQL contract, and continuity checkpoint |
+| Delivery position | D14-02 spare-parts catalogue and immutable stock movements are implemented on a draft feature branch; D14-01 and D13-08 remain in review; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d14-02-service-parts-stock` |
+| Last verified application commit | `4f0e1db` - D14-02 spare-parts UI/service/actions, migrations, SQL contract, and continuity checkpoint |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 through D13-06, D13-08 grant hardening `20260822060115_d13_08_service_security_hardening`, and D14-01 `20260822060840_d14_01_service_vendor_directory` are applied and verified; no service-vendor or other business records created |
-| Last quality gate | Local `check:supabase` (45 migrations, 7 SQL tests), `npm.cmd run validate`, and `git diff --check` passed; D14-01 live rollback contract passed with zero records; Supabase advisors show only pre-existing project-wide findings; Vercel preview `https://evorentals-git-agent-d14-01-service-vendor-directory-wephotons1.vercel.app` is READY with no runtime errors |
+| Latest migrations | D13-01 through D13-06, D13-08 grant hardening, D14-01 vendor directory, D14-02 parts stock `20260822062423_d14_02_service_parts_stock`, and D14-02 hardening `20260822063200_d14_02_service_parts_hardening` are applied and verified; no service-part or other business records created |
+| Last quality gate | Local `check:supabase` (47 migrations, 8 SQL tests), `npm.cmd run validate`, and `git diff --check` passed; D14-02 live rollback contract passed with zero records; advisors show only expected unused-index INFO on empty new tables plus pre-existing project-wide findings; Vercel preview `https://evorentals-git-agent-d14-02-service-parts-stock-wephotons1.vercel.app` is READY with no runtime errors |
 
 ## Product
 
