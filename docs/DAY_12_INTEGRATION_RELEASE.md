@@ -200,6 +200,29 @@ Status: Review on `agent/d14-01-service-vendor-directory`.
   after review; do not merge this stacked branch until the D13-08 base review
   is accepted.
 
+### D14-02 checkpoint - spare-parts catalogue and stock movements
+
+Status: Review on `agent/d14-02-service-parts-stock`, stacked on the D14-01
+review branch.
+
+- Migrations `20260822062423_d14_02_service_parts_stock` and
+  `20260822063200_d14_02_service_parts_hardening` add company-scoped
+  `service_parts` and immutable `service_part_stock_movements`. The ledger
+  records signed deltas, before/after quantities, cost, reference metadata,
+  and notes; row locking prevents concurrent movements from driving stock
+  below zero. Parts can only be archived at zero stock.
+- Authenticated SECURITY INVOKER RPCs with fixed empty search paths create,
+  update, archive, and post stock movements. RLS and transaction-local RPC
+  guards prevent direct table mutations; FK indexes cover the audit columns.
+  D14-03 will add reservations and job-card consumption without changing this
+  immutable movement history.
+- The typed service, Zod server actions, and `/service/parts` workspace keep
+  Supabase access out of UI components. Live rollback-only
+  `supabase/tests/d14-02-service-parts.sql` passed with zero rows. Local checks
+  cover 47 migrations and 8 SQL tests; validation passed. Advisors report only
+  expected unused-index INFO on empty new tables plus existing legacy lints.
+  No part or stock records were created.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

@@ -292,3 +292,21 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
 - Consequence: D13-04 can reference an explicitly managed external garage
   directory in a later integration step, while this milestone creates no fake
   vendor records and leaves legacy vendor data untouched.
+
+## ADR-024 - Immutable service-part stock ledger
+
+- Date: 2026-08-22
+- Status: Accepted
+- Context: Service parts need a reliable quantity-on-hand calculation and
+  traceable receipts/issues before job-card consumption is introduced. A
+  mutable quantity field would make corrections and concurrent updates hard to
+  audit.
+- Decision: Store one company-scoped catalogue row per part and derive stock
+  from an append-only signed movement ledger. A locked, authenticated
+  SECURITY INVOKER RPC validates the movement type, computes before/after
+  quantities, rejects negative stock, and records cost/reference metadata in
+  one transaction. Catalogue and movement writes are guarded by transaction-
+  local RPC markers; direct table mutation is not an application path.
+- Consequence: D14-03 can reserve and consume parts by adding references to
+  the same immutable ledger, while no stock or catalogue rows are seeded in
+  production during this milestone.
