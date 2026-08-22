@@ -8,15 +8,15 @@
 | Field | Verified value |
 | --- | --- |
 | Updated | 2026-08-21 |
-| Delivery position | D13-07 service dashboard metrics implemented on a branch stacked on D13-06 draft PR #25; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-07-service-dashboard` |
-| Last verified application commit | `b2f795e` - D13-07 service dashboard metrics; READY preview `https://evorentals-f0z8dyh44-wephotons1.vercel.app`; no runtime error logs |
+| Delivery position | D13-08 service security/history hardening and rollback contract are implemented on draft PR #27; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d13-08-service-security-tests` |
+| Last verified application commit | `b2f795e` - D13-07 service dashboard metrics; D13-08 is SQL-test/docs only and has no application commit yet |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 `20260821141140_d13_01_service_requests`; D13-02 `20260821143147_d13_02_service_job_cards`, `20260821143345_d13_02_service_job_card_fk_indexes`, `20260821144218_d13_02_service_job_card_actor_guard`, `20260821144303_d13_02_service_job_card_index_cleanup`, and `20260821144335_d13_02_service_job_card_fk_index_restore`; D13-03 `20260821145735_d13_03_vehicle_intake_inspection` and `20260821145849_d13_03_require_intake_before_inspection`; D13-04 assignment objects are applied and verified; D13-06 migration `20260821165156_d13_06_service_fleet_availability` is applied and verified; no service business records created |
-| Last quality gate | D13-07 live zero-row verification, local `check:supabase` (43 migrations, 5 SQL tests), `npm.cmd run validate`, successful Vercel checks, and empty preview runtime error logs on 2026-08-21; advisors show only pre-existing project-wide findings |
+| Latest migrations | D13-01 through D13-06 are applied; D13-08 grant hardening migration `20260822060115_d13_08_service_security_hardening` is applied and verified; no service business records created |
+| Last quality gate | Local `check:supabase` (44 migrations, 6 SQL tests), `npm.cmd run validate`, and `git diff --check` passed; PR #27 Vercel branch preview `https://evorentals-git-agent-d13-08-service-security-tests-wephotons1.vercel.app` is READY with no preview error logs; live D13-08 rollback test passed with zero records; advisors show only pre-existing project-wide findings |
 
 ## Product
 
