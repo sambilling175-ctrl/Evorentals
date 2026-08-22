@@ -7,16 +7,16 @@
 
 | Field | Verified value |
 | --- | --- |
-| Updated | 2026-08-21 |
-| Delivery position | D13-08 service security/history hardening and rollback contract are implemented on draft PR #27; 32 D11-03 conflict rows remain quarantined |
-| Git branch | `agent/d13-08-service-security-tests` |
-| Last verified application commit | `b2f795e` - D13-07 service dashboard metrics; D13-08 is SQL-test/docs only and has no application commit yet |
+| Updated | 2026-08-22 |
+| Delivery position | D14-01 vendor and garage directory is implemented on a draft feature branch; D13-08 remains in review; 32 D11-03 conflict rows remain quarantined |
+| Git branch | `agent/d14-01-service-vendor-directory` |
+| Last verified application commit | D14-01 feature branch checkpoint; vendor directory UI/service/actions and migration are ready for review |
 | Continuity protocol baseline | `c171e65` - Add multi-agent continuity protocol |
 | Production application | `https://evorentals.vercel.app` |
 | Production deployment | `evorentals-3hu0csdp3-wephotons1.vercel.app` - READY; aliased to production |
 | Supabase project | `ctpctcymjbtyxpdawrgh` |
-| Latest migrations | D13-01 through D13-06 are applied; D13-08 grant hardening migration `20260822060115_d13_08_service_security_hardening` is applied and verified; no service business records created |
-| Last quality gate | Local `check:supabase` (44 migrations, 6 SQL tests), `npm.cmd run validate`, and `git diff --check` passed; PR #27 Vercel branch preview `https://evorentals-git-agent-d13-08-service-security-tests-wephotons1.vercel.app` is READY with no preview error logs; live D13-08 rollback test passed with zero records; advisors show only pre-existing project-wide findings |
+| Latest migrations | D13-01 through D13-06, D13-08 grant hardening `20260822060115_d13_08_service_security_hardening`, and D14-01 `20260822060840_d14_01_service_vendor_directory` are applied and verified; no service-vendor or other business records created |
+| Last quality gate | Local `check:supabase` (45 migrations, 7 SQL tests), `npm.cmd run validate`, and `git diff --check` passed; D14-01 live rollback contract passed with zero records; Supabase advisors show only pre-existing project-wide findings; preview handoff is pending deployment |
 
 ## Product
 
