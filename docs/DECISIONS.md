@@ -274,3 +274,21 @@ architecture. Add a dated entry when a task creates or reverses a durable choice
   requested-to-inspection transition without the intake row.
 - Consequence: Intake history cannot be edited or deleted, repeated intake is
   rejected, and fleet availability/status remains unchanged until D13-06.
+
+## ADR-023 - Company-scoped service vendor directory
+
+- Date: 2026-08-22
+- Status: Accepted
+- Context: Service assignments need a stable directory for garages, parts
+  vendors, and service centers, but the legacy vendor tables do not provide the
+  company isolation, controlled fields, or immutable archive semantics required
+  by the new service workflow.
+- Decision: Add a new `service_vendors` table scoped by `company_id`, with a
+  controlled vendor type, normalized contact fields, soft archive timestamp,
+  and a case-insensitive per-company/type name uniqueness rule. Mutations occur
+  only through authenticated SECURITY INVOKER RPCs with a fixed empty search
+  path and active-employee service permissions; directory reads remain typed
+  service-layer queries under RLS.
+- Consequence: D13-04 can reference an explicitly managed external garage
+  directory in a later integration step, while this milestone creates no fake
+  vendor records and leaves legacy vendor data untouched.

@@ -178,6 +178,28 @@ Status: Review on `agent/d13-08-service-security-tests`.
   multiple permissive policies), not a clean D13-08 pass.
 - Next action: review PR #27, then start D14-01 (vendor and garage directory).
 
+### D14-01 checkpoint - service vendor and garage directory
+
+Status: Review on `agent/d14-01-service-vendor-directory`.
+
+- Migration `20260822060840_d14_01_service_vendor_directory` adds the
+  company-scoped `service_vendors` directory for garages, parts vendors, and
+  service centers. RLS, indexes, and authenticated-only SECURITY INVOKER
+  create/update/archive RPCs use a fixed empty search path and active-employee
+  permission checks.
+- The typed service, Zod server actions, and `/service/vendors` workspace keep
+  Supabase access out of UI components. The existing service workspace links to
+  the directory without adding production records.
+- Live catalog verification and rollback-only
+  `supabase/tests/d14-01-service-vendors.sql` passed with zero rows. Local
+  artifact checks cover 45 migrations and 7 SQL tests; validation and advisors
+  passed, with advisors reporting only pre-existing project-wide legacy
+  findings. Draft PR #28 is open and its Vercel preview
+  `https://evorentals-git-agent-d14-01-service-vendor-directory-wephotons1.vercel.app`
+  is READY with no runtime errors. D14-02 (spare-parts catalogue) is next
+  after review; do not merge this stacked branch until the D13-08 base review
+  is accepted.
+
 ## Sprint 14 - Parts, vendors, QC, and service costing (planned)
 
 Vendor/garage directory, spare-parts catalogue and movements, reservations,

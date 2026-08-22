@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useId, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { AlertTriangle, CheckCircle2, ClipboardList, Clock3, Gauge, Plus, ShieldAlert, Wrench } from "lucide-react";
+import { AlertTriangle, Building2, CheckCircle2, ClipboardList, Clock3, Gauge, Plus, ShieldAlert, Wrench } from "lucide-react";
 import { assignServiceJobCardAction, createServiceJobCardAction, initialServiceJobCardActionState, recordServiceIntakeInspectionAction, submitServiceRequest, initialServiceRequestActionState, transitionServiceJobCardAction } from "@/app/(dashboard)/service/actions";
 import type { ServiceEmployee, ServiceIntakeInspection, ServiceJobCard, ServiceJobCardStatus, ServiceWorkspaceData } from "@/lib/services/service";
 import { PageHeader } from "@/components/layout/page-header";
@@ -19,7 +20,10 @@ export function ServiceWorkspace({ data }: { data: ServiceWorkspaceData }) {
   return (
     <div className="space-y-6">
       <PageHeader title="Service & Maintenance" description="Capture service requests and move approved work through controlled job-card stages. Parts, vendors, intake inspection and QC details follow in later D13 milestones.">
-        {data.canCreate && <Button asChild size="sm"><a href="#new-request"><Plus className="h-4 w-4" />New request</a></Button>}
+        <div className="flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="outline"><Link href="/service/vendors"><Building2 className="h-4 w-4" />Vendors & garages</Link></Button>
+          {data.canCreate && <Button asChild size="sm"><a href="#new-request"><Plus className="h-4 w-4" />New request</a></Button>}
+        </div>
       </PageHeader>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         <Metric label="Service requests" value={data.totals.requests} icon={ClipboardList} tone="blue" />
